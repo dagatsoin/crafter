@@ -13,6 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Type_1 = require("../api/Type");
 var Instance_1 = require("./Instance");
 var mobx_1 = require("mobx");
+var utils_1 = require("./utils");
 var ObjectType = /** @class */ (function (_super) {
     __extends(ObjectType, _super);
     function ObjectType(opts) {
@@ -27,7 +28,8 @@ var ObjectType = /** @class */ (function (_super) {
         return _this;
     }
     ObjectType.prototype.isValidSnapshot = function (value) {
-        throw new Error("Method not implemented.");
+        var _this = this;
+        return !utils_1.isPlainObject(value) ? false : this.propertiesNames.some(function (key) { return _this.properties[key].validate(value[key]); });
     };
     ObjectType.prototype.instantiate = function (snapshot) {
         return Instance_1.createInstance(this, snapshot, this.createNewInstance);

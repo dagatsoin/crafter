@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var mobx_1 = require("mobx");
-var utils_1 = require("../api/utils");
+var utils_1 = require("./utils");
 var Instance = /** @class */ (function () {
     function Instance(type, initialValue, createNewInstance) {
         if (createNewInstance === void 0) { createNewInstance = utils_1.identity; }

@@ -1,6 +1,6 @@
 import {Operation} from "fast-json-patch";
 import {Instance} from "../lib/Instance";
-import {fail} from "./utils";
+import {fail} from "../lib/utils";
 
 ////////////////////
 ////////////////////
@@ -66,10 +66,8 @@ export abstract class Type<S, T> implements IType<S, T> {
         this.name = name;
     }
 
-    abstract isValidSnapshot(value: any): IValidationResult; // todo use IContext ?
+    abstract isValidSnapshot(value: any): boolean; // todo use IContext ?
     abstract serialize(instance: Instance): S;
-    abstract restore(instance: Instance, snapshot: S): void;
-
     abstract instantiate(initialValue: any): Instance;
 
     is(thing: any): thing is S | T {
@@ -77,13 +75,16 @@ export abstract class Type<S, T> implements IType<S, T> {
     }
 
     validate(thing: any): boolean {
-        throw new Error("Method not implemented.");
+        return this.isValidSnapshot(thing);
     }
 
     create(snapshot?: S): T {
         return this.instantiate(snapshot).value;
     }
 
+    restore(instance: Instance, snapshot: S): void {
+        fail("Error from abstract class Type. The class you call this method from should implement Immutable value and can't be restored.");
+    };
 
     getValue(instance: Instance): T {
         return instance.storedValue;

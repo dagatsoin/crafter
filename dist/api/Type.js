@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var utils_1 = require("./utils");
+var utils_1 = require("../lib/utils");
 var Type = /** @class */ (function () {
     function Type(name) {
         this.name = name;
@@ -19,11 +19,15 @@ var Type = /** @class */ (function () {
         throw new Error("Method not implemented.");
     };
     Type.prototype.validate = function (thing) {
-        throw new Error("Method not implemented.");
+        return this.isValidSnapshot(thing);
     };
     Type.prototype.create = function (snapshot) {
         return this.instantiate(snapshot).value;
     };
+    Type.prototype.restore = function (instance, snapshot) {
+        utils_1.fail("Error from abstract class Type. The class you call this method from should implement Immutable value and can't be restored.");
+    };
+    ;
     Type.prototype.getValue = function (instance) {
         return instance.storedValue;
     };

@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var utils_1 = require("./utils");
+var utils_1 = require("../lib/utils");
 var Type = /** @class */ (function () {
     function Type(name) {
         this.name = name;

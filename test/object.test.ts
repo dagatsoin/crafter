@@ -1,7 +1,7 @@
 import {object} from "../src/api/Object";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
-import {restore, serialize} from "../src/api/utils";
+import {restore, serialize} from "../src/lib/utils";
 import {toJS} from "mobx";
 
 describe("Object type", function () {
@@ -63,5 +63,11 @@ describe("Object type", function () {
         expect(Fraktar.inventory).toEqual(snapshots.Fraktar.inventory);
     });
 
-    it("should check snapshot before use");
+    it("should be a valid snapshot", function(){
+        expect(Currency.validate({type: "wizar",  quantity: 10})).toBeTruthy();
+    });
+
+    it("should be an invalid snapshot", function(){
+        expect(Player.validate({wrongField: new Date()})).toBeFalsy();
+    });
 });

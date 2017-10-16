@@ -37,13 +37,13 @@ export declare type Snapshot<T> = {
 export declare abstract class Type<S, T> implements IType<S, T> {
     name: string;
     constructor(name: string);
-    abstract isValidSnapshot(value: any): IValidationResult;
+    abstract isValidSnapshot(value: any): boolean;
     abstract serialize(instance: Instance): S;
-    abstract restore(instance: Instance, snapshot: S): void;
     abstract instantiate(initialValue: any): Instance;
     is(thing: any): thing is S | T;
     validate(thing: any): boolean;
     create(snapshot?: S): T;
+    restore(instance: Instance, snapshot: S): void;
     getValue(instance: Instance): T;
 }
 export declare abstract class ComplexType<S, T> extends Type<S, T> implements IComplexType<S, T> {

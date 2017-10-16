@@ -1,15 +1,16 @@
-import { ISimpleType, IValidationResult, Type } from "./Type";
+import { ISimpleType, Type } from "./Type";
 import { Instance } from "../lib/Instance";
 /**
  * From MST implementation https://github.com/mobxjs/mobx-state-tree/blob/master/src/types/primitives.ts
  */
-export declare class CoreType<S, T> extends Type<T> {
+export declare class CoreType<S, T> extends Type<S, T> {
     readonly checker: (value: any) => boolean;
     readonly initializer: (v: any) => any;
     constructor(name: any, checker: any, initializer?: (v: any) => any);
     instantiate(snapshot: T): Instance;
-    isValidSnapshot(value: any): IValidationResult;
+    isValidSnapshot(value: any): boolean;
     serialize(instance: Instance): S;
+    restore(instance: Instance, snapshot: S): void;
 }
 /**
  * Creates a type that can only contain a string value.

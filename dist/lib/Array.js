@@ -17,6 +17,15 @@ var ArrayType = /** @class */ (function (_super) {
         return _super.call(this, subtype.name) || this;
     }
     ArrayType.prototype.isValidSnapshot = function (value) {
+        return undefined;
+    };
+    ArrayType.prototype.serialize = function (instance) {
+        return undefined;
+    };
+    ArrayType.prototype.instantiate = function (initialValue) {
+        return undefined;
+    };
+    ArrayType.prototype.isValidSnapshot = function (value) {
         throw new Error("Method not implemented.");
     };
     return ArrayType;

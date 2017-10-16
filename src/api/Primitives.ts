@@ -1,11 +1,11 @@
-import {fail, identity, isPrimitive, typeCheckFailure, typeCheckSuccess} from "./utils";
-import {ISimpleType, IValidationResult, Type} from "./Type";
+import {fail, identity, isPrimitive} from "../lib/utils";
+import {ISimpleType, Type} from "./Type";
 import {createInstance, Instance} from "../lib/Instance";
 
 /**
  * From MST implementation https://github.com/mobxjs/mobx-state-tree/blob/master/src/types/primitives.ts
  */
-export class CoreType<S, T> extends Type<T> {
+export class CoreType<S, T> extends Type<S, T> {
     readonly checker: (value: any) => boolean;
     readonly initializer: (v: any) => any;
 
@@ -21,16 +21,16 @@ export class CoreType<S, T> extends Type<T> {
         return createInstance(this, snapshot, this.initializer);
     }
 
-    isValidSnapshot(value: any): IValidationResult {
-        if (isPrimitive(value) && this.checker(value)) {
-            return typeCheckSuccess();
-        }
-        const typeName = this.name === "Date" ? "Date or a unix milliseconds timestamp" : this.name;
-        return typeCheckFailure(value, `Value is not a ${typeName}`);
+    isValidSnapshot(value: any): boolean {
+        return isPrimitive(value) && this.checker(value);
     }
 
     serialize(instance: Instance): S {
         return instance.storedValue;
+    }
+
+    restore(instance: Instance, snapshot: S): void {
+        throw new Error("Method not implemented.");
     }
 }
 

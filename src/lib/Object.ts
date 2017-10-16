@@ -1,6 +1,7 @@
-import {ComplexType, IObjectType, IValidationResult} from "../api/Type";
+import {ComplexType, IObjectType,} from "../api/Type";
 import {createInstance, Instance} from "./Instance";
 import {observable, toJS, transaction} from "mobx";
+import {isPlainObject} from "./utils";
 
 export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S, T> {
     private readonly propertiesNames: string[];
@@ -15,8 +16,8 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
         this.propertiesNames = Object.keys(this.properties);
     }
 
-    isValidSnapshot(value: any): IValidationResult {
-        throw new Error("Method not implemented.");
+    isValidSnapshot(value: any): boolean {
+        return !isPlainObject(value) ? false : this.propertiesNames.some(key => this.properties[key].validate(value[key]));
     }
 
     instantiate(snapshot: S): Instance {

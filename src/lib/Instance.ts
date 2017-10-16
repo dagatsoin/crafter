@@ -1,6 +1,6 @@
 import {computed, observable} from "mobx";
 import {IType} from "../api/Type";
-import {fail, identity, isInstance} from "../api/utils";
+import {fail, identity, isInstance} from "./utils";
 
 export class Instance {
     readonly type: IType<any, any>;

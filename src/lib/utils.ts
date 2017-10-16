@@ -1,5 +1,5 @@
-import {ValueInstance, IValidationResult} from "./Type";
-import {Instance} from "../lib/Instance";
+import {ValueInstance, IValidationResult} from "../api/Type";
+import {Instance} from "./Instance";
 
 declare let process: any;
 
@@ -85,4 +85,15 @@ export function isInstance(value: any): value is ValueInstance {
  */
 export function fail(message = "Illegal state"): never {
     throw new Error("[mobx-state-tree] " + message);
+}
+
+/**
+ * Return true if value is a plain object.
+ * @param value
+ * @return {boolean}
+ */
+export function isPlainObject(value: any) {
+    if (value === null || typeof value !== "object") return false;
+    const proto = Object.getPrototypeOf(value);
+    return proto === Object.prototype || proto === null;
 }

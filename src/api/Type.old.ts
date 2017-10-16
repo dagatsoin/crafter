@@ -1,6 +1,6 @@
 import {Operation} from "fast-json-patch";
 import {Instance} from "../lib/Instance";
-import {fail} from "./utils";
+import {fail} from "../lib/utils";
 
 ////////////////////
 ////////////////////

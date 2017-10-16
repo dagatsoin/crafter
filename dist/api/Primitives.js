@@ -10,7 +10,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var utils_1 = require("./utils");
+var utils_1 = require("../lib/utils");
 var Type_1 = require("./Type");
 var Instance_1 = require("../lib/Instance");
 /**
@@ -29,14 +29,13 @@ var CoreType = /** @class */ (function (_super) {
         return Instance_1.createInstance(this, snapshot, this.initializer);
     };
     CoreType.prototype.isValidSnapshot = function (value) {
-        if (utils_1.isPrimitive(value) && this.checker(value)) {
-            return utils_1.typeCheckSuccess();
-        }
-        var typeName = this.name === "Date" ? "Date or a unix milliseconds timestamp" : this.name;
-        return utils_1.typeCheckFailure(value, "Value is not a " + typeName);
+        return utils_1.isPrimitive(value) && this.checker(value);
     };
     CoreType.prototype.serialize = function (instance) {
         return instance.storedValue;
+    };
+    CoreType.prototype.restore = function (instance, snapshot) {
+        throw new Error("Method not implemented.");
     };
     return CoreType;
 }(Type_1.Type));

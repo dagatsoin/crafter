@@ -37,8 +37,8 @@ export function isPrimitive(value: any): boolean {
  * @param {Object} snapshot
  * @returns
  */
-export function restore<S, T>(target: Node, snapshot: S) {
-    getInstance(target).restore(snapshot);
+export function applySnapshot<S, T>(target: Node, snapshot: S) {
+    getInstance(target).applySnapshot(snapshot);
 }
 
 export function getSnapshot<S>(target: Node): S {

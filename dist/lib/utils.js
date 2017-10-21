@@ -35,10 +35,10 @@ exports.isPrimitive = isPrimitive;
  * @param {Object} snapshot
  * @returns
  */
-function restore(target, snapshot) {
-    Instance_1.getInstance(target).restore(snapshot);
+function applySnapshot(target, snapshot) {
+    Instance_1.getInstance(target).applySnapshot(snapshot);
 }
-exports.restore = restore;
+exports.applySnapshot = applySnapshot;
 function getSnapshot(target) {
     return Instance_1.getInstance(target).snapshot;
 }

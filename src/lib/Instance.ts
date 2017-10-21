@@ -43,7 +43,7 @@ export class Instance {
         }
     }
 
-    restore(snapshot: any) {
+    applySnapshot(snapshot: any) {
         if (snapshot !== this.snapshot) this.type.applySnapshot(this, snapshot);
     }
 

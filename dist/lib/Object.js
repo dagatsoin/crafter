@@ -50,7 +50,8 @@ var ObjectType = /** @class */ (function (_super) {
     ObjectType.prototype.getSnapshot = function (instance) {
         var value = {};
         this.forAllProps(function (name, type) {
-            value[name] = instance.getChildren()[name].snapshot;
+            var node = instance.storedValue[name];
+            value[name] = utils_1.isPrimitive(node) ? node : Instance_1.getInstance(node).snapshot;
         });
         return value;
     };
@@ -75,7 +76,7 @@ var ObjectType = /** @class */ (function (_super) {
      */
     ObjectType.prototype.getChildren = function (instance) {
         var children = [];
-        this.forAllProps(function (name, type) { return children.push(instance.storedValue[name].$instance); });
+        this.forAllProps(function (name, type) { return children.push(Instance_1.getInstance(instance.storedValue[name])); });
         return children;
     };
     return ObjectType;

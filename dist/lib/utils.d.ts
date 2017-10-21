@@ -22,7 +22,7 @@ export declare function isPrimitive(value: any): boolean;
  * @param {Object} snapshot
  * @returns
  */
-export declare function restore<S, T>(target: Node, snapshot: S): void;
+export declare function applySnapshot<S, T>(target: Node, snapshot: S): void;
 export declare function getSnapshot<S>(target: Node): S;
 /**
  * Wrapper for throwing error

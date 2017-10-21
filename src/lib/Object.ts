@@ -1,5 +1,5 @@
 import {ComplexType, IObjectType, isType, IType,} from "../api/Type";
-import {createInstance, Instance} from "./Instance";
+import {createInstance, getInstance, Instance} from "./Instance";
 import {extendShallowObservable, observable, transaction} from "mobx";
 import {isPlainObject, isPrimitive, fail} from "./utils";
 import {getPrimitiveFactoryFromValue} from "../api/Primitives";
@@ -35,7 +35,8 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
     getSnapshot(instance: Instance): S {
         const value = {};
         this.forAllProps((name, type) => {
-            (<any>value)[name] = (<any>instance.getChildren())[name].snapshot;
+            const node = instance.storedValue[<keyof T>name];
+            (<any>value)[name] = isPrimitive(node) ? node : getInstance(node).snapshot;
         });
         return value as any as S;
     }
@@ -80,7 +81,7 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
      */
     getChildren(instance: Instance): Array<Instance> {
         const children: Array<Instance> = [];
-        this.forAllProps((name, type) => children.push(instance.storedValue[name].$instance));
+        this.forAllProps((name, type) => children.push(getInstance(instance.storedValue[name])));
         return children;
     }
 }

@@ -8,7 +8,7 @@ export declare class Instance {
     parents: Map<string, Instance>;
     children: Map<string, Instance>;
     constructor(type: IType<any, any>, initialValue: any, initBaseType?: (baseTypeIdentity: any) => any, buildType?: (instance: Instance, snapshot: any) => void);
-    restore(snapshot: any): void;
+    applySnapshot(snapshot: any): void;
     readonly snapshot: any;
     isRoot(): void;
     readonly value: any;

@@ -1,7 +1,7 @@
 import {object} from "../src/api/Object";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
-import {restore, getSnapshot} from "../src/lib/utils";
+import {applySnapshot, getSnapshot} from "../src/lib/utils";
 import {observable, toJS} from "mobx";
 
 
@@ -56,8 +56,8 @@ const snapshots = {
             }
         },
         inventory: {
-            slots: [],
-            currencies: []
+            slots: [{prefabId: "gd78hj62c", quantity: 1}],
+            currencies: [{type: "gold", quantity: 100}]
         }
     }
 };
@@ -86,7 +86,7 @@ it("should extract a snapshot from an instance of Object", function () {
 
 it("should restore an instance with a snapshot of Object", function () {
     const Fraktar = Player.create({});
-    restore(Fraktar, snapshots.Fraktar);
+    applySnapshot(Fraktar, snapshots.Fraktar);
     expect(Fraktar.inventory).toEqual(snapshots.Fraktar.inventory);
 });
 

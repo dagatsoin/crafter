@@ -36,7 +36,7 @@ var Instance = /** @class */ (function () {
             });
         }
     }
-    Instance.prototype.restore = function (snapshot) {
+    Instance.prototype.applySnapshot = function (snapshot) {
         if (snapshot !== this.snapshot)
             this.type.applySnapshot(this, snapshot);
     };

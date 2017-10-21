@@ -13,6 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("../lib/utils");
 var Type = /** @class */ (function () {
     function Type(name) {
+        this.isType = true;
         this.name = name;
     }
     Type.prototype.is = function (thing) {
@@ -27,7 +28,6 @@ var Type = /** @class */ (function () {
     Type.prototype.restore = function (instance, snapshot) {
         utils_1.fail("Error from abstract class Type. The class you call this method from should implement Immutable value and can't be restored.");
     };
-    ;
     Type.prototype.getValue = function (instance) {
         return instance.storedValue;
     };
@@ -51,4 +51,8 @@ var ComplexType = /** @class */ (function (_super) {
     return ComplexType;
 }(Type));
 exports.ComplexType = ComplexType;
+function isType(value) {
+    return typeof value === "object" && value && value.isType === true;
+}
+exports.isType = isType;
 //# sourceMappingURL=Type.js.map

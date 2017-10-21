@@ -1,24 +1,41 @@
-import {ComplexType, IType, IValidationResult} from "../api/Type";
-import {IObservableArray} from "mobx";
-import {Instance} from "../../dist/lib/Instance";
+import {ComplexType, IType} from "../api/Type";
+import {IObservableArray, observable} from "mobx";
+import {Node} from "../../dist/lib/Instance";
+import {createInstance, Instance} from "./Instance";
 
 export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
-    isValidSnapshot(value: any): boolean {
-        return undefined;
+    itemType: IType<any, T>;
+
+    constructor(name: string, itemType: IType<any, any>) {
+        super(name)
+        this.itemType = itemType;
     }
 
     serialize(instance: Instance): S[] {
-        return undefined;
+        return instance.storedValue.map((item: Node) => item.snapshot);
     }
 
-    instantiate(initialValue: any): Instance {
-        return undefined;
-    }
-    constructor(subtype: IType<S, T>) {
-        super(subtype.name);
+    instantiate(snapshot: S): Instance {
+        return createInstance(
+            this,
+            snapshot,
+            this.createNewInstance
+        );
     }
 
-    isValidSnapshot(value: any): IValidationResult {
-        throw new Error("Method not implemented.");
+    createNewInstance = (snapshot: S[]) => {
+        const array = observable.array();
+        snapshot.forEach((item: S) => array.push(item));
+        return array;
     }
+
+    isValidSnapshot(value: any): boolean {
+        return value.constructor.name !== "array" ? false : value.some((item: any, index: any) => this.itemType.validate(item));
+    }
+
+    restore(instance: Instance, snapshot: any[]): void {
+        const target = instance.storedValue as IObservableArray<any>;
+        target.replace(snapshot);
+    }
+
 }

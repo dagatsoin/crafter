@@ -14,16 +14,33 @@ var Type_1 = require("../api/Type");
 var Instance_1 = require("./Instance");
 var mobx_1 = require("mobx");
 var utils_1 = require("./utils");
+var Primitives_1 = require("../api/Primitives");
 var ObjectType = /** @class */ (function (_super) {
     __extends(ObjectType, _super);
     function ObjectType(opts) {
         var _this = _super.call(this, opts.name || "AnonymousObject") || this;
         _this.properties = {};
-        _this.createNewInstance = function (snapshot) {
-            var object = mobx_1.observable.object(snapshot);
-            return object;
+        /**
+         * We build the instance:
+         * 1- create the Node of the Instance. The Node is the public readonly value which is actually used. Is is an object where each properties is also a Node.
+         * 2- register all properties Node as child.
+         * @param {Instance} instance
+         * @param {S} snapshot
+         */
+        _this.buildInstance = function (instance, snapshot) {
+            _this.forAllProps(function (name, type) {
+                var childInstance = type.instantiate(snapshot[name]);
+                mobx_1.extendShallowObservable(instance.storedValue, (_a = {},
+                    _a[name] = mobx_1.observable.ref(childInstance.storedValue),
+                    _a));
+                instance.parents.set(name, childInstance);
+                var _a;
+            });
         };
-        Object.assign(_this.properties, (opts.properties));
+        _this.forAllProps = function (fn) {
+            _this.propertiesNames.forEach(function (key) { return fn(key, _this.properties[key]); });
+        };
+        _this.properties = toPropertiesObject(opts.properties);
         _this.propertiesNames = Object.keys(_this.properties);
         return _this;
     }
@@ -32,20 +49,74 @@ var ObjectType = /** @class */ (function (_super) {
         return !utils_1.isPlainObject(value) ? false : this.propertiesNames.some(function (key) { return _this.properties[key].validate(value[key]); });
     };
     ObjectType.prototype.instantiate = function (snapshot) {
-        return Instance_1.createInstance(this, snapshot, this.createNewInstance);
+        return Instance_1.createInstance(this, snapshot, this.createEmptyInstance, this.buildInstance);
     };
     ObjectType.prototype.serialize = function (instance) {
-        return mobx_1.toJS(instance.storedValue);
+        var value = {};
+        this.forAllProps(function (name, type) {
+            value[name] = instance.storedValue[name].snapshot;
+        });
+        return value;
     };
     ObjectType.prototype.restore = function (instance, snapshot) {
         var _this = this;
         mobx_1.transaction(function () {
-            _this.propertiesNames.forEach(function (name) {
+            _this.forAllProps(function (name, type) {
                 instance.storedValue[name] = snapshot[name];
             });
         });
     };
+    // todo this must be includes the child node $instance
+    ObjectType.prototype.getValue = function (instance) {
+        return instance.storedValue;
+        //return isNode(instance.storedValue) ? instance.storedValue : instance.storedValue.value;
+        /*const value = {};
+        this.forAllProps((name, type) => {
+            const v = isNode(instance.storedValue[name]) ? instance.storedValue[name] : instance.storedValue[name].value;
+            console.log(v);
+            (<any>value)[name] = v;
+        });
+        return value as any as T;*/
+    };
+    ObjectType.prototype.createEmptyInstance = function () {
+        var object = mobx_1.observable.shallowObject({});
+        return object;
+    };
     return ObjectType;
 }(Type_1.ComplexType));
 exports.ObjectType = ObjectType;
+function toPropertiesObject(properties) {
+    // loop through properties and ensures that all items are types
+    return Object.keys(properties).reduce(function (properties, key) {
+        // the user intended to use a view
+        var descriptor = Object.getOwnPropertyDescriptor(properties, key);
+        if ("get" in descriptor) {
+            utils_1.fail("Getters are not supported as properties. Please use views instead");
+        }
+        // undefined and null are not valid
+        var value = descriptor.value;
+        if (value === null || undefined) {
+            utils_1.fail("The default value of an attribute cannot be null or undefined as the type cannot be inferred. Did you mean `types.maybe(someType)`?");
+            // its a primitive, convert to its type
+        }
+        else if (utils_1.isPrimitive(value)) {
+            return Object.assign({}, properties, (_a = {},
+                _a[key] = Primitives_1.getPrimitiveFactoryFromValue(value) // todo set optional
+            ,
+                _a));
+        }
+        else if (Type_1.isType(value)) {
+            // its already a type
+            return properties;
+        }
+        else if (typeof value === "object") {
+            // no other complex values
+            utils_1.fail("In property '" + key + "': base model's should not contain complex values: '" + value + "'");
+        }
+        else {
+            utils_1.fail("Unexpected value for property '" + key + "'");
+        }
+        var _a;
+    }, properties);
+}
 //# sourceMappingURL=Object.js.map

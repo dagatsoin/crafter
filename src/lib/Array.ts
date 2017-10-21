@@ -1,6 +1,6 @@
 import {ComplexType, IType} from "../api/Type";
 import {IObservableArray, observable} from "mobx";
-import {Node} from "../../dist/lib/Instance";
+import {Node} from "./Instance";
 import {createInstance, Instance} from "./Instance";
 
 export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
@@ -11,31 +11,40 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
         this.itemType = itemType;
     }
 
-    serialize(instance: Instance): S[] {
-        return instance.storedValue.map((item: Node) => item.snapshot);
+    getSnapshot(instance: Instance): S[] {
+        return instance.storedValue.map((item: Node) => item.$instance!.snapshot);
     }
 
     instantiate(snapshot: S): Instance {
         return createInstance(
             this,
             snapshot,
-            this.createNewInstance
+            this.createEmptyInstance,
+            this.buildInstance
         );
     }
 
-    createNewInstance = (snapshot: S[]) => {
-        const array = observable.array();
-        snapshot.forEach((item: S) => array.push(item));
-        return array;
+    private createEmptyInstance = (snapshot: S[]) => {
+        return observable.array();
+    }
+
+    private buildInstance = (instance: Instance, snapshot: S[]) => {
+        if (snapshot && snapshot.length) snapshot.forEach((item: S, index: number) => {
+            const subInstance = this.itemType.instantiate(item);
+            instance.storedValue.push(subInstance.storedValue);
+        });
     }
 
     isValidSnapshot(value: any): boolean {
         return value.constructor.name !== "array" ? false : value.some((item: any, index: any) => this.itemType.validate(item));
     }
 
-    restore(instance: Instance, snapshot: any[]): void {
+    applySnapshot(instance: Instance, snapshot: any[]): void {
         const target = instance.storedValue as IObservableArray<any>;
         target.replace(snapshot);
     }
 
+    getChildren(instance: Instance): Instance[] {
+        return instance.storedValue.map((item: Node) => item.$instance);
+    }
 }

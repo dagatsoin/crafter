@@ -1,4 +1,4 @@
-import { ValueInstance } from "../api/Type";
+import { Node } from "./Instance";
 export declare const EMPTY_ARRAY: ReadonlyArray<any>;
 export declare const EMPTY_OBJECT: {};
 /**
@@ -22,8 +22,8 @@ export declare function isPrimitive(value: any): boolean;
  * @param {Object} snapshot
  * @returns
  */
-export declare function restore<S, T>(target: ValueInstance, snapshot: S): void;
-export declare function serialize<S>(target: ValueInstance): S;
+export declare function restore<S, T>(target: Node, snapshot: S): void;
+export declare function getSnapshot<S>(target: Node): S;
 /**
  * Wrapper for throwing error
  * @param message

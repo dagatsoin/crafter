@@ -12,17 +12,20 @@ export declare class ObjectType<S, T> extends ComplexType<S, T> implements IObje
     });
     isValidSnapshot(value: any): boolean;
     instantiate(snapshot: S): Instance;
-    serialize(instance: Instance): S;
-    restore(instance: Instance, snapshot: S): void;
+    getSnapshot(instance: Instance): S;
+    applySnapshot(instance: Instance, snapshot: S): void;
     getValue(instance: Instance): T;
     private createEmptyInstance();
     /**
-     * We build the instance:
-     * 1- create the Node of the Instance. The Node is the public readonly value which is actually used. Is is an object where each properties is also a Node.
-     * 2- register all properties Node as child.
+     * We create the Node of the Instance. The Node is the final value the user will "see". Is is an object where each property is also a Node.
      * @param {Instance} instance
      * @param {S} snapshot
      */
     private buildInstance;
     private forAllProps;
+    /**
+     * Return all children Instance of an object Instance.
+     * @return {Array<Instance>}
+     */
+    getChildren(instance: Instance): Array<Instance>;
 }

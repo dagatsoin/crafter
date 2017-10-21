@@ -21,10 +21,11 @@ var Instance = /** @class */ (function () {
          * We also test if the node ref could be attached to the type. // todo put this as a static prop of the type */
         this.storedValue = initBaseType(initialValue);
         var canAttachInstanceRef = canAttachInstance(this.storedValue);
-        /* 2 - Build and hydrate phase only needed for complex type instance */
+        /* 2 - // todo Observe the stored value to transform the Node tree in a Instance tree.*/
+        /* 3 - Build and hydration phase. Only needed for complex type instance */
         if (!utils_1.isPrimitive(this.storedValue))
             buildType(this, initialValue);
-        /* 3 - Add a reference to this node to the storedValue. This will allow to recognize this value as a Instance
+        /* 4 - Add a reference to this node to the storedValue. This will allow to recognize this value as a Instance
          and use functions like restore, snapshot, type check, etc.*/
         if (canAttachInstanceRef) {
             Object.defineProperty(this.storedValue, "$instance", {
@@ -37,11 +38,11 @@ var Instance = /** @class */ (function () {
     }
     Instance.prototype.restore = function (snapshot) {
         if (snapshot !== this.snapshot)
-            this.type.restore(this, snapshot);
+            this.type.applySnapshot(this, snapshot);
     };
     Object.defineProperty(Instance.prototype, "snapshot", {
         get: function () {
-            return this.type.serialize(this);
+            return this.type.getSnapshot(this);
         },
         enumerable: true,
         configurable: true
@@ -50,12 +51,14 @@ var Instance = /** @class */ (function () {
     };
     Object.defineProperty(Instance.prototype, "value", {
         get: function () {
-            console.log(mobx_1.isObservable(this.type.getValue(this)));
             return this.type.getValue(this);
         },
         enumerable: true,
         configurable: true
     });
+    Instance.prototype.getChildren = function () {
+        return this.type.getChildren(this);
+    };
     __decorate([
         mobx_1.computed
     ], Instance.prototype, "snapshot", null);

@@ -4,9 +4,11 @@ import { Instance } from "./Instance";
 export declare class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     itemType: IType<any, T>;
     constructor(name: string, itemType: IType<any, any>);
-    serialize(instance: Instance): S[];
+    getSnapshot(instance: Instance): S[];
     instantiate(snapshot: S): Instance;
-    createNewInstance: (snapshot: S[]) => IObservableArray<{}>;
+    private createEmptyInstance;
+    private buildInstance;
     isValidSnapshot(value: any): boolean;
-    restore(instance: Instance, snapshot: any[]): void;
+    applySnapshot(instance: Instance, snapshot: any[]): void;
+    getChildren(instance: Instance): Instance[];
 }

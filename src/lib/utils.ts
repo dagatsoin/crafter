@@ -1,5 +1,4 @@
-import {Node, IValidationResult} from "../api/Type";
-import {getInstance, Instance} from "./Instance";
+import {Node, getInstance} from "./Instance";
 
 declare let process: any;
 
@@ -38,11 +37,11 @@ export function isPrimitive(value: any): boolean {
  * @param {Object} snapshot
  * @returns
  */
-export function restore<S, T>(target: ValueInstance, snapshot: S) {
+export function restore<S, T>(target: Node, snapshot: S) {
     getInstance(target).restore(snapshot);
 }
 
-export function serialize<S>(target: ValueInstance): S {
+export function getSnapshot<S>(target: Node): S {
     return getInstance(target).snapshot;
 }
 

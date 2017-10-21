@@ -3,7 +3,7 @@ import {boolean, number, string} from "../src/api/Primitives";
 describe("All primitives", function () {
     it("should not support applying snapshots because they are immutable", function () {
         const instance = string.instantiate("foo");
-        expect(() => string.restore(instance, "bar")).toThrowError();
+        expect(() => string.applySnapshot(instance, "bar")).toThrowError();
     });
 
     it("should create an undefined primitive", function () {

@@ -25,12 +25,20 @@ export class CoreType<S, T> extends Type<S, T> {
         return isPrimitive(value) && this.checker(value);
     }
 
-    serialize(instance: Instance): S {
+    getSnapshot(instance: Instance): S {
         return instance.storedValue;
     }
 
-    restore(instance: Instance, snapshot: S): void {
+    applySnapshot(instance: Instance, snapshot: S): void {
         throw new Error("Method not implemented.");
+    }
+
+    /**
+     * Return an empty array of Instance because primitive can't have children.
+     * @return {Array<Instance>}
+     */
+    getChildren(instance: Instance): Array<Instance> {
+        return [];
     }
 }
 

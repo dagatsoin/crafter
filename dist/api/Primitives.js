@@ -31,11 +31,18 @@ var CoreType = /** @class */ (function (_super) {
     CoreType.prototype.isValidSnapshot = function (value) {
         return utils_1.isPrimitive(value) && this.checker(value);
     };
-    CoreType.prototype.serialize = function (instance) {
+    CoreType.prototype.getSnapshot = function (instance) {
         return instance.storedValue;
     };
-    CoreType.prototype.restore = function (instance, snapshot) {
+    CoreType.prototype.applySnapshot = function (instance, snapshot) {
         throw new Error("Method not implemented.");
+    };
+    /**
+     * Return an empty array of Instance because primitive can't have children.
+     * @return {Array<Instance>}
+     */
+    CoreType.prototype.getChildren = function (instance) {
+        return [];
     };
     return CoreType;
 }(Type_1.Type));

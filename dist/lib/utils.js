@@ -39,10 +39,10 @@ function restore(target, snapshot) {
     Instance_1.getInstance(target).restore(snapshot);
 }
 exports.restore = restore;
-function serialize(target) {
+function getSnapshot(target) {
     return Instance_1.getInstance(target).snapshot;
 }
-exports.serialize = serialize;
+exports.getSnapshot = getSnapshot;
 /**
  * Wrapper for throwing error
  * @param message

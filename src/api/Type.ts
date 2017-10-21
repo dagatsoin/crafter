@@ -26,14 +26,20 @@ export interface IType<S, T> {
 
     validate(thing: any): boolean;
 
-    serialize(instance: Instance): any;
+    getSnapshot(instance: Instance): any;
 
-    restore(instance: Instance, snapshot: S): void;
+    applySnapshot(instance: Instance, snapshot: S): void;
 
     // Internal API
     instantiate(initialValue?: any): Instance;
 
     getValue(instance: Instance): T;
+
+    /**
+     * Return all children Instance of an Instance.
+     * @return {Array<Instance>}
+     */
+    getChildren(instance: Instance): Array<Instance>;
 }
 
 export interface ISimpleType<T> extends IType<T, T> {
@@ -65,8 +71,9 @@ export abstract class Type<S, T> implements IType<S, T> {
     }
 
     abstract isValidSnapshot(value: any): boolean; // todo use IContext ?
-    abstract serialize(instance: Instance): S;
+    abstract getSnapshot(instance: Instance): S;
     abstract instantiate(initialValue: any): Instance;
+    abstract getChildren(instance: Instance): Array<Instance>;
 
     is(thing: any): thing is S | T {
         throw new Error("Method not implemented.");
@@ -80,8 +87,8 @@ export abstract class Type<S, T> implements IType<S, T> {
         return this.instantiate(snapshot).value;
     }
 
-    restore(instance: Instance, snapshot: S): void {
-        fail("Error from abstract class Type. The class you call this method from should implement Immutable value and can't be restored.");
+    applySnapshot(instance: Instance, snapshot: S): void {
+        fail("Error from abstract class Type. Immutable value can't be restored.");
     }
 
     getValue(instance: Instance): T {
@@ -94,7 +101,7 @@ export abstract class ComplexType<S, T> extends Type<S, T> implements IComplexTy
         throw new Error("Method not implemented.");
     }
 
-    restore(instance: Instance, snapshot: S) {
+    applySnapshot(instance: Instance, snapshot: S) {
         fail("Immutable types do not support applying snapshots");
     }
 

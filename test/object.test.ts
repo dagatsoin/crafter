@@ -1,7 +1,7 @@
 import {object} from "../src/api/Object";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
-import {restore, serialize} from "../src/lib/utils";
+import {restore, getSnapshot} from "../src/lib/utils";
 import {observable, toJS} from "mobx";
 
 
@@ -34,6 +34,19 @@ const Player = object("Player", {
 });
 
 const snapshots = {
+    player: {
+        entity: {
+            name: null,
+            stats: {
+                aura: null,
+                phase: null
+            }
+        },
+        inventory: {
+            slots: [],
+            currencies: []
+        }
+    },
     Fraktar: {
         entity: {
             name: "Fraktar",
@@ -55,14 +68,19 @@ it("should not accept an undefined property");
 it("should not accept an getter/setter property");
 it("should not accept an function property");
 
-it("should create an instance of object", function () {
+it("should create an instance of object with a snapshot", function () {
     const Fraktar = Player.create(snapshots.Fraktar);
-    expect(toJS(Fraktar)).toEqual(observable(snapshots.Fraktar));
+    expect(Fraktar).toEqual(observable(snapshots.Fraktar));
+});
+
+it("should create an instance of object without snapshot", function () {
+    const player = Player.create();
+    expect(player).toEqual(observable(snapshots.player));
 });
 
 it("should extract a snapshot from an instance of Object", function () {
     const Fraktar = Player.create(snapshots.Fraktar);
-    const snapshot = serialize(Fraktar);
+    const snapshot = getSnapshot(Fraktar);
     expect(snapshot).toEqual(snapshots.Fraktar);
 });
 

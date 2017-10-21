@@ -26,10 +26,12 @@ export class Instance {
         this.storedValue = initBaseType(initialValue);
         const canAttachInstanceRef = canAttachInstance(this.storedValue);
 
-        /* 2 - Build and hydrate phase only needed for complex type instance */
+        /* 2 - // todo Observe the stored value to transform the Node tree in a Instance tree.*/
+
+        /* 3 - Build and hydration phase. Only needed for complex type instance */
         if (!isPrimitive(this.storedValue)) buildType(this, initialValue);
 
-        /* 3 - Add a reference to this node to the storedValue. This will allow to recognize this value as a Instance
+        /* 4 - Add a reference to this node to the storedValue. This will allow to recognize this value as a Instance
          and use functions like restore, snapshot, type check, etc.*/
         if (canAttachInstanceRef) {
             Object.defineProperty(this.storedValue, "$instance", {
@@ -42,12 +44,12 @@ export class Instance {
     }
 
     restore(snapshot: any) {
-        if (snapshot !== this.snapshot) this.type.restore(this, snapshot);
+        if (snapshot !== this.snapshot) this.type.applySnapshot(this, snapshot);
     }
 
     @computed
     get snapshot(): any {
-        return this.type.serialize(this);
+        return this.type.getSnapshot(this);
     }
 
     isRoot() {
@@ -56,8 +58,11 @@ export class Instance {
 
     @computed
     get value(): any {
-        console.log(isObservable(this.type.getValue(this)))
         return this.type.getValue(this);
+    }
+
+    getChildren() {
+        return this.type.getChildren(this);
     }
 }
 

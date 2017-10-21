@@ -9,8 +9,13 @@ export declare class CoreType<S, T> extends Type<S, T> {
     constructor(name: any, checker: any, initializer?: (v: any) => any);
     instantiate(snapshot: T): Instance;
     isValidSnapshot(value: any): boolean;
-    serialize(instance: Instance): S;
-    restore(instance: Instance, snapshot: S): void;
+    getSnapshot(instance: Instance): S;
+    applySnapshot(instance: Instance, snapshot: S): void;
+    /**
+     * Return an empty array of Instance because primitive can't have children.
+     * @return {Array<Instance>}
+     */
+    getChildren(instance: Instance): Array<Instance>;
 }
 /**
  * Creates a type that can only contain a string value.

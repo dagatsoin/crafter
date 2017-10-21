@@ -55,15 +55,9 @@ it("should not accept an undefined property");
 it("should not accept an getter/setter property");
 it("should not accept an function property");
 
-it("should create an instance of plain object", function () {
-    const e = Entity.create(snapshots.Fraktar.entity);
-    expect(toJS(e)).toEqual(observable(snapshots.Fraktar.entity));
-});
-
-it("should create an instance of object with mixed object and array properties", function () {
+it("should create an instance of object", function () {
     const Fraktar = Player.create(snapshots.Fraktar);
-    expect(toJS(Fraktar.entity)).toEqual(observable(snapshots.Fraktar.entity));
-    expect(toJS(Fraktar.inventory)).toEqual(observable(snapshots.Fraktar.inventory));
+    expect(toJS(Fraktar)).toEqual(observable(snapshots.Fraktar));
 });
 
 it("should extract a snapshot from an instance of Object", function () {

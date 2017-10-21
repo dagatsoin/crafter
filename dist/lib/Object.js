@@ -33,14 +33,14 @@ var ObjectType = /** @class */ (function (_super) {
                 mobx_1.extendShallowObservable(instance.storedValue, (_a = {},
                     _a[name] = mobx_1.observable.ref(childInstance.storedValue),
                     _a));
-                instance.parents.set(name, childInstance);
+                instance.children.set(name, childInstance);
                 var _a;
             });
         };
         _this.forAllProps = function (fn) {
             _this.propertiesNames.forEach(function (key) { return fn(key, _this.properties[key]); });
         };
-        _this.properties = toPropertiesObject(opts.properties);
+        _this.properties = checkProperties(opts.properties || {});
         _this.propertiesNames = Object.keys(_this.properties);
         return _this;
     }
@@ -54,7 +54,7 @@ var ObjectType = /** @class */ (function (_super) {
     ObjectType.prototype.serialize = function (instance) {
         var value = {};
         this.forAllProps(function (name, type) {
-            value[name] = instance.storedValue[name].snapshot;
+            value[name] = instance.children.get(name).snapshot;
         });
         return value;
     };
@@ -85,7 +85,7 @@ var ObjectType = /** @class */ (function (_super) {
     return ObjectType;
 }(Type_1.ComplexType));
 exports.ObjectType = ObjectType;
-function toPropertiesObject(properties) {
+function checkProperties(properties) {
     // loop through properties and ensures that all items are types
     return Object.keys(properties).reduce(function (properties, key) {
         // the user intended to use a view

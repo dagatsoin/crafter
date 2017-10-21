@@ -1,10 +1,10 @@
-import {ComplexType, IObjectType, isType, IType,} from "../api/Type";
+import {ComplexType, IObjectType, isType, IType, } from "../api/Type";
 import {createInstance, Instance} from "./Instance";
 import {extendShallowObservable, observable, transaction} from "mobx";
 import {isPlainObject, isPrimitive, fail} from "./utils";
 import {getPrimitiveFactoryFromValue} from "../api/Primitives";
 
-export type IObjectProperties<T> = { [K in keyof T]: IType<any, T[K]> | T[K] }
+export type IObjectProperties<T> = { [K in keyof T]: IType<any, T[K]> | T[K] };
 
 export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S, T> {
     private readonly propertiesNames: string[];
@@ -12,10 +12,10 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
 
     constructor(opts: {
         name?: string;
-        properties?: object;
+        properties?: object
     }) {
         super(opts.name || "AnonymousObject");
-        this.properties = toPropertiesObject(opts.properties);
+        this.properties = checkProperties(opts.properties || {});
         this.propertiesNames = Object.keys(this.properties);
     }
 
@@ -35,7 +35,7 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
     serialize(instance: Instance): S {
         const value = {};
         this.forAllProps((name, type) => {
-            (<any>value)[name] = instance.storedValue[name].snapshot;
+            (<any>value)[name] = instance.children.get(name)!.snapshot;
         });
         return value as any as S;
     }
@@ -79,25 +79,25 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
             extendShallowObservable(instance.storedValue, {
                 [name]: observable.ref(childInstance.storedValue)
             });
-            instance.parents.set(name, childInstance);
+            instance.children.set(name, childInstance);
         });
-    };
+    }
 
     private forAllProps = (fn: (name: string, type: IType<any, any>) => void) => {
         this.propertiesNames.forEach(key => fn(key, this.properties[key]));
     }
 }
 
-function toPropertiesObject<T>(properties: IObjectProperties<T>): { [K in keyof T]: IType<any, T> } {
+function checkProperties<T>(properties: IObjectProperties<T>): { [K in keyof T]: IType<any, T> } {
     // loop through properties and ensures that all items are types
     return Object.keys(properties).reduce((properties, key) => {
         // the user intended to use a view
-        const descriptor = Object.getOwnPropertyDescriptor(properties, key)
+        const descriptor = Object.getOwnPropertyDescriptor(properties, key);
         if ("get" in descriptor) {
-            fail("Getters are not supported as properties. Please use views instead")
+            fail("Getters are not supported as properties. Please use views instead");
         }
         // undefined and null are not valid
-        const { value } = descriptor
+        const {value} = descriptor;
         if (value === null || undefined) {
             fail(
                 "The default value of an attribute cannot be null or undefined as the type cannot be inferred. Did you mean `types.maybe(someType)`?"
@@ -112,7 +112,7 @@ function toPropertiesObject<T>(properties: IObjectProperties<T>): { [K in keyof 
             return properties;
         } else if (typeof value === "object") {
             // no other complex values
-            fail(`In property '${key}': base model's should not contain complex values: '${value}'`)
+            fail(`In property '${key}': base model's should not contain complex values: '${value}'`);
         } else {
             fail(`Unexpected value for property '${key}'`);
         }

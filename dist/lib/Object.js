@@ -94,6 +94,7 @@ function sanitizeProperties(properties) {
     return Object.keys(properties).reduce(function (properties, key) {
         // the user intended to use a view
         var descriptor = Object.getOwnPropertyDescriptor(properties, key);
+        console.log(descriptor);
         if ("get" in descriptor) {
             utils_1.fail("Getters are not supported as properties. Please use views instead");
         }

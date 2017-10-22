@@ -62,11 +62,35 @@ const snapshots = {
     }
 };
 
-it("should not accept an object property");
-it("should not accept an null property");
-it("should not accept an undefined property");
-it("should not accept an getter/setter property");
-it("should not accept an function property");
+it("should not accept an object property", function () {
+    expect(() => object("wrong", {wrong: {foo: "bar"}})).toThrowError();
+});
+
+it("should not accept an null property", function () {
+    expect(() => object("wrong", {wrong: null})).toThrowError();
+});
+
+it("should not accept an undefined property", function () {
+    expect(() => object("wrong", {wrong: undefined})).toThrowError();
+});
+
+it("should not accept an getter/setter property", function () {
+    const noGetter = function(){
+
+        Object.defineProperty(this, "foo", {
+            get: function () {
+                return "bar";
+            }
+        });
+        return this;
+    };
+
+    expect(() => object("noGetter", noGetter())).toThrowError();
+});
+
+it("should not accept an function property", function () {
+    expect(() => object("wrong", {wrong: () => null})).toThrowError();
+});
 
 it("should create an instance of object with a snapshot", function () {
     const Fraktar = Player.create(snapshots.Fraktar);

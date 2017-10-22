@@ -98,7 +98,6 @@ function sanitizeProperties<T>(properties: IObjectProperties<T>): { [K in keyof 
     return Object.keys(properties).reduce((properties, key) => {
         // the user intended to use a view
         const descriptor = Object.getOwnPropertyDescriptor(properties, key);
-        console.log(descriptor)
         if ("get" in descriptor) {
             fail("Getters are not supported as properties. Please use views instead");
         }

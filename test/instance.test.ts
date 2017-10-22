@@ -2,6 +2,8 @@ import {object} from "../src/api/Object";
 import {canAttachInstance, createInstance, isNode} from "../src/lib/Instance";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
+import {applySnapshot, getSnapshot} from "../src/lib/utils";
+import {reaction} from "mobx";
 
 const Entity = object("Entity", {
     name: string,
@@ -52,7 +54,6 @@ it("should check if a instance can be attached to the value", function () {
     const instance = Type.instantiate({});
     expect(canAttachInstance(instance)).toBeFalsy();
     expect(canAttachInstance({foo: "bar"})).toBeTruthy();
-
 });
 
 it("should check if it is a node", function () {
@@ -68,9 +69,6 @@ it("should not create an Instance from an existing Instance", function () {
     expect(() => createInstance(Type, node)).toThrowError();
 });
 
-it("should retrieve the children of an object instance", function() {
-    const entity = Entity.create();
-});
-
+it("should retrieve the children of an object instance");
 it("should retrieve the children of an array instance");
 it("should retrieve the children of an map instance");

@@ -1,8 +1,8 @@
 import {object} from "../src/api/Object";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
+import {observable, reaction} from "mobx";
 import {applySnapshot, getSnapshot} from "../src/lib/utils";
-import {observable, toJS} from "mobx";
 
 
 const Entity = object("Entity", {
@@ -62,62 +62,90 @@ const snapshots = {
     }
 };
 
-it("should not accept an object property", function () {
-    expect(() => object("wrong", {wrong: {foo: "bar"}})).toThrowError();
-});
-
-it("should not accept an null property", function () {
-    expect(() => object("wrong", {wrong: null})).toThrowError();
-});
-
-it("should not accept an undefined property", function () {
-    expect(() => object("wrong", {wrong: undefined})).toThrowError();
-});
-
-it("should not accept an getter/setter property", function () {
-    const noGetter = function(){
-
-        Object.defineProperty(this, "foo", {
-            get: function () {
-                return "bar";
-            }
+describe("Factory", function(){
+    describe("Props check", function () {
+        it("should not accept an object property", function () {
+            expect(() => object("wrong", {wrong: {foo: "bar"}})).toThrowError();
         });
-        return this;
-    };
 
-    expect(() => object("noGetter", noGetter())).toThrowError();
+        it("should not accept an null property", function () {
+            expect(() => object("wrong", {wrong: null})).toThrowError();
+        });
+
+        it("should not accept an undefined property", function () {
+            expect(() => object("wrong", {wrong: undefined})).toThrowError();
+        });
+
+        it("should not accept an getter/setter property", function () {
+            const noGetter = function () {
+
+                Object.defineProperty(this, "foo", {
+                    get: function () {
+                        return "bar";
+                    }
+                });
+                return this;
+            };
+
+            expect(() => object("noGetter", noGetter())).toThrowError();
+        });
+
+        it("should not accept an function property", function () {
+            expect(() => object("wrong", {wrong: () => null})).toThrowError();
+        });
+    });
+    describe("Creation", function(){
+        it("should create an instance of object with a snapshot", function () {
+            const Fraktar = Player.create(snapshots.Fraktar);
+            expect(Fraktar).toEqual(observable(snapshots.Fraktar));
+        });
+
+        it("should create an instance of object without snapshot", function () {
+            const player = Player.create();
+            expect(player).toEqual(observable(snapshots.player));
+        });
+    })
 });
 
-it("should not accept an function property", function () {
-    expect(() => object("wrong", {wrong: () => null})).toThrowError();
+describe("Mutations", function () {
+    it("should mutate an object prop", function () {
+        const Fraktar = Player.create(snapshots.Fraktar);
+        Fraktar.entity.stats.aura = 30;
+        expect(Fraktar.entity.stats.aura).toEqual(30);
+    });
+
+    it("should react to object mutation", function () {
+        let mutated = false;
+        const Fraktar = Player.create(snapshots.Fraktar);
+
+        reaction(
+            () => Fraktar.entity.stats.aura,
+            () => mutated = true
+        );
+
+        Fraktar.entity.stats.aura = 30;
+        expect(mutated).toBeTruthy();
+    });
 });
 
-it("should create an instance of object with a snapshot", function () {
-    const Fraktar = Player.create(snapshots.Fraktar);
-    expect(Fraktar).toEqual(observable(snapshots.Fraktar));
-});
+describe("Snapshot", function(){
+    it("should be a valid snapshot", function () {
+        expect(Currency.validate({type: "wizar", quantity: 10})).toBeTruthy();
+    });
 
-it("should create an instance of object without snapshot", function () {
-    const player = Player.create();
-    expect(player).toEqual(observable(snapshots.player));
-});
+    it("should be an invalid snapshot", function () {
+        expect(Player.validate({wrongField: new Date()})).toBeFalsy();
+    });
 
-it("should extract a snapshot from an instance of Object", function () {
-    const Fraktar = Player.create(snapshots.Fraktar);
-    const snapshot = getSnapshot(Fraktar);
-    expect(snapshot).toEqual(snapshots.Fraktar);
-});
+    it("should extract a snapshot from an instance of Object", function () {
+        const Fraktar = Player.create(snapshots.Fraktar);
+        const snapshot = getSnapshot(Fraktar);
+        expect(snapshot).toEqual(snapshots.Fraktar);
+    });
 
-it("should restore an instance with a snapshot of Object", function () {
-    const Fraktar = Player.create({});
-    applySnapshot(Fraktar, snapshots.Fraktar);
-    expect(Fraktar.inventory).toEqual(snapshots.Fraktar.inventory);
-});
-
-it("should be a valid snapshot", function () {
-    expect(Currency.validate({type: "wizar", quantity: 10})).toBeTruthy();
-});
-
-it("should be an invalid snapshot", function () {
-    expect(Player.validate({wrongField: new Date()})).toBeFalsy();
+    it("should restore an instance with a snapshot of Object", function () {
+        const Fraktar = Player.create({});
+        applySnapshot(Fraktar, snapshots.Fraktar);
+        expect(Fraktar.inventory).toEqual(snapshots.Fraktar.inventory);
+    });
 });

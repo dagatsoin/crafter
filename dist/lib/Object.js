@@ -11,10 +11,11 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Type_1 = require("../api/Type");
-var Instance_1 = require("./Instance");
+var Node_1 = require("./Node");
 var mobx_1 = require("mobx");
 var utils_1 = require("./utils");
 var Primitives_1 = require("../api/Primitives");
+var Optional_1 = require("../api/Optional");
 var ObjectType = /** @class */ (function (_super) {
     __extends(ObjectType, _super);
     function ObjectType(opts) {
@@ -22,13 +23,13 @@ var ObjectType = /** @class */ (function (_super) {
         _this.properties = {};
         /**
          * We create the Node of the Instance. The Node is the final value the user will "see". Is is an object where each property is also a Node.
-         * @param {Instance} instance
+         * @param {Node} node
          * @param {S} snapshot
          */
-        _this.buildInstance = function (instance, snapshot) {
+        _this.buildInstance = function (node, snapshot) {
             _this.forAllProps(function (name, type) {
-                mobx_1.extendShallowObservable(instance.storedValue, (_a = {},
-                    _a[name] = mobx_1.observable.ref(type.instantiate(snapshot ? snapshot[name] : null).storedValue),
+                mobx_1.extendShallowObservable(node.data, (_a = {},
+                    _a[name] = mobx_1.observable.ref(type.instantiate(node, name, snapshot ? snapshot[name] : undefined).data),
                     _a));
                 var _a;
             });
@@ -44,27 +45,27 @@ var ObjectType = /** @class */ (function (_super) {
         var _this = this;
         return !utils_1.isPlainObject(value) ? false : this.propertiesNames.some(function (key) { return _this.properties[key].validate(value[key]); });
     };
-    ObjectType.prototype.instantiate = function (snapshot) {
-        return Instance_1.createInstance(this, snapshot, this.createEmptyInstance, this.buildInstance);
+    ObjectType.prototype.instantiate = function (parent, subPath, initialValue) {
+        return Node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);
     };
-    ObjectType.prototype.getSnapshot = function (instance) {
+    ObjectType.prototype.getSnapshot = function (node) {
         var value = {};
         this.forAllProps(function (name, type) {
-            var node = instance.storedValue[name];
-            value[name] = utils_1.isPrimitive(node) ? node : Instance_1.getInstance(node).snapshot;
+            var instance = node.data[name];
+            value[name] = utils_1.isPrimitive(instance) ? instance : Node_1.getNode(instance).snapshot;
         });
         return value;
     };
-    ObjectType.prototype.applySnapshot = function (instance, snapshot) {
+    ObjectType.prototype.applySnapshot = function (node, snapshot) {
         var _this = this;
         mobx_1.transaction(function () {
             _this.forAllProps(function (name, type) {
-                instance.storedValue[name] = snapshot[name];
+                node.data[name] = snapshot[name];
             });
         });
     };
-    ObjectType.prototype.getValue = function (instance) {
-        return instance.storedValue;
+    ObjectType.prototype.getValue = function (node) {
+        return node.data;
     };
     ObjectType.prototype.createEmptyInstance = function () {
         var object = mobx_1.observable.shallowObject({});
@@ -72,11 +73,11 @@ var ObjectType = /** @class */ (function (_super) {
     };
     /**
      * Return all children Instance of an object Instance.
-     * @return {Array<Instance>}
+     * @return {Array<Node>}
      */
-    ObjectType.prototype.getChildren = function (instance) {
+    ObjectType.prototype.getChildren = function (node) {
         var children = [];
-        this.forAllProps(function (name, type) { return children.push(Instance_1.getInstance(instance.storedValue[name])); });
+        this.forAllProps(function (name, type) { return children.push(Node_1.getNode(node.data[name])); });
         return children;
     };
     return ObjectType;
@@ -87,7 +88,7 @@ exports.ObjectType = ObjectType;
  * 1- Remove function, complex object, null/undefined, getter/setter
  * 2- As the user can define primitive type directly with value, we must convert primitive to Type.
  * @param {IObjectProperties<T>} properties
- * @return {{[K in keyof T]:IType<any, T>}}
+ * @return {object}
  */
 function sanitizeProperties(properties) {
     // loop through properties and ensures that all items are types
@@ -105,8 +106,7 @@ function sanitizeProperties(properties) {
         else if (utils_1.isPrimitive(value)) {
             // its a primitive, convert to its type
             return Object.assign({}, properties, (_a = {},
-                _a[key] = Primitives_1.getPrimitiveFactoryFromValue(value) // todo set optional
-            ,
+                _a[key] = Optional_1.optional(Primitives_1.getPrimitiveFactoryFromValue(value), value),
                 _a));
         }
         else if (Type_1.isType(value)) {

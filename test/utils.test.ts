@@ -1,0 +1,11 @@
+test("identity");
+test("isPrimitive");
+test("applySnapshot");
+test("getSnapshot");
+test("fail");
+test("isPlainObject");
+test("isMutable");
+test("walk");
+test("assertType");
+test("escapeJsonPath");
+test("unescapeJsonPath");

@@ -23,13 +23,22 @@ var Type = /** @class */ (function () {
         return this.isValidSnapshot(thing);
     };
     Type.prototype.create = function (snapshot) {
-        return this.instantiate(snapshot).value;
+        utils_1.assertType(this, snapshot);
+        return this.instantiate(null, "", snapshot).value;
     };
-    Type.prototype.applySnapshot = function (instance, snapshot) {
+    Type.prototype.applySnapshot = function (node, snapshot) {
         utils_1.fail("Error from abstract class Type. Immutable value can't be restored.");
     };
-    Type.prototype.getValue = function (instance) {
-        return instance.storedValue;
+    Type.prototype.getValue = function (node) {
+        return node.data;
+    };
+    Type.prototype.reconcile = function (current, newValue) {
+        // reconcile only if type and value are still the same
+        if (current.type === this && current.data === newValue)
+            return current;
+        var res = this.instantiate(current.parent, current.subPath, newValue);
+        current.remove();
+        return res;
     };
     return Type;
 }());
@@ -42,10 +51,10 @@ var ComplexType = /** @class */ (function (_super) {
     ComplexType.prototype.is = function (thing) {
         throw new Error("Method not implemented.");
     };
-    ComplexType.prototype.applySnapshot = function (instance, snapshot) {
+    ComplexType.prototype.applySnapshot = function (node, snapshot) {
         utils_1.fail("Immutable types do not support applying snapshots");
     };
-    ComplexType.prototype.applyPatch = function (instance, patch) {
+    ComplexType.prototype.applyPatch = function (node, patch) {
         throw new Error("Method not implemented.");
     };
     return ComplexType;

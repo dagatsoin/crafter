@@ -3,6 +3,7 @@ import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {observable, reaction} from "mobx";
 import {applySnapshot, getSnapshot} from "../src/lib/utils";
+import {optional} from "../src/api/Optional";
 
 
 const Entity = object("Entity", {
@@ -25,7 +26,7 @@ const Currency = object("Currency", {
 
 const Inventory = object("Inventory", {
     slots: array(Slot),
-    currencies: array(Currency)
+    currencies: optional(array(Currency), [{type: "gold", quantity: 10}])
 });
 
 const Player = object("Player", {
@@ -93,18 +94,28 @@ describe("Factory", function(){
         it("should not accept an function property", function () {
             expect(() => object("wrong", {wrong: () => null})).toThrowError();
         });
+
+        it("should replace primitive value of props by optional prop with default value", function(){
+            const Model = object("model", {foo: "foo"});
+            expect(Model.create().foo).toEqual("foo");
+        });
     });
     describe("Creation", function(){
-        it("should create an instance of object with a snapshot", function () {
+        it("should create a complex object with a snapshot", function () {
             const Fraktar = Player.create(snapshots.Fraktar);
             expect(Fraktar).toEqual(observable(snapshots.Fraktar));
+        });
+
+        it("should create an simple object with a snapshot", function () {
+            const foo = Slot.create(snapshots.Fraktar.inventory.slots[0]);
+            expect(foo).toEqual(observable(snapshots.Fraktar.inventory.slots[0]));
         });
 
         it("should create an instance of object without snapshot", function () {
             const player = Player.create();
             expect(player).toEqual(observable(snapshots.player));
         });
-    })
+    });
 });
 
 describe("Mutations", function () {
@@ -147,5 +158,9 @@ describe("Snapshot", function(){
         const Fraktar = Player.create({});
         applySnapshot(Fraktar, snapshots.Fraktar);
         expect(Fraktar.inventory).toEqual(snapshots.Fraktar.inventory);
+    });
+
+    it("should accept an optional field", function(){
+        expect(Inventory.validate({slots: []}));
     });
 });

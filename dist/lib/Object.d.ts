@@ -1,5 +1,5 @@
 import { ComplexType, IObjectType, IType } from "../api/Type";
-import { Instance } from "./Instance";
+import { Node } from "./Node";
 export declare type IObjectProperties<T> = {
     [K in keyof T]: IType<any, T[K]> | T[K];
 };
@@ -11,21 +11,21 @@ export declare class ObjectType<S, T> extends ComplexType<S, T> implements IObje
         properties?: object;
     });
     isValidSnapshot(value: any): boolean;
-    instantiate(snapshot: S): Instance;
-    getSnapshot(instance: Instance): S;
-    applySnapshot(instance: Instance, snapshot: S): void;
-    getValue(instance: Instance): T;
+    instantiate(parent: Node, subPath: string, initialValue?: any): Node;
+    getSnapshot(node: Node): S;
+    applySnapshot(node: Node, snapshot: S): void;
+    getValue(node: Node): T;
     private createEmptyInstance();
     /**
      * We create the Node of the Instance. The Node is the final value the user will "see". Is is an object where each property is also a Node.
-     * @param {Instance} instance
+     * @param {Node} node
      * @param {S} snapshot
      */
     private buildInstance;
     private forAllProps;
     /**
      * Return all children Instance of an object Instance.
-     * @return {Array<Instance>}
+     * @return {Array<Node>}
      */
-    getChildren(instance: Instance): Array<Instance>;
+    getChildren(node: Node): Array<Node>;
 }

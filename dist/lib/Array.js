@@ -11,8 +11,9 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Type_1 = require("../api/Type");
+var utils_1 = require("./utils");
 var mobx_1 = require("mobx");
-var Instance_1 = require("./Instance");
+var Node_1 = require("./Node");
 var ArrayType = /** @class */ (function (_super) {
     __extends(ArrayType, _super);
     function ArrayType(name, itemType) {
@@ -20,32 +21,98 @@ var ArrayType = /** @class */ (function (_super) {
         _this.createEmptyInstance = function (snapshot) {
             return mobx_1.observable.array();
         };
-        _this.buildInstance = function (instance, snapshot) {
+        _this.buildInstance = function (node, snapshot) {
+            mobx_1.intercept(node.data, function (change) { return _this.willChange(change); });
             if (snapshot && snapshot.length)
                 snapshot.forEach(function (item, index) {
-                    var subInstance = _this.itemType.instantiate(item);
-                    instance.storedValue.push(subInstance.storedValue);
+                    var subInstance = _this.itemType.instantiate(node, index.toString(), item);
+                    node.data.push(subInstance.data);
                 });
         };
         _this.itemType = itemType;
         return _this;
     }
-    ArrayType.prototype.getSnapshot = function (instance) {
-        return instance.storedValue.map(function (item) { return item.$instance.snapshot; });
+    ArrayType.prototype.getSnapshot = function (node) {
+        return node.data.map(function (item) { return item.$node.snapshot; });
     };
-    ArrayType.prototype.instantiate = function (snapshot) {
-        return Instance_1.createInstance(this, snapshot, this.createEmptyInstance, this.buildInstance);
+    ArrayType.prototype.instantiate = function (parent, subPath, initialValue) {
+        return Node_1.createNode(this, parent, "", initialValue, this.createEmptyInstance, this.buildInstance);
     };
     ArrayType.prototype.isValidSnapshot = function (value) {
         var _this = this;
         return value.constructor.name !== "array" ? false : value.some(function (item, index) { return _this.itemType.validate(item); });
     };
-    ArrayType.prototype.applySnapshot = function (instance, snapshot) {
-        var target = instance.storedValue;
+    ArrayType.prototype.applySnapshot = function (node, snapshot) {
+        var target = node.data;
         target.replace(snapshot);
     };
-    ArrayType.prototype.getChildren = function (instance) {
-        return instance.storedValue.map(function (item) { return item.$instance; });
+    ArrayType.prototype.getChildren = function (node) {
+        return node.data.map(function (item) { return item.$node; });
+    };
+    ArrayType.prototype.willChange = function (change) {
+        var node = Node_1.getNode(change.object);
+        var children = node.children;
+        switch (change.type) {
+            case "update":
+                if (change.newValue === change.object[change.index])
+                    return null;
+                change.newValue = this.reconcileArrayChildren(node, this.itemType, [children[change.index]], [change.newValue], [change.index])[0].data;
+                break;
+            case "splice":
+                var index_1 = change.index, removedCount = change.removedCount, added = change.added;
+                change.added = this.reconcileArrayChildren(node, this.itemType, children.slice(index_1, index_1 + removedCount), added, added.map(function (_, i) { return index_1 + i; })).map(function (node) { return node.data; });
+                // update paths of remaining items
+                for (var i = index_1 + removedCount; i < children.length; i++) {
+                    children[i].setParent(node, "" + (i + added.length - removedCount));
+                }
+                break;
+        }
+        return change;
+    };
+    ArrayType.prototype.reconcileArrayChildren = function (parent, childType, currentNodes, newValues, newPaths) {
+        var currentNode, newValue, hasNewNode = false, currentMatch = undefined;
+        for (var i = 0;; i++) {
+            currentNode = currentNodes[i];
+            newValue = newValues[i];
+            hasNewNode = i <= newValues.length - 1;
+            // both are empty, end
+            if (!currentNode && !hasNewNode) {
+                break;
+                // new one does not exists, old one dies
+            }
+            else if (!hasNewNode) {
+                currentNode.remove();
+                currentNodes.splice(i, 1);
+                i--;
+                // there is no old node, create it
+            }
+            else if (!currentNode) {
+                // check if already belongs to the same parent. if so, avoid pushing item in. only swapping can occur.
+                if (Node_1.isInstance(newValue) && Node_1.getNode(newValue).parent === parent) {
+                    console.log(newValue, parent);
+                    // this node is owned by this parent, but not in the reconcilable set, so it must be double
+                    utils_1.fail("Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '" + parent.path + newPaths[i] + "', but it lives already at '" + Node_1.getNode(newValue).path + "'");
+                }
+                currentNodes.splice(i, 0, Node_1.valueAsNode(childType, parent, newPaths[i].toString(), newValue));
+                // both are the same, reconcile
+            }
+            else if (Node_1.areSame(currentNode, newValue)) {
+                currentNodes[i] = Node_1.valueAsNode(childType, parent, "" + newPaths[i], newValue, currentNode);
+                // nothing to do, try to reorder
+            }
+            else {
+                currentMatch = undefined;
+                // find a possible candidate to reuse
+                for (var j = i; j < currentNodes.length; j++) {
+                    if (Node_1.areSame(currentNodes[j], newValue)) {
+                        currentMatch = currentNodes.splice(j, 1)[0];
+                        break;
+                    }
+                }
+                currentNodes.splice(i, 0, Node_1.valueAsNode(childType, parent, "" + newPaths[i], newValue, currentMatch));
+            }
+        }
+        return currentNodes;
     };
     return ArrayType;
 }(Type_1.ComplexType));

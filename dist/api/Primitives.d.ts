@@ -1,22 +1,4 @@
-import { ISimpleType, Type } from "./Type";
-import { Instance } from "../lib/Instance";
-/**
- * From MST implementation https://github.com/mobxjs/mobx-state-tree/blob/master/src/types/primitives.ts
- */
-export declare class CoreType<S, T> extends Type<S, T> {
-    readonly checker: (value: any) => boolean;
-    readonly initializer: (v: any) => any;
-    constructor(name: any, checker: any, initializer?: (v: any) => any);
-    instantiate(snapshot: T): Instance;
-    isValidSnapshot(value: any): boolean;
-    getSnapshot(instance: Instance): S;
-    applySnapshot(instance: Instance, snapshot: S): void;
-    /**
-     * Return an empty array of Instance because primitive can't have children.
-     * @return {Array<Instance>}
-     */
-    getChildren(instance: Instance): Array<Instance>;
-}
+import { ISimpleType } from "./Type";
 /**
  * Creates a type that can only contain a string value.
  * This type is used for string values by default

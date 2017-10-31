@@ -1,8 +1,9 @@
-import {ComplexType, IObjectType, isType, IType,} from "../api/Type";
-import {createInstance, getInstance, Instance} from "./Instance";
+import {ComplexType, IObjectType, isType, IType, } from "../api/Type";
+import {createNode, getNode, Node} from "./Node";
 import {extendShallowObservable, observable, transaction} from "mobx";
 import {isPlainObject, isPrimitive, fail} from "./utils";
 import {getPrimitiveFactoryFromValue} from "../api/Primitives";
+import {optional} from "../api/Optional";
 
 export type IObjectProperties<T> = { [K in keyof T]: IType<any, T[K]> | T[K] };
 
@@ -23,34 +24,36 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
         return !isPlainObject(value) ? false : this.propertiesNames.some(key => this.properties[key].validate(value[key]));
     }
 
-    instantiate(snapshot: S): Instance {
-        return createInstance(
+    instantiate(parent: Node, subPath: string, initialValue?: any): Node {
+        return createNode(
             this,
-            snapshot,
+            parent,
+            subPath,
+            initialValue,
             this.createEmptyInstance,
             this.buildInstance
         );
     }
 
-    getSnapshot(instance: Instance): S {
+    getSnapshot(node: Node): S {
         const value = {};
         this.forAllProps((name, type) => {
-            const node = instance.storedValue[<keyof T>name];
-            (<any>value)[name] = isPrimitive(node) ? node : getInstance(node).snapshot;
+            const instance = node.data[<keyof T>name];
+            (<any>value)[name] = isPrimitive(instance) ? instance : getNode(instance).snapshot;
         });
         return value as any as S;
     }
 
-    applySnapshot(instance: Instance, snapshot: S) {
+    applySnapshot(node: Node, snapshot: S) {
         transaction(() => {
             this.forAllProps((name, type) => {
-                instance.storedValue[name] = (<any>snapshot)[name];
+                node.data[name] = (<any>snapshot)[name];
             });
         });
     }
 
-    getValue(instance: Instance): T {
-        return instance.storedValue;
+    getValue(node: Node): T {
+        return node.data;
     }
 
     private createEmptyInstance() {
@@ -60,28 +63,28 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
 
     /**
      * We create the Node of the Instance. The Node is the final value the user will "see". Is is an object where each property is also a Node.
-     * @param {Instance} instance
+     * @param {Node} node
      * @param {S} snapshot
      */
-    private buildInstance = (instance: Instance, snapshot: S) => {
+    private buildInstance = (node: Node, snapshot: S) => {
         this.forAllProps((name, type) => {
-            extendShallowObservable(instance.storedValue, {
-                [name]: observable.ref(type.instantiate(snapshot ? (<any>snapshot)[name] : null).storedValue)
+            extendShallowObservable(node.data, {
+                [name]: observable.ref(type.instantiate(node, name, snapshot ? (<any>snapshot)[name] : undefined).data)
             });
         });
-    };
+    }
 
     private forAllProps = (fn: (name: string, type: IType<any, any>) => void) => {
         this.propertiesNames.forEach(key => fn(key, this.properties[key]));
-    };
+    }
 
     /**
      * Return all children Instance of an object Instance.
-     * @return {Array<Instance>}
+     * @return {Array<Node>}
      */
-    getChildren(instance: Instance): Array<Instance> {
-        const children: Array<Instance> = [];
-        this.forAllProps((name, type) => children.push(getInstance(instance.storedValue[name])));
+    getChildren(node: Node): Array<Node> {
+        const children: Array<Node> = [];
+        this.forAllProps((name, type) => children.push(getNode(node.data[name])));
         return children;
     }
 }
@@ -91,7 +94,7 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
  * 1- Remove function, complex object, null/undefined, getter/setter
  * 2- As the user can define primitive type directly with value, we must convert primitive to Type.
  * @param {IObjectProperties<T>} properties
- * @return {{[K in keyof T]:IType<any, T>}}
+ * @return {object}
  */
 function sanitizeProperties<T>(properties: IObjectProperties<T>): { [K in keyof T]: IType<any, T> } {
     // loop through properties and ensures that all items are types
@@ -110,7 +113,7 @@ function sanitizeProperties<T>(properties: IObjectProperties<T>): { [K in keyof 
         } else if (isPrimitive(value)) {
             // its a primitive, convert to its type
             return Object.assign({}, properties, {
-                [key]: getPrimitiveFactoryFromValue(value) // todo set optional
+                [key]: optional(getPrimitiveFactoryFromValue(value), value)
             });
         } else if (isType(value)) {
             // its already a type

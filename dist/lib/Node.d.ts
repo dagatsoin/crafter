@@ -1,0 +1,59 @@
+import { IType } from "../api/Type";
+export declare type Instance = {
+    readonly $node?: Node;
+};
+export declare class Node {
+    readonly type: IType<any, any>;
+    readonly data: any;
+    parent: Node | null;
+    identifierAttribute: string | undefined;
+    subPath: string;
+    private isAlive;
+    private isDetaching;
+    constructor(type: IType<any, any>, parent: Node | null, subPath: string, initialValue: any, initBaseType?: (baseTypeIdentity: any) => any, buildType?: (node: Node, snapshot: any) => void);
+    applySnapshot(snapshot: any): void;
+    readonly snapshot: any;
+    isRoot(): boolean;
+    readonly root: Node;
+    readonly value: any;
+    readonly children: Array<Node>;
+    readonly identifier: string | null;
+    readonly path: string;
+    assertAlive(): void;
+    setParent(newParent: Node | null, subPath?: string | null): void;
+}
+/**
+ * Get the internal Instance object of a runtime Instance.
+ * @param value
+ * @return {Node}
+ */
+export declare function getNode(value: Instance): Node;
+/**
+ * Returns true if the given value is a instance in a tree.
+ * More precisely, that is, if the value is an instance of a
+ * `types.model`, `types.array` or `types.map`.
+ *
+ * @export
+ * @param {*} value
+ * @returns {boolean}
+ */
+export declare function isInstance(value: any): value is Instance;
+export declare function createNode<S, T>(type: IType<S, T>, parent: Node | null, subPath: string, initialValue: any, createEmptyInstance?: (initialValue: any) => T, hydrateInstance?: (node: Node, snapshot: any) => void): Node;
+export declare function canAttachNode(value: any): boolean;
+/**
+ * Convert a value to a node at given parent and subpath. attempts to reuse old node if possible and given
+ * @param {IType<any, any>} childType
+ * @param {Node} parent
+ * @param {string} subpath
+ * @param newValue
+ * @param {Node} oldNode
+ * @return {any}
+ */
+export declare function valueAsNode(childType: IType<any, any>, parent: Node, subpath: string, newValue: any, oldNode?: Node): Node;
+/**
+ * Return true if if the value is the Instance or a snapshot of the Node.
+ * @param {Instance} node
+ * @param value
+ * @return {boolean}
+ */
+export declare function areSame(node: Node, value: any): boolean;

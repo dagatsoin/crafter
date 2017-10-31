@@ -16,7 +16,6 @@ export class OptionalValue<S, T> extends Type<S, T> {
     }
 
     instantiate(parent: Node, subPath: string, value: S): Node {
-        console.log(value === undefined)
         if (value === undefined) {
             const defaultValue = this.getDefaultValue();
             const defaultSnapshot = isInstance(defaultValue)

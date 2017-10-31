@@ -40,8 +40,11 @@ var Node = /** @class */ (function () {
         this.isAlive = true;
     }
     Node.prototype.applySnapshot = function (snapshot) {
-        if (snapshot !== this.snapshot)
-            this.type.applySnapshot(this, snapshot);
+        var _this = this;
+        mobx_1.transaction(function () {
+            if (snapshot !== _this.snapshot)
+                _this.type.applySnapshot(_this, snapshot);
+        });
     };
     Object.defineProperty(Node.prototype, "snapshot", {
         get: function () {

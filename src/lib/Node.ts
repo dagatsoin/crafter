@@ -1,4 +1,4 @@
-import {computed, isObservable, observable} from "mobx";
+import {computed, isObservable, observable, transaction} from "mobx";
 import {IType} from "../api/Type";
 import {escapeJsonPath, fail, identity, isMutable, isPlainObject, isPrimitive, walk} from "./utils";
 
@@ -54,7 +54,9 @@ export class Node {
     }
 
     applySnapshot(snapshot: any) {
-        if (snapshot !== this.snapshot) this.type.applySnapshot(this, snapshot);
+        transaction(() => {
+            if (snapshot !== this.snapshot) this.type.applySnapshot(this, snapshot);
+        });
     }
 
     @computed

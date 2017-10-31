@@ -7,10 +7,10 @@ import {optional} from "../src/api/Optional";
 
 
 const Entity = object("Entity", {
-    name: string,
+    name: "",
     stats: object("Stats", {
-        aura: number,
-        phase: number
+        aura: 0,
+        phase: 0
     }),
 });
 
@@ -25,8 +25,8 @@ const Currency = object("Currency", {
 });
 
 const Inventory = object("Inventory", {
-    slots: array(Slot),
-    currencies: optional(array(Currency), [{type: "gold", quantity: 10}])
+    slots: optional(array(Slot), []),
+    currencies: optional(array(Currency), [{type: "gold", quantity: 0}])
 });
 
 const Player = object("Player", {
@@ -37,15 +37,15 @@ const Player = object("Player", {
 const snapshots = {
     player: {
         entity: {
-            name: null,
+            name: "",
             stats: {
-                aura: null,
-                phase: null
+                aura: 0,
+                phase: 0
             }
         },
         inventory: {
             slots: [],
-            currencies: []
+            currencies: [{type: "gold", quantity: 0}]
         }
     },
     Fraktar: {

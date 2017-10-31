@@ -22,7 +22,6 @@ var OptionalValue = /** @class */ (function (_super) {
         return _this;
     }
     OptionalValue.prototype.instantiate = function (parent, subPath, value) {
-        console.log(value === undefined);
         if (value === undefined) {
             var defaultValue = this.getDefaultValue();
             var defaultSnapshot = Node_1.isInstance(defaultValue)

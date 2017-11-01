@@ -3,7 +3,7 @@ import {canAttachNode, createNode, isInstance} from "../src/lib/Node";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {optional} from "../src/api/Optional";
-import {clone, getParent, hasParent, isAlive} from "../src/api/utils";
+import {getChildType, getType, clone, getParent, hasParent, isAlive} from "../src/api/utils";
 
 const Entity = object("Entity", {
     name: string,
@@ -122,8 +122,8 @@ it("should be possible to clone a dead object", t => {
     expect(store.todos[0].x).toEqual("a");
 });
 
-it("should return the model factory", t => {
-    const Document = object({
+it("should return the model factory", function () {
+    const Document = object("Document", {
         customer_id: 0
     });
     const doc = Document.create();
@@ -131,12 +131,12 @@ it("should return the model factory", t => {
 });
 // getChildModelFactory
 
-it("should return the child model factory", t => {
-    const Row = object({
+it("should return the child model factory", function() {
+    const Row = object("row", {
         article_id: 0
     });
     const ArrayOfRow = optional(array(Row), []);
-    const Document = object({
+    const Document = object("document",{
         rows: ArrayOfRow
     });
     const doc = Document.create();
@@ -165,7 +165,6 @@ it("should not create a node which already exists in a tree", t => {
 });
 
 it("should get the root of the tree");
-it("should get the parent of an node");
 it("should get the path");
 it("should get empty path because it is the root");
 it("should get the children of an object node");

@@ -1,5 +1,6 @@
 import {Node, getNode, Instance} from "../lib/Node";
 import {fail, assertType} from "../lib/utils";
+import {IType} from "./Type";
 
 declare const process: any;
 /**
@@ -120,4 +121,23 @@ export function isAlive(target: Instance): boolean {
     // check all arguments
     assertType(target, "Instance");
     return getNode(target).isAlive;
+}
+
+/**
+ * Return the Type factory of an instance
+ * @param {Instance} instance
+ * @return {IType<any, any>}
+ */
+export function getType(instance: Instance): IType<any, any> {
+    return getNode(instance).type;
+}
+
+/**
+ * Return the Type facotry of a child
+ * @param {Instance} instance
+ * @param {string} childName
+ * @return {IType<any, any>}
+ */
+export function getChildType(instance: Instance, childName: string): IType<any, any> {
+    return getNode(instance).getChildType(childName);
 }

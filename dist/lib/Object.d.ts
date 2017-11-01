@@ -28,4 +28,5 @@ export declare class ObjectType<S, T> extends ComplexType<S, T> implements IObje
      * @return {Array<Node>}
      */
     getChildren(node: Node): Array<Node>;
+    getChildType(key: string): IType<any, any>;
 }

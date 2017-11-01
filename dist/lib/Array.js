@@ -109,6 +109,9 @@ var ArrayType = /** @class */ (function (_super) {
         }
         return currentNodes;
     };
+    ArrayType.prototype.getChildType = function (key) {
+        return this.itemType;
+    };
     return ArrayType;
 }(Type_1.ComplexType));
 exports.ArrayType = ArrayType;

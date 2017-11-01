@@ -68,7 +68,7 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
      */
     private buildInstance = (node: Node, snapshot: S) => {
         this.forAllProps((name, type) => {
-            const instance = isInstance(type.instantiate(node, name, snapshot ? (<any>snapshot)[name] : undefined).data;
+            const instance = type.instantiate(node, name, snapshot ? (<any>snapshot)[name] : undefined).data;
             extendShallowObservable(node.data, {
                 [name]: observable.ref(instance)
             });
@@ -87,6 +87,10 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
         const children: Array<Node> = [];
         this.forAllProps((name, type) => children.push(getNode(node.data[name])));
         return children;
+    }
+
+    getChildType(key: string): IType<any, any> {
+        return this.properties[key];
     }
 }
 

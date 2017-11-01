@@ -35,6 +35,8 @@ export interface IType<S, T> {
 
     getValue(node: Node): T;
 
+    getChildType(key: string): IType<any, any>;
+
     /**
      * When a complex array is receiving a snapshot it needs to change the value of all its children. The most basic method to do this is to recreate a new Node
      * for each children.
@@ -118,6 +120,10 @@ export abstract class Type<S, T> implements IType<S, T> {
         );
         current.remove();
         return res;
+    }
+
+    getChildType(key: string): IType<any, any> {
+        return fail(`No child '${key}' available in type: ${this.name}`);
     }
 }
 

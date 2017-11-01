@@ -14,6 +14,7 @@ var Node = /** @class */ (function () {
         if (buildType === void 0) { buildType = function () {
         }; }
         this.parent = null;
+        this.leafs = []; // Refs to the Node of primitives. Primitive value can't have any children and don't hold a reference to their node.
         this.identifierAttribute = undefined; // not to be modified directly, only through model initialization
         this.type = type;
         this.parent = parent;
@@ -22,11 +23,11 @@ var Node = /** @class */ (function () {
          * If it it an object return {}, if it is an array it return  [], etc...
          * We also test if the node ref could be attached to the type. // todo put this as a static prop of the type */
         this.data = initBaseType(initialValue);
-        var canAttachNodeRef = canAttachNode(this.data);
-        /* 2 - // todo Observe the stored value to transform the Instance tree in a Node tree.*/
-        /* 3 - Add a reference to this node to the data. This will allow to recognize this value as a Node
-         and use functions like restore, snapshot, type check, etc.*/
-        if (canAttachNodeRef) {
+        /* 2 - Add a reference to this node to the data. This will allow to recognize this value as a Node
+         * and use functions like restore, snapshot, type check, etc.
+         * If it is a primitive type, the node ref is stored in the parent as a leaf.
+         */
+        if (canAttachNode(this.data)) {
             Object.defineProperty(this.data, "$node", {
                 enumerable: false,
                 writable: false,
@@ -34,9 +35,14 @@ var Node = /** @class */ (function () {
                 value: this,
             });
         }
-        /* 4 - Build and hydration phase. Only needed for complex type instance */
+        else if (parent)
+            parent.leafs.push(this);
+        /* 3 - Build and hydration phase. */
         if (!utils_1.isPrimitive(this.data))
-            buildType(this, initialValue);
+            buildType(this, initialValue); // For object
+        else if (utils_1.isPrimitive(this.data) && !parent) {
+            // todo generate boxed observable for primitive
+        }
         this.isAlive = true;
     }
     Node.prototype.applySnapshot = function (snapshot) {
@@ -154,9 +160,15 @@ var Node = /** @class */ (function () {
             }
         }
     };
+    Node.prototype.getChildType = function (key) {
+        return this.type.getChildType(key);
+    };
     __decorate([
         mobx_1.observable
     ], Node.prototype, "parent", void 0);
+    __decorate([
+        mobx_1.observable
+    ], Node.prototype, "leafs", void 0);
     __decorate([
         mobx_1.computed
     ], Node.prototype, "snapshot", null);

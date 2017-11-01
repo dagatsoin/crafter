@@ -40,6 +40,9 @@ var Type = /** @class */ (function () {
         current.remove();
         return res;
     };
+    Type.prototype.getChildType = function (key) {
+        return utils_1.fail("No child '" + key + "' available in type: " + this.name);
+    };
     return Type;
 }());
 exports.Type = Type;

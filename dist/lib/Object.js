@@ -28,7 +28,7 @@ var ObjectType = /** @class */ (function (_super) {
          */
         _this.buildInstance = function (node, snapshot) {
             _this.forAllProps(function (name, type) {
-                var instance = Node_1.isInstance(type.instantiate(node, name, snapshot ? snapshot[name] : undefined).data);
+                var instance = type.instantiate(node, name, snapshot ? snapshot[name] : undefined).data;
                 mobx_1.extendShallowObservable(node.data, (_a = {},
                     _a[name] = mobx_1.observable.ref(instance),
                     _a));
@@ -80,6 +80,9 @@ var ObjectType = /** @class */ (function (_super) {
         var children = [];
         this.forAllProps(function (name, type) { return children.push(Node_1.getNode(node.data[name])); });
         return children;
+    };
+    ObjectType.prototype.getChildType = function (key) {
+        return this.properties[key];
     };
     return ObjectType;
 }(Type_1.ComplexType));

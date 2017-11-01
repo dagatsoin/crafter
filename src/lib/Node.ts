@@ -10,6 +10,7 @@ export class Node {
     readonly type: IType<any, any>;
     readonly data: any;
     @observable public parent: Node | null = null;
+    @observable public leafs: Array<Node> = []; // Refs to the Node of primitives. Primitive value can't have any children and don't hold a reference to their node.
     identifierAttribute: string | undefined = undefined; // not to be modified directly, only through model initialization
     subPath: string;
     isAlive: boolean;
@@ -32,24 +33,25 @@ export class Node {
          * If it it an object return {}, if it is an array it return  [], etc...
          * We also test if the node ref could be attached to the type. // todo put this as a static prop of the type */
         this.data = initBaseType(initialValue);
-        const canAttachNodeRef = canAttachNode(this.data);
 
-        /* 2 - // todo Observe the stored value to transform the Instance tree in a Node tree.*/
-
-        /* 3 - Add a reference to this node to the data. This will allow to recognize this value as a Node
-         and use functions like restore, snapshot, type check, etc.*/
-        if (canAttachNodeRef) {
+        /* 2 - Add a reference to this node to the data. This will allow to recognize this value as a Node
+         * and use functions like restore, snapshot, type check, etc.
+         * If it is a primitive type, the node ref is stored in the parent as a leaf.
+         */
+        if (canAttachNode(this.data)) {
             Object.defineProperty(this.data, "$node", {
                 enumerable: false,
                 writable: false,
                 configurable: true,
                 value: this,
             });
+        } else if (parent) parent.leafs.push(this);
+
+        /* 3 - Build and hydration phase. */
+        if (!isPrimitive(this.data)) buildType(this, initialValue); // For object
+        else if (isPrimitive(this.data) && !parent) {// For primitive without parent we generate a boxed primitive.
+            // todo generate boxed observable for primitive
         }
-
-        /* 4 - Build and hydration phase. Only needed for complex type instance */
-        if (!isPrimitive(this.data)) buildType(this, initialValue);
-
         this.isAlive = true;
     }
 
@@ -158,6 +160,10 @@ export class Node {
                 this.parent = newParent;
             }
         }
+    }
+
+    getChildType(key: string): IType<any, any> {
+        return this.type.getChildType(key);
     }
 }
 

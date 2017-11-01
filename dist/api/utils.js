@@ -122,4 +122,23 @@ function isAlive(target) {
     return Node_1.getNode(target).isAlive;
 }
 exports.isAlive = isAlive;
+/**
+ * Return the Type factory of an instance
+ * @param {Instance} instance
+ * @return {IType<any, any>}
+ */
+function getType(instance) {
+    return Node_1.getNode(instance).type;
+}
+exports.getType = getType;
+/**
+ * Return the Type facotry of a child
+ * @param {Instance} instance
+ * @param {string} childName
+ * @return {IType<any, any>}
+ */
+function getChildType(instance, childName) {
+    return Node_1.getNode(instance).getChildType(childName);
+}
+exports.getChildType = getChildType;
 //# sourceMappingURL=utils.js.map

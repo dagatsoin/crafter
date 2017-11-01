@@ -1,4 +1,5 @@
 import { Instance } from "../lib/Node";
+import { IType } from "./Type";
 /**
  * Returns a deep copy of the given state tree node as new tree.
  * Short hand for `snapshot(x) = getType(x).create(getSnapshot(x))`
@@ -46,3 +47,16 @@ export declare function getRoot<T>(target: Instance): T & Instance;
  * @returns {boolean}
  */
 export declare function isAlive(target: Instance): boolean;
+/**
+ * Return the Type factory of an instance
+ * @param {Instance} instance
+ * @return {IType<any, any>}
+ */
+export declare function getType(instance: Instance): IType<any, any>;
+/**
+ * Return the Type facotry of a child
+ * @param {Instance} instance
+ * @param {string} childName
+ * @return {IType<any, any>}
+ */
+export declare function getChildType(instance: Instance, childName: string): IType<any, any>;

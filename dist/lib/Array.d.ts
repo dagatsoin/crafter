@@ -13,4 +13,5 @@ export declare class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T
     getChildren(node: Node): Node[];
     private willChange(change);
     private reconcileArrayChildren<T>(parent, childType, currentNodes, newValues, newPaths);
+    getChildType(key: string): IType<any, any>;
 }

@@ -145,4 +145,8 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
 
         return currentNodes;
     }
+
+    getChildType(key: string): IType<any, any> {
+        return this.itemType;
+    }
 }

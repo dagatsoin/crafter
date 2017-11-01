@@ -1,11 +1,12 @@
 import {boolean, number, string} from "../src/api/Primitives";
 import {optional} from "../src/api/Optional";
 import {isInstance} from "../src/lib/Node";
+import {isObservable} from "mobx";
 
 describe("All primitives", function () {
     it("should not support applying snapshots because they are immutable", function () {
-        const instance = string.instantiate(null, "", "foo");
-        expect(() => string.applySnapshot(instance, "bar")).toThrowError();
+        const node = string.instantiate(null, "", "foo");
+        expect(() => string.applySnapshot(node, "bar")).toThrowError();
     });
 
     it("should not create an undefined primitive", function () {
@@ -18,8 +19,13 @@ describe("All primitives", function () {
     });
 
     it("should not be an Instance", function () {
-        const instance = string.instantiate(null, "", "foo");
+        const instance = string.create("foo");
         expect(isInstance(instance)).toBeFalsy();
+    });
+
+    it("should not be observable", function () {
+        const instance = string.create("foo");
+        expect(isObservable(instance)).toBeFalsy();
     });
 });
 

@@ -2,8 +2,9 @@ import {object} from "../src/api/Object";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {observable, reaction} from "mobx";
-import {applySnapshot, getSnapshot} from "../src/lib/utils";
+import {applySnapshot, getSnapshot} from "../src/api/utils";
 import {optional} from "../src/api/Optional";
+import {isInstance} from "../src/lib/Node";
 
 
 const Entity = object("Entity", {
@@ -109,6 +110,7 @@ describe("Factory", function(){
         it("should create an simple object with a snapshot", function () {
             const foo = Slot.create(snapshots.Fraktar.inventory.slots[0]);
             expect(foo).toEqual(observable(snapshots.Fraktar.inventory.slots[0]));
+            expect(isInstance(foo.prefabId)).toBeTruthy();
         });
 
         it("should create an instance of object without snapshot", function () {

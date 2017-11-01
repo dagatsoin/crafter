@@ -1,5 +1,5 @@
 import {ComplexType, IObjectType, isType, IType, } from "../api/Type";
-import {createNode, getNode, Node} from "./Node";
+import {createNode, getNode, isInstance, Node} from "./Node";
 import {extendShallowObservable, observable, transaction} from "mobx";
 import {isPlainObject, isPrimitive, fail} from "./utils";
 import {getPrimitiveFactoryFromValue} from "../api/Primitives";
@@ -68,8 +68,9 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
      */
     private buildInstance = (node: Node, snapshot: S) => {
         this.forAllProps((name, type) => {
+            const instance = isInstance(type.instantiate(node, name, snapshot ? (<any>snapshot)[name] : undefined).data;
             extendShallowObservable(node.data, {
-                [name]: observable.ref(type.instantiate(node, name, snapshot ? (<any>snapshot)[name] : undefined).data)
+                [name]: observable.ref(instance)
             });
         });
     }

@@ -1,5 +1,6 @@
 import {boolean, number, string} from "../src/api/Primitives";
 import {optional} from "../src/api/Optional";
+import {isInstance} from "../src/lib/Node";
 
 describe("All primitives", function () {
     it("should not support applying snapshots because they are immutable", function () {
@@ -11,9 +12,14 @@ describe("All primitives", function () {
         expect(() => string.create()).toThrowError("Error while instantiating string. Expected a string, got undefined");
     });
 
-    it("should create an optional primitive", function(){
+    it("should create an optional primitive", function () {
         const name = optional(string, "ghost");
         expect(name.create()).toEqual("ghost");
+    });
+
+    it("should not be an Instance", function () {
+        const instance = string.instantiate(null, "", "foo");
+        expect(isInstance(instance)).toBeFalsy();
     });
 });
 

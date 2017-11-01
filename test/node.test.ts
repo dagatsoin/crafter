@@ -3,7 +3,7 @@ import {canAttachNode, createNode, isInstance} from "../src/lib/Node";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {optional} from "../src/api/Optional";
-import {getParent, hasParent} from "../src/lib/utils";
+import {clone, getParent, hasParent, isAlive} from "../src/api/utils";
 
 const Entity = object("Entity", {
     name: string,
@@ -89,80 +89,76 @@ it("should resolve parents", function () {
     expect(() => getParent(row, 3)).toThrowError("[chewing] Failed to find the parent of [object Object] at depth 3");
 });
 
-it("should clone a node", t => {
-    const Row = types.model({
+it("should clone a node", function () {
+    const Row = object("row", {
         article_id: 0
     });
-    const Document = types.model({
-        rows: types.optional(types.array(Row), [])
+    const Document = object("Document", {
+        rows: optional(array(Row), [])
     });
     const doc = Document.create();
-    unprotect(doc);
     const row = Row.create();
     doc.rows.push(row);
     const cloned = clone(doc);
-    t.deepEqual(doc, cloned);
+    expect(doc).toEqual(cloned);
 });
 
 it("should be possible to clone a dead object", t => {
-    const Task = types.model("Task", {
-        x: types.string
+    const Task = object("Task", {
+        x: string
     });
-    const a = Task.create({ x: "a" });
-    const store = types
-        .model({
-            todos: types.optional(types.array(Task), [])
-        })
-        .create({
-            todos: [a]
-        });
-    unprotect(store);
-    t.deepEqual(store.todos.slice(), [a]);
-    t.is(isAlive(a), true);
+    const a = Task.create({x: "a"});
+    const store = object("Store", {
+        todos: optional(array(Task), [])
+    }).create({todos: [a]});
+
+    expect(store.todos.slice()).toEqual([{"x": "a"}]);
+
+    expect(isAlive(a)).toBeTruthy();
     store.todos.splice(0, 1);
-    t.is(isAlive(a), false);
+    expect(isAlive(a)).toBeFalsy();
     const a2 = clone(a);
     store.todos.splice(0, 0, a2);
-    t.is(store.todos[0].x, "a");
+    expect(store.todos[0].x).toEqual("a");
 });
 
 it("should return the model factory", t => {
-    const Document = types.model({
+    const Document = object({
         customer_id: 0
     });
     const doc = Document.create();
-    t.deepEqual(getType(doc), Document);
+    expect(getType(doc)).toEqual(Document);
 });
 // getChildModelFactory
 
 it("should return the child model factory", t => {
-    const Row = types.model({
+    const Row = object({
         article_id: 0
     });
-    const ArrayOfRow = types.optional(types.array(Row), []);
-    const Document = types.model({
+    const ArrayOfRow = optional(array(Row), []);
+    const Document = object({
         rows: ArrayOfRow
     });
     const doc = Document.create();
-    t.deepEqual(getChildType(doc, "rows"), ArrayOfRow);
+    expect(getChildType(doc, "rows")).toEqual(ArrayOfRow);
 });
 
 it("should not create a node which already exists in a tree", t => {
-    const Row = types.model({
+    const Row = object({
         article_id: 0
     });
-    const Document = types.model({
-        rows: types.optional(types.array(Row), []),
-        foos: types.optional(types.array(Row), [])
+    const Document = object({
+        rows: optional(array(Row), []),
+        foos: optional(array(Row), [])
     });
     const doc = Document.create();
-    unprotect(doc);
+
     const row = Row.create();
     doc.rows.push(row);
     const error = t.throws(() => {
         doc.foos.push(row);
     });
-    t.is(
+    expect(
         error.message,
         "[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/foos/0', but it lives already at '/rows/0'"
     );

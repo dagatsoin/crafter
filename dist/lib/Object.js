@@ -28,8 +28,9 @@ var ObjectType = /** @class */ (function (_super) {
          */
         _this.buildInstance = function (node, snapshot) {
             _this.forAllProps(function (name, type) {
+                var instance = Node_1.isInstance(type.instantiate(node, name, snapshot ? snapshot[name] : undefined).data);
                 mobx_1.extendShallowObservable(node.data, (_a = {},
-                    _a[name] = mobx_1.observable.ref(type.instantiate(node, name, snapshot ? snapshot[name] : undefined).data),
+                    _a[name] = mobx_1.observable.ref(instance),
                     _a));
                 var _a;
             });

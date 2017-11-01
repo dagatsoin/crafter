@@ -19,7 +19,7 @@ export class CoreType<S, T> extends Type<S, T> {
     }
 
     instantiate(parent: Node, subPath: string, initialValue?: any): Node {
-        if (!this.checker(initialValue)) fail(`Error while instantiating ${this.name}. Expected a ${this.name}, got ${initialValue} `)
+        if (!this.checker(initialValue)) fail(`Error while instantiating ${this.name}. Expected a ${this.name}, got ${initialValue} `);
         return createNode(this, parent, subPath, initialValue, this.initializer);
     }
 

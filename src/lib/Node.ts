@@ -12,8 +12,8 @@ export class Node {
     @observable public parent: Node | null = null;
     identifierAttribute: string | undefined = undefined; // not to be modified directly, only through model initialization
     subPath: string;
+    isAlive: boolean;
 
-    private isAlive: boolean;
     private isDetaching: boolean;
 
     constructor(type: IType<any, any>,

@@ -28,27 +28,6 @@ function isPrimitive(value) {
 }
 exports.isPrimitive = isPrimitive;
 /**
- * Applies a snapshot to a given model instances.
- * // TODO keep that -> ? Patch and snapshot listeners will be invoked as usual.
- *
- * @export
- * @param {Object} target
- * @param {Object} snapshot
- * @returns
- */
-function applySnapshot(target, snapshot) {
-    // check all arguments
-    assertType(target, "Instance");
-    Node_1.getNode(target).applySnapshot(snapshot);
-}
-exports.applySnapshot = applySnapshot;
-function getSnapshot(target) {
-    // check all arguments
-    assertType(target, "Instance");
-    return Node_1.getNode(target).snapshot;
-}
-exports.getSnapshot = getSnapshot;
-/**
  * Wrapper for throwing error
  * @param message
  */
@@ -86,8 +65,8 @@ exports.isMutable = isMutable;
  */
 function walk(start, process) {
     // check all arguments
-    assertType(start, "Instance", "first");
-    assertType(process, "function", "second");
+    assertType(start, "Instance", 1);
+    assertType(process, "function", 2);
     var node = Node_1.getNode(start);
     node.children.forEach(function (child) {
         if (Node_1.isInstance(child.data))
@@ -119,19 +98,19 @@ exports.prettyPrintValue = prettyPrintValue;
 function assertType(value, type, rank) {
     if (process.env.NODE_ENV !== "production") {
         if (type === "string" && typeof value !== "string")
-            fail("expected " + (rank ? rank : "") + " argument to be a string, got " + prettyPrintValue(value) + " instead");
+            fail("expected " + (rank ? rank.toString() : "") + " argument to be a string, got " + prettyPrintValue(value) + " instead");
         if (type === "boolean" && typeof value !== "boolean")
-            fail("expected " + (rank ? rank : "") + " argument to be a boolean, got " + prettyPrintValue(value) + " instead");
+            fail("expected " + (rank ? rank.toString() : "") + " argument to be a boolean, got " + prettyPrintValue(value) + " instead");
         if (type === "number" && typeof value !== "number")
-            fail("expected " + (rank ? rank : "") + " argument to be a number, got " + prettyPrintValue(value) + " instead");
+            fail("expected " + (rank ? rank.toString() : "") + " argument to be a number, got " + prettyPrintValue(value) + " instead");
         if (type === "function" && typeof value !== "function")
-            fail("expected " + (rank ? rank : "") + " argument to be a function, got " + prettyPrintValue(value) + " instead");
+            fail("expected " + (rank ? rank.toString() : "") + " argument to be a function, got " + prettyPrintValue(value) + " instead");
         if (type === "Type" && !Type_1.isType(value))
-            fail("expected " + (rank ? rank : "") + " argument to be a Type, got " + prettyPrintValue(value) + " instead");
+            fail("expected " + (rank ? rank.toString() : "") + " argument to be a Type, got " + prettyPrintValue(value) + " instead");
         if (Type_1.isType(type) && !type.validate(value))
-            fail("expected " + (rank ? rank : "") + " argument to be a " + type.name + ", got " + prettyPrintValue(value) + " instead");
+            fail("expected " + (rank ? rank.toString() : "") + " argument to be a " + type.name + ", got " + prettyPrintValue(value) + " instead");
         if (type === "Instance" && !Node_1.isInstance(value))
-            fail("expected " + (rank ? rank : "") + " argument to be a Type, got " + prettyPrintValue(value) + " instead");
+            fail("expected " + (rank ? rank.toString() : "") + " argument to be a Type, got " + prettyPrintValue(value) + " instead");
     }
 }
 exports.assertType = assertType;
@@ -150,80 +129,4 @@ function unescapeJsonPath(str) {
     return str.replace(/~0/g, "/").replace(/~1/g, "~");
 }
 exports.unescapeJsonPath = unescapeJsonPath;
-/**
- * Given a model instance, returns `true` if the object has a parent, that is, is part of another object, map or array
- *
- * @export
- * @param {Object} target
- * @param {number} depth = 1, how far should we look upward?
- * @returns {boolean}
- */
-function hasParent(target, depth) {
-    if (depth === void 0) { depth = 1; }
-    // check all arguments
-    if (process.env.NODE_ENV !== "production") {
-        if (!Node_1.isInstance(target))
-            fail("expected first argument to be a Instance, got " + target + " instead");
-        if (typeof depth !== "number")
-            fail("expected second argument to be a number, got " + depth + " instead");
-        if (depth < 0)
-            fail("Invalid depth: " + depth + ", should be >= 1");
-    }
-    var parent = Node_1.getNode(target).parent;
-    while (parent) {
-        if (--depth === 0)
-            return true;
-        parent = parent.parent;
-    }
-    return false;
-}
-exports.hasParent = hasParent;
-/**
- * Returns the immediate parent of this object, or null.
- *
- * Note that the immediate parent can be either an object, map or array, and
- * doesn't necessarily refer to the parent model
- *
- * @export
- * @param {Object} target
- * @param {number} depth = 1, how far should we look upward?
- * @returns {*}
- */
-function getParent(target, depth) {
-    if (depth === void 0) { depth = 1; }
-    // check all arguments
-    if (process.env.NODE_ENV !== "production") {
-        if (!Node_1.isInstance(target))
-            fail("expected first argument to be a instance, got " + target + " instead");
-        if (typeof depth !== "number")
-            fail("expected second argument to be a number, got " + depth + " instead");
-        if (depth < 0)
-            fail("Invalid depth: " + depth + ", should be >= 1");
-    }
-    var d = depth;
-    var parent = Node_1.getNode(target).parent;
-    while (parent) {
-        if (--d === 0)
-            return parent.data;
-        parent = parent.parent;
-    }
-    return fail("Failed to find the parent of " + Node_1.getNode(target) + " at depth " + depth);
-}
-exports.getParent = getParent;
-/**
- * Given an object in a model tree, returns the root object of that tree
- *
- * @export
- * @param {Object} target
- * @returns {*}
- */
-function getRoot(target) {
-    // check all arguments
-    if (process.env.NODE_ENV !== "production") {
-        if (!Node_1.isInstance(target))
-            fail("expected first argument to be a mobx-state-tree node, got " + target + " instead");
-    }
-    return Node_1.getNode(target).root.data;
-}
-exports.getRoot = getRoot;
 //# sourceMappingURL=utils.js.map

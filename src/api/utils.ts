@@ -1,7 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var Node_1 = require("../lib/Node");
-var utils_1 = require("../lib/utils");
+import {Node, getNode, Instance} from "../lib/Node";
+import {fail, assertType} from "../lib/utils";
+
+declare const process: any;
 /**
  * Returns a deep copy of the given state tree node as new tree.
  * Short hand for `snapshot(x) = getType(x).create(getSnapshot(x))`
@@ -13,13 +13,13 @@ var utils_1 = require("../lib/utils");
  * @param {T} source
  * @returns {T}
  */
-function clone(source) {
+export function clone<T extends Instance>(source: T): T {
     // check all arguments
-    utils_1.assertType(source, "Instance");
-    var node = Node_1.getNode(source);
-    return node.type.create(node.snapshot);
+    assertType(source, "Instance");
+    const node = getNode(source);
+    return node.type.create(node.snapshot) as T;
 }
-exports.clone = clone;
+
 /**
  * Applies a snapshot to a given model instances.
  * // TODO keep that -> ? Patch and snapshot listeners will be invoked as usual.
@@ -29,18 +29,18 @@ exports.clone = clone;
  * @param {Object} snapshot
  * @returns
  */
-function applySnapshot(target, snapshot) {
+export function applySnapshot<S, T>(target: Instance, snapshot: S) {
     // check all arguments
-    utils_1.assertType(target, "Instance");
-    Node_1.getNode(target).applySnapshot(snapshot);
+    assertType(target, "Instance");
+    getNode(target).applySnapshot(snapshot);
 }
-exports.applySnapshot = applySnapshot;
-function getSnapshot(target) {
+
+export function getSnapshot<S>(target: Instance): S {
     // check all arguments
-    utils_1.assertType(target, "Instance");
-    return Node_1.getNode(target).snapshot;
+    assertType(target, "Instance");
+    return getNode(target).snapshot;
 }
-exports.getSnapshot = getSnapshot;
+
 /**
  * Given a model instance, returns `true` if the object has a parent, that is, is part of another object, map or array
  *
@@ -49,22 +49,22 @@ exports.getSnapshot = getSnapshot;
  * @param {number} depth = 1, how far should we look upward?
  * @returns {boolean}
  */
-function hasParent(target, depth) {
-    if (depth === void 0) { depth = 1; }
+export function hasParent(target: Instance, depth: number = 1): boolean {
     // check all arguments
-    utils_1.assertType(target, "Instance");
-    utils_1.assertType(depth, "number", 1);
-    if (process.env.NODE_ENV !== "production" && depth < 0)
-        utils_1.fail("Invalid depth: " + depth + ", should be >= 1");
-    var parent = Node_1.getNode(target).parent;
+    assertType(target, "Instance");
+    assertType(depth, "number", 1);
+    if (process.env.NODE_ENV !== "production" && depth < 0) fail(`Invalid depth: ${depth}, should be >= 1`);
+
+    let parent: Node | null = getNode(target).parent;
     while (parent) {
-        if (--depth === 0)
-            return true;
+        if (--depth === 0) return true;
         parent = parent.parent;
     }
     return false;
 }
-exports.hasParent = hasParent;
+
+export function getParent(target: Instance, depth?: number): any & Instance;
+export function getParent<T>(target: Instance, depth?: number): T & Instance;
 /**
  * Returns the immediate parent of this object, or null.
  *
@@ -76,23 +76,23 @@ exports.hasParent = hasParent;
  * @param {number} depth = 1, how far should we look upward?
  * @returns {*}
  */
-function getParent(target, depth) {
-    if (depth === void 0) { depth = 1; }
+export function getParent<T>(target: Instance, depth = 1): T & Instance {
     // check all arguments
-    utils_1.assertType(target, "Instance");
-    utils_1.assertType(depth, "number", 1);
-    if (process.env.NODE_ENV !== "production" && depth < 0)
-        utils_1.fail("Invalid depth: " + depth + ", should be >= 1");
-    var d = depth;
-    var parent = Node_1.getNode(target).parent;
+    assertType(target, "Instance");
+    assertType(depth, "number", 1);
+    if (process.env.NODE_ENV !== "production" && depth < 0) fail(`Invalid depth: ${depth}, should be >= 1`);
+
+    let d = depth;
+    let parent: Node | null = getNode(target).parent;
     while (parent) {
-        if (--d === 0)
-            return parent.data;
+        if (--d === 0) return parent.data;
         parent = parent.parent;
     }
-    return utils_1.fail("Failed to find the parent of " + Node_1.getNode(target) + " at depth " + depth);
+    return fail(`Failed to find the parent of ${getNode(target)} at depth ${depth}`);
 }
-exports.getParent = getParent;
+
+export function getRoot(target: Instance): any & Instance;
+export function getRoot<T>(target: Instance): T & Instance;
 /**
  * Given an object in a model tree, returns the root object of that tree
  *
@@ -100,12 +100,12 @@ exports.getParent = getParent;
  * @param {Object} target
  * @returns {*}
  */
-function getRoot(target) {
+export function getRoot(target: Instance): Instance {
     // check all arguments
-    utils_1.assertType(target, "Instance");
-    return Node_1.getNode(target).root.data;
+    assertType(target, "Instance");
+    return getNode(target).root.data;
 }
-exports.getRoot = getRoot;
+
 /**
  * Returns true if the given state tree node is not killed yet.
  * This means that the node is still a part of a tree, and that `destroy`
@@ -116,10 +116,8 @@ exports.getRoot = getRoot;
  * @param {Instance} target
  * @returns {boolean}
  */
-function isAlive(target) {
+export function isAlive(target: Instance): boolean {
     // check all arguments
-    utils_1.assertType(target, "Instance");
-    return Node_1.getNode(target).isAlive;
+    assertType(target, "Instance");
+    return getNode(target).isAlive;
 }
-exports.isAlive = isAlive;
-//# sourceMappingURL=utils.js.map

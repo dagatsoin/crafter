@@ -112,7 +112,6 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
             } else if (!currentNode) {
                 // check if already belongs to the same parent. if so, avoid pushing item in. only swapping can occur.
                 if (isInstance(newValue) && getNode(newValue).parent === parent) {
-                    console.log(newValue, parent.data);
                     // this node is owned by this parent, but not in the reconcilable set, so it must be double
                     fail(
                         `Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '${parent.path}${newPaths[

@@ -19,7 +19,7 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
         return createNode(
             this,
             parent,
-            "",
+            subPath,
             initialValue,
             this.createEmptyInstance,
             this.buildInstance

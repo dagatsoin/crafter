@@ -32,7 +32,7 @@ var ArrayType = /** @class */ (function (_super) {
         return node.data.map(function (item) { return item.$node.snapshot; });
     };
     ArrayType.prototype.instantiate = function (parent, subPath, initialValue) {
-        return Node_1.createNode(this, parent, "", initialValue, this.createEmptyInstance, this.buildInstance);
+        return Node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);
     };
     ArrayType.prototype.isValidSnapshot = function (value) {
         var _this = this;

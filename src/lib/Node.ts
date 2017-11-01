@@ -24,7 +24,6 @@ export class Node {
                 initBaseType: (baseTypeIdentity: any) => any = identity,
                 buildType: (node: Node, snapshot: any) => void = () => {
                 }) {
-
         this.type = type;
         this.parent = parent;
         this.subPath = subPath;

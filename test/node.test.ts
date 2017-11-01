@@ -143,8 +143,8 @@ it("should return the child model factory", function() {
     expect(getChildType(doc, "rows")).toEqual(ArrayOfRow);
 });
 
-it("should not create a node which already exists in a tree", t => {
-    const Row = object({
+it("should not create a node which already exists in a tree", function () {
+    const Row = object("row",{
         article_id: 0
     });
     const Document = object({

@@ -88,7 +88,7 @@ var ArrayType = /** @class */ (function (_super) {
                     // this node is owned by this parent, but not in the reconcilable set, so it must be double
                     utils_1.fail("Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '" + parent.path + newPaths[i] + "', but it lives already at '" + Node_1.getNode(newValue).path + "'");
                 }
-                currentNodes.splice(i, 0, Node_1.valueAsNode(childType, parent, newPaths[i].toString(), newValue));
+                currentNodes.splice(i, 0, Node_1.valueAsNode(childType, parent, "" + newPaths[i], newValue));
                 // both are the same, reconcile
             }
             else if (Node_1.areSame(currentNode, newValue)) {

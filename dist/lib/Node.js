@@ -59,9 +59,13 @@ var Node = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Node.prototype.isRoot = function () {
-        return areSame(this.root, this);
-    };
+    Object.defineProperty(Node.prototype, "isRoot", {
+        get: function () {
+            return this.parent === null;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Node.prototype, "root", {
         get: function () {
             // future optimization: store root ref in the node and maintain it

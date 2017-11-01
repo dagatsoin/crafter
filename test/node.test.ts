@@ -131,12 +131,12 @@ it("should return the model factory", function () {
 });
 // getChildModelFactory
 
-it("should return the child model factory", function() {
+it("should return the child model factory", function () {
     const Row = object("row", {
         article_id: 0
     });
     const ArrayOfRow = optional(array(Row), []);
-    const Document = object("document",{
+    const Document = object("document", {
         rows: ArrayOfRow
     });
     const doc = Document.create();
@@ -144,7 +144,7 @@ it("should return the child model factory", function() {
 });
 
 it("should not create a node which already exists in a tree", function () {
-    const Row = object("row",{
+    const Row = object("row", {
         article_id: 0
     });
     const Document = object({
@@ -155,13 +155,7 @@ it("should not create a node which already exists in a tree", function () {
 
     const row = Row.create();
     doc.rows.push(row);
-    const error = t.throws(() => {
-        doc.foos.push(row);
-    });
-    expect(
-        error.message,
-        "[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/foos/0', but it lives already at '/rows/0'"
-    );
+    expect(() => doc.foos.push(row)).toThrowError("[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/foos/0', but it lives already at '/rows/0'");
 });
 
 it("should get the root of the tree");

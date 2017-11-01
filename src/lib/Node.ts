@@ -66,8 +66,8 @@ export class Node {
         return this.type.getSnapshot(this);
     }
 
-    isRoot() {
-        return areSame(this.root, this);
+    get isRoot(): boolean {
+        return this.parent === null;
     }
 
     @computed

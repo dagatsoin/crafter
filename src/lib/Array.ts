@@ -119,7 +119,7 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
                             ]}', but it lives already at '${getNode(newValue).path}'`
                     );
                 }
-                currentNodes.splice(i, 0, valueAsNode(childType, parent, newPaths[i].toString(), newValue));
+                currentNodes.splice(i, 0, valueAsNode(childType, parent, "" + newPaths[i], newValue));
                 // both are the same, reconcile
             } else if (areSame(currentNode, newValue)) {
                 currentNodes[i] = valueAsNode(childType, parent, "" + newPaths[i], newValue, currentNode);

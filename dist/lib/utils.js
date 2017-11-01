@@ -194,7 +194,7 @@ function getParent(target, depth) {
     // check all arguments
     if (process.env.NODE_ENV !== "production") {
         if (!Node_1.isInstance(target))
-            fail("expected first argument to be a mobx-state-tree node, got " + target + " instead");
+            fail("expected first argument to be a instance, got " + target + " instead");
         if (typeof depth !== "number")
             fail("expected second argument to be a number, got " + depth + " instead");
         if (depth < 0)

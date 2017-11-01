@@ -189,7 +189,7 @@ export function getParent<T>(target: Instance, depth = 1): T & Instance {
     // check all arguments
     if (process.env.NODE_ENV !== "production") {
         if (!isInstance(target))
-            fail("expected first argument to be a mobx-state-tree node, got " + target + " instead");
+            fail("expected first argument to be a instance, got " + target + " instead");
         if (typeof depth !== "number")
             fail("expected second argument to be a number, got " + depth + " instead");
         if (depth < 0) fail(`Invalid depth: ${depth}, should be >= 1`);

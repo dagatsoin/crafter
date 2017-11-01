@@ -147,7 +147,7 @@ describe("Reconciliation", function(){
         t.is(isAlive(c), false)
         t.throws(
             () => store.todos.splice(0, 1, a, c, d),
-            "[mobx-state-tree] Task@<root>[dead] cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value"
+            "[chewing] Task@<root>[dead] cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value"
         )
         store.todos.splice(0, 1, clone(a), clone(c), clone(d))
         t.deepEqual(store.todos.map(_ => _.x), ["a", "c", "d"])
@@ -287,11 +287,11 @@ describe("Reconciliation", function(){
         s.todos.push(a)
         t.throws(() => {
             s.todos.push(a)
-        }, "[mobx-state-tree] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/todos/1', but it lives already at '/todos/0'")
+        }, "[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/todos/1', but it lives already at '/todos/0'")
         const b = Task.create()
         t.throws(() => {
             s.todos.push(b, b)
-        }, "[mobx-state-tree] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/todos/2', but it lives already at '/todos/1'")
+        }, "[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/todos/2', but it lives already at '/todos/1'")
     })
 
     it("should support observable arrays", t => {

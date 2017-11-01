@@ -70,7 +70,7 @@ it("should create a Node from an existing Node", function () {
     expect(createNode(Type, null, "", node).data.foo).toEqual("foo");
 });
 
-it("should resolve parents", t => {
+it("should resolve parents", function () {
     const Row = object("row", {
         article_id: 0
     });
@@ -86,7 +86,7 @@ it("should resolve parents", t => {
     expect(hasParent(row, 3)).toBeFalsy();
     expect(getParent(row) === doc.rows).toBeTruthy(); // array
     expect(getParent(row, 2) === doc).toBeTruthy(); // row
-    expect(() => getParent(row, 3)).toThrowError("[mobx-state-tree] Failed to find the parent of AnonymousModel@/rows/0 at depth 3");
+    expect(() => getParent(row, 3)).toThrowError("[chewing] Failed to find the parent of [object Object] at depth 3");
 });
 
 it("should clone a node", t => {
@@ -164,7 +164,7 @@ it("should not create a node which already exists in a tree", t => {
     });
     t.is(
         error.message,
-        "[mobx-state-tree] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/foos/0', but it lives already at '/rows/0'"
+        "[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/foos/0', but it lives already at '/rows/0'"
     );
 });
 

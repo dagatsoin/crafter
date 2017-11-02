@@ -14,7 +14,7 @@ var Node = /** @class */ (function () {
         if (buildType === void 0) { buildType = function () {
         }; }
         this.parent = null;
-        this.leafs = []; // Refs to the Node of primitives. Primitive value can't have any children and don't hold a reference to their node.
+        this.leafs = new Map(); // Refs to the Node of primitives. Primitive value can't have any children and don't hold a reference to their node.
         this.identifierAttribute = undefined; // not to be modified directly, only through model initialization
         this.type = type;
         this.parent = parent;
@@ -36,7 +36,7 @@ var Node = /** @class */ (function () {
             });
         }
         else if (parent)
-            parent.leafs.push(this);
+            parent.leafs.set(subPath, this);
         /* 3 - Build and hydration phase. */
         if (!utils_1.isPrimitive(this.data))
             buildType(this, initialValue); // For object
@@ -114,10 +114,14 @@ var Node = /** @class */ (function () {
         if (this.isDetaching)
             return;
         if (isInstance(this.data)) {
-            // 1- Warn every other nodes that a node will be removed.
+            // 2- Warn every other descendant nodes that a node will be removed.
             utils_1.walk(this.data, function (child) { return getNode(child).beforeDestroy(); });
-            // 2- Prevent using this node.
+            // 3- Destroy this node and all this children
             utils_1.walk(this.data, function (child) { return getNode(child).destroy(); });
+            // If the Node is an instance of a primitive object. We need to tell the parent to remove it from the leafs map.
+        }
+        else if (!canAttachNode(this.data)) {
+            this.parent.leafs.delete(this.subPath);
         }
     };
     Node.prototype.destroy = function () {
@@ -134,6 +138,7 @@ var Node = /** @class */ (function () {
         });
         this.isAlive = false;
         this.parent = null;
+        this.leafs.clear();
         this.subPath = "";
         // This is quite a hack, once interceptable objects / arrays / maps are extracted from mobx,
         // we could express this in a much nicer way

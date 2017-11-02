@@ -43,7 +43,7 @@ var ArrayType = /** @class */ (function (_super) {
         target.replace(snapshot);
     };
     ArrayType.prototype.getChildren = function (node) {
-        return node.data.map(function (item) { return item.$node; });
+        return node.data.map(function (item, index) { return Node_1.isInstance(item) ? item.$node : node.leafs.get("" + index); });
     };
     ArrayType.prototype.willChange = function (change) {
         var node = Node_1.getNode(change.object);
@@ -60,6 +60,11 @@ var ArrayType = /** @class */ (function (_super) {
                 // update paths of remaining items
                 for (var i = index_1 + removedCount; i < children.length; i++) {
                     children[i].setParent(node, "" + (i + added.length - removedCount));
+                    // update leaf key for array of primitives
+                    if (node.leafs.size) {
+                        node.leafs.set("" + (i + added.length - removedCount), node.leafs.get("" + i));
+                        node.leafs.delete("" + i);
+                    }
                 }
                 break;
         }

@@ -85,7 +85,10 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
      */
     getChildren(node: Node): Array<Node> {
         const children: Array<Node> = [];
-        this.forAllProps((name, type) => children.push(getNode(node.data[name])));
+        this.forAllProps((name, type) => children.push(isInstance(node.data[name]) ?
+            getNode(node.data[name]) // Complex Instance
+            :
+            node.leafs.get(name)!)); // Primitive Instance
         return children;
     }
 

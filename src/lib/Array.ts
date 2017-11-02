@@ -45,7 +45,7 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     }
 
     getChildren(node: Node): Node[] {
-        return node.data.map((item: Instance) => item.$node);
+        return node.data.map((item: Instance, index: number) => isInstance(item) ? item.$node : node.leafs.get("" + index));
     }
 
     private willChange(change: IArrayWillChange<any> | IArrayWillSplice<any>): Object | null {
@@ -76,6 +76,11 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
                 // update paths of remaining items
                 for (let i = index + removedCount; i < children.length; i++) {
                     children[i].setParent(node, "" + (i + added.length - removedCount));
+                    // update leaf key for array of primitives
+                    if (node.leafs.size) {
+                        node.leafs.set("" + (i + added.length - removedCount), node.leafs.get("" + i)!);
+                        node.leafs.delete("" + i);
+                    }
                 }
                 break;
         }

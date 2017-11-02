@@ -10,7 +10,7 @@ export class Node {
     readonly type: IType<any, any>;
     readonly data: any;
     @observable public parent: Node | null = null;
-    @observable public leafs: Array<Node> = []; // Refs to the Node of primitives. Primitive value can't have any children and don't hold a reference to their node.
+    @observable public leafs: Map<string, Node> = new Map(); // Refs to the Node of primitives. Primitive value can't have any children and don't hold a reference to their node.
     identifierAttribute: string | undefined = undefined; // not to be modified directly, only through model initialization
     subPath: string;
     isAlive: boolean;
@@ -44,7 +44,7 @@ export class Node {
                 configurable: true,
                 value: this,
             });
-        } else if (parent) parent.leafs.push(this);
+        } else if (parent) parent.leafs.set(subPath, this);
 
         /* 3 - Build and hydration phase. */
         if (!isPrimitive(this.data)) buildType(this, initialValue); // For object
@@ -104,12 +104,14 @@ export class Node {
 
     remove() {
         if (this.isDetaching) return;
-
         if (isInstance(this.data)) {
-            // 1- Warn every other nodes that a node will be removed.
+            // 2- Warn every other descendant nodes that a node will be removed.
             walk(this.data, child => getNode(child).beforeDestroy());
-            // 2- Prevent using this node.
+            // 3- Destroy this node and all this children
             walk(this.data, child => getNode(child).destroy());
+            // If the Node is an instance of a primitive object. We need to tell the parent to remove it from the leafs map.
+        } else if (!canAttachNode(this.data)) {
+            this.parent!.leafs.delete(this.subPath);
         }
     }
 
@@ -129,6 +131,7 @@ export class Node {
 
         this.isAlive = false;
         this.parent = null;
+        this.leafs.clear();
         this.subPath = "";
 
         // This is quite a hack, once interceptable objects / arrays / maps are extracted from mobx,

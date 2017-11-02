@@ -78,7 +78,10 @@ var ObjectType = /** @class */ (function (_super) {
      */
     ObjectType.prototype.getChildren = function (node) {
         var children = [];
-        this.forAllProps(function (name, type) { return children.push(Node_1.getNode(node.data[name])); });
+        this.forAllProps(function (name, type) { return children.push(Node_1.isInstance(node.data[name]) ?
+            Node_1.getNode(node.data[name]) // Complex Instance
+            :
+                node.leafs.get(name)); }); // Primitive Instance
         return children;
     };
     ObjectType.prototype.getChildType = function (key) {

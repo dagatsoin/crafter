@@ -1,9 +1,9 @@
 import {object} from "../src/api/Object";
-import {canAttachNode, createNode, isInstance} from "../src/lib/Node";
+import {canAttachNode, createNode, getNode, isInstance} from "../src/lib/Node";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {optional} from "../src/api/Optional";
-import {getChildType, getType, clone, getParent, hasParent, isAlive} from "../src/api/utils";
+import {getChildType, getType, clone, getParent, hasParent, isAlive, getRoot} from "../src/api/utils";
 
 const Entity = object("Entity", {
     name: string,
@@ -143,6 +143,19 @@ it("should return the child model factory", function () {
     expect(getChildType(doc, "rows")).toEqual(ArrayOfRow);
 });
 
+it("should recognize a root", function() {
+    const root = object("root", {
+       firstLvl: object("firstLvl", {
+           scdLvl: object("scdLvl", {
+               thirdLvl: object("thirdLvl")
+           })
+       })
+    }).create({firstLvl: {scdLvl: {thirdLvl: {}}}});
+
+    expect(getNode(root.firstLvl.scdLvl.thirdLvl).isRoot).toBeFalsy();
+    expect(getNode(root).isRoot).toBeTruthy();
+});
+
 it("should not create a node which already exists in a tree", function () {
     const Row = object("row", {
         article_id: 0
@@ -158,7 +171,6 @@ it("should not create a node which already exists in a tree", function () {
     expect(() => doc.foos.push(row)).toThrowError("[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/foos/0', but it lives already at '/rows/0'");
 });
 
-it("should get the root of the tree");
 it("should get the path");
 it("should get empty path because it is the root");
 it("should get the children of an object node");

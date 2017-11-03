@@ -3,7 +3,7 @@ import {canAttachNode, createNode, getNode, isInstance} from "../src/lib/Node";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {optional} from "../src/api/Optional";
-import {getChildType, getType, clone, getParent, hasParent, isAlive, getRoot} from "../src/api/utils";
+import {getChildType, getType, clone, getParent, hasParent, isAlive} from "../src/api/utils";
 import {observable} from "mobx";
 
 const Entity = object("Entity", {

@@ -152,7 +152,7 @@ describe("Snapshot", function(){
     });
 
     it("should be an invalid snapshot", function () {
-        expect(Player.validate({wrongField: new Date()})).toBeFalsy();
+        expect(() => Player.create({wrongField: new Date()}, true)).toThrow();
     });
 
     it("should extract a snapshot from an instance of Object", function () {

@@ -94,9 +94,10 @@ exports.prettyPrintValue = prettyPrintValue;
  * @param value
  * @param type
  * @param {string} rank to specify which argument is not valid: first, second, etc.
+ * @param force if true, run event in prod mode
  */
-function assertType(value, type, rank) {
-    if (process.env.NODE_ENV !== "production") {
+function assertType(value, type, rank, force) {
+    if (process.env.NODE_ENV !== "production" || force) {
         if (type === "string" && typeof value !== "string")
             fail("expected " + (rank ? rank.toString() : "") + " argument to be a string, got " + prettyPrintValue(value) + " instead");
         if (type === "boolean" && typeof value !== "boolean")

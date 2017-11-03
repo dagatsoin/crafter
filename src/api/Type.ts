@@ -20,7 +20,7 @@ export interface IType<S, T> {
 
     readonly isType: boolean; // Just to certify it is a types
 
-    create(snapshot?: S): T;
+    create(snapshot?: S, check?: boolean): T;
 
     is(thing: any): thing is S | T;
 
@@ -63,7 +63,7 @@ export interface ISnapshottable<S> {
 }
 
 export interface IComplexType<S, T> extends IType<S, T & Instance> {
-    create(snapshot?: S, environment?: any): T & ISnapshottable<S>;
+    create(snapshot?: S, check?: boolean): T & ISnapshottable<S>;
 
     applyPatch(node: Node, patch: Array<Operation>): void;
 }
@@ -97,8 +97,8 @@ export abstract class Type<S, T> implements IType<S, T> {
         return this.isValidSnapshot(thing);
     }
 
-    create(snapshot?: S): T {
-        assertType(this, snapshot);
+    create(snapshot?: S, check?: boolean): T {
+        if (check) assertType(snapshot, this);
         return this.instantiate(null, "", snapshot).value;
     }
 

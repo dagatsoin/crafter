@@ -103,13 +103,13 @@ export function prettyPrintValue(value: any) {
  */
 export function assertType(value: any, type: any, rank?: number, force?: boolean) {
     if (process.env.NODE_ENV !== "production" || force) {
-        if (type === "string" && typeof value !== "string") fail(`expected ${rank ? rank.toString() : ""} argument to be a string, got ${prettyPrintValue(value)} instead`);
-        if (type === "boolean" && typeof value !== "boolean") fail(`expected ${rank ? rank.toString() : ""} argument to be a boolean, got ${prettyPrintValue(value)} instead`);
-        if (type === "number" && typeof value !== "number") fail(`expected ${rank ? rank.toString() : ""} argument to be a number, got ${prettyPrintValue(value)} instead`);
-        if (type === "function" && typeof value !== "function") fail(`expected ${rank ? rank.toString() : ""} argument to be a function, got ${prettyPrintValue(value)} instead`);
-        if (type === "Type" && !isType(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a Type, got ${prettyPrintValue(value)} instead`);
-        if (isType(type) && !type.validate(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a ${type.name}, got ${prettyPrintValue(value)} instead`);
-        if (type === "Instance" && !isInstance(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a Type, got ${prettyPrintValue(value)} instead`);
+        if (type === "string" && typeof value !== "string") fail(`expected ${rank ? rank.toString() : ""} argument to be a string, got ${prettyPrintValue(value)} instead.`);
+        if (type === "boolean" && typeof value !== "boolean") fail(`expected ${rank ? rank.toString() : ""} argument to be a boolean, got ${prettyPrintValue(value)} instead.`);
+        if (type === "number" && typeof value !== "number") fail(`expected ${rank ? rank.toString() : ""} argument to be a number, got ${prettyPrintValue(value)} instead.`);
+        if (type === "function" && typeof value !== "function") fail(`expected ${rank ? rank.toString() : ""} argument to be a function, got ${prettyPrintValue(value)} instead.`);
+        if (type === "Type" && !isType(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a Type, got ${prettyPrintValue(value)} instead.`);
+        if (isType(type) && !type.validate(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a ${type.name}, got ${prettyPrintValue(value)} instead.`);
+        if (type === "Instance" && !isInstance(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a Type, got ${prettyPrintValue(value)} instead.`);
     }
 }
 

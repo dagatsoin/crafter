@@ -15,15 +15,15 @@ it("should throw if multiple identifiers provided", function() {
 it( "should throw if identifier of wrong type", function() {
     expect(() => {
         const Model = object("Model", { id: identifier(number) });
-        Model.create({ id: "1" });
-    }).toThrowError(`[chewing] Error while converting \`{\"id\":\"1\"}\` to \`Model\`:\nat path \"/id\" value \`\"1\"\` is not assignable to type: \`identifier(number)\` (Value is not a number), expected an instance of \`identifier(number)\` or a snapshot like \`identifier(number)\` instead.`);
+        Model.create({ id: "1" }, true);
+    }).toThrowError(`[chewing] expected  argument to be a Model, got \`{"id":"1"}\` instead.`);
 });
 
 it("should be used only on model types - no parent provided", function() {
     expect(() => {
         const Model = identifier(number);
         Model.create(1);
-    }).toThrowError(`[chewing] Identifier types can only be instantiated as direct child of a model type`);
+    }).toThrowError(`[chewing] Identifier types can only be instantiated as direct child of an object type`);
 });
 
 it("should accept any string character", function() {

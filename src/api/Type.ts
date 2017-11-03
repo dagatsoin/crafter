@@ -98,7 +98,7 @@ export abstract class Type<S, T> implements IType<S, T> {
     }
 
     create(snapshot?: S, check?: boolean): T {
-        if (check) assertType(snapshot, this);
+        if (check) assertType(snapshot, this, 0, check);
         return this.instantiate(null, "", snapshot).value;
     }
 

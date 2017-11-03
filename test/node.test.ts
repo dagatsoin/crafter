@@ -104,7 +104,7 @@ it("should clone a node", function () {
     expect(doc).toEqual(cloned);
 });
 
-it("should be possible to clone a dead object", t => {
+it("should be possible to clone a dead object", function() {
     const Task = object("Task", {
         title: string
     });

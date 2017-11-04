@@ -1,5 +1,5 @@
 import {IType, Type} from "../api/Type";
-import {getNode, isInstance, Node} from "./Node";
+import {getNode, isInstance, Node} from "./core/Node";
 import {assertType} from "./utils";
 import {TypeFlag} from "../api/TypeFlags";
 

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Node_1 = require("../lib/Node");
+var Node_1 = require("../lib/core/Node");
 var utils_1 = require("../lib/utils");
 /**
  * Returns a deep copy of the given state tree node as new tree.

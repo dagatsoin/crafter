@@ -1,6 +1,6 @@
 import {IType} from "./Type";
 import {OptionalValue} from "../lib/Optional";
-import {getNode, isInstance} from "../lib/Node";
+import {getNode, isInstance} from "../lib/core/Node";
 import {assertType} from "../../dist/lib/utils";
 import {isType} from "./TypeFlags";
 

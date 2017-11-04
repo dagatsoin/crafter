@@ -1,5 +1,5 @@
 import { IType, Type } from "../api/Type";
-import { Node } from "./Node";
+import { Node } from "./core/Node";
 import { TypeFlag } from "../api/TypeFlags";
 export declare type IFunctionReturn<T> = () => T;
 export declare type IOptionalValue<S, T> = S | T | IFunctionReturn<S> | IFunctionReturn<T>;

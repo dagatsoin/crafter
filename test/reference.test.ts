@@ -6,15 +6,17 @@ import {array} from "../src/api/Array";
 import {getSnapshot} from "../src/api/utils";
 import {reference} from "../src/api/Reference";
 
-test("it should support prefixed paths in maps", t => {
+test("it should support prefixed paths in maps", function() {
     const User = object({
         id: identifier(),
         name: string
-    })
+    });
+
     const UserStore = object({
         user: reference(User),
         users: array(User)
-    })
+    });
+
     const store = UserStore.create({
         user: "17",
         users: [{ "17": { id: "17", name: "TheWen" }}, { "18": { id: "18", name: "Fraktar" }}]

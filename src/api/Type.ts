@@ -1,5 +1,5 @@
 import {Operation} from "fast-json-patch";
-import {Node, Instance} from "../lib/Node";
+import {Node, Instance} from "../lib/core/Node";
 import {assertType, fail} from "../lib/utils";
 import {TypeFlag} from "./typeFlags";
 

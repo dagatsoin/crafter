@@ -1,5 +1,5 @@
 import {object} from "../src/api/Object";
-import {canAttachNode, createNode, getNode, isInstance} from "../src/lib/Node";
+import {canAttachNode, createNode, getNode, isInstance} from "../src/lib/core/Node";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {optional} from "../src/api/Optional";

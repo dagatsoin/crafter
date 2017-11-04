@@ -1,6 +1,6 @@
 import {boolean, number, string} from "../src/api/Primitives";
 import {optional} from "../src/api/Optional";
-import {isInstance} from "../src/lib/Node";
+import {isInstance} from "../src/lib/core/Node";
 import {isObservable} from "mobx";
 
 describe("All primitives", function () {

@@ -1,4 +1,4 @@
-import { Instance } from "../lib/Node";
+import { Instance } from "../lib/core/Node";
 import { IType } from "./Type";
 /**
  * Returns a deep copy of the given state tree node as new tree.

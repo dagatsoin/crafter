@@ -1,5 +1,5 @@
 import { IType, Type } from "../api/Type";
-import { Node } from "./Node";
+import { Node } from "./core/Node";
 import { TypeFlag } from "../api/typeFlags";
 export declare class IdentifierType<T> extends Type<T, T> {
     readonly identifierType: IType<T, T>;

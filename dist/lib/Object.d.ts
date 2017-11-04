@@ -1,5 +1,5 @@
 import { ComplexType, IObjectType, IType } from "../api/Type";
-import { Node } from "./Node";
+import { Node } from "./core/Node";
 import { TypeFlag } from "../api/TypeFlags";
 export declare type IObjectProperties<T> = {
     [K in keyof T]: IType<any, T[K]> | T[K];

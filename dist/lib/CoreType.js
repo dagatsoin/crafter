@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Type_1 = require("../api/Type");
 var utils_1 = require("./utils");
-var Node_1 = require("./Node");
+var Node_1 = require("./core/Node");
 /**
  * From MST implementation https://github.com/mobxjs/mobx-state-tree/blob/master/src/types/primitives.ts
  */

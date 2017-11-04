@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Node_1 = require("./Node");
+var Node_1 = require("./core/Node");
 var TypeFlags_1 = require("../api/TypeFlags");
 exports.EMPTY_ARRAY = Object.freeze([]);
 exports.EMPTY_OBJECT = Object.freeze({});

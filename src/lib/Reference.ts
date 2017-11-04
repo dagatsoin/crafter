@@ -1,4 +1,4 @@
-import {createNode, getNode, isInstance, Node} from "./Node";
+import {createNode, getNode, isInstance, Node} from "./core/Node";
 import {IType, Type} from "../api/Type";
 import {isReferenceType} from "./utils";
 import {TypeFlag} from "../api/TypeFlags";
@@ -79,7 +79,7 @@ export class ReferenceType<T> extends Type<string | number, T> {
         return this.targetType.isAssignableFrom(type);
     }
 
-    isValidSnapshot(value: any): boolean{
+    isValidSnapshot(value: any): boolean {
         return typeof value === "string" || typeof value === "number";
     }
 

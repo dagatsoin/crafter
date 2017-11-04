@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var Optional_1 = require("../lib/Optional");
-var Node_1 = require("../lib/Node");
+var Node_1 = require("../lib/core/Node");
 var utils_1 = require("../../dist/lib/utils");
 var TypeFlags_1 = require("./TypeFlags");
 /**

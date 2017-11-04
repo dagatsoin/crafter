@@ -1,4 +1,4 @@
-import {Node, getNode, Instance} from "../lib/Node";
+import {Node, getNode, Instance} from "../lib/core/Node";
 import {fail, assertType} from "../lib/utils";
 import {IType} from "./Type";
 

@@ -1,5 +1,5 @@
 import {IType, Type} from "../api/Type";
-import {createNode, isInstance, Node} from "./Node";
+import {createNode, isInstance, Node} from "./core/Node";
 import {fail} from "./utils";
 import {TypeFlag} from "../api/typeFlags";
 

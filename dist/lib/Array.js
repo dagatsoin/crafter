@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Type_1 = require("../api/Type");
 var utils_1 = require("./utils");
 var mobx_1 = require("mobx");
-var Node_1 = require("./Node");
+var Node_1 = require("./core/Node");
 var typeFlags_1 = require("../api/typeFlags");
 var ArrayType = /** @class */ (function (_super) {
     __extends(ArrayType, _super);

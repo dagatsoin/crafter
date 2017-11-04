@@ -1,6 +1,6 @@
 import { ComplexType, IType } from "../api/Type";
 import { IObservableArray } from "mobx";
-import { Node } from "./Node";
+import { Node } from "./core/Node";
 import { TypeFlag } from "../api/typeFlags";
 export declare class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     itemType: IType<any, T>;

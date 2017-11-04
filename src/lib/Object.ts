@@ -1,5 +1,5 @@
 import {ComplexType, IObjectType, IType, } from "../api/Type";
-import {createNode, getNode, isInstance, Node} from "./Node";
+import {createNode, getNode, isInstance, Node} from "./core/Node";
 import {extendShallowObservable, observable, transaction} from "mobx";
 import {isPlainObject, isPrimitive, fail} from "./utils";
 import {getPrimitiveFactoryFromValue} from "../api/Primitives";

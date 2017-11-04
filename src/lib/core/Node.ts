@@ -1,6 +1,7 @@
-import {computed, isObservable, observable, transaction} from "mobx";
-import {IType} from "../api/Type";
-import {escapeJsonPath, fail, identity, isMutable, isPlainObject, isPrimitive, walk} from "./utils";
+import {computed, observable, transaction} from "mobx";
+import {IType} from "../../api/Type";
+import {escapeJsonPath, fail, identity, isMutable, isPlainObject, isPrimitive, walk} from "../utils";
+import {IdentifierCache} from "./IdentifierCache";
 
 export type Instance = {
     readonly $node?: Node
@@ -12,6 +13,7 @@ export class Node {
     @observable public parent: Node | null = null;
     @observable public leafs: Map<string, Node> = new Map(); // Refs to the Node of primitives. Primitive value can't have any children and don't hold a reference to their node.
     identifierAttribute: string | undefined = undefined; // not to be modified directly, only through model initialization
+    identifierCache: IdentifierCache | undefined;
     subPath: string;
     isAlive: boolean;
 
@@ -46,11 +48,20 @@ export class Node {
             });
         } else if (parent) parent.leafs.set(subPath, this);
 
-        /* 3 - Build and hydration phase. */
+        /* 3 - Add this node to the cache. The cache located in the root.
+         * It is used to quickly retrieve a node based on its Identifier instead of crawling the tree.
+         */
+        if (this.isRoot) {
+            this.identifierCache = new IdentifierCache();
+            this.identifierCache!.addNodeToCache(this);
+        } else this.root.identifierCache!.addNodeToCache(this);
+
+        /* 4 - Build and hydration phase. */
         if (!isPrimitive(this.data)) buildType(this, initialValue); // For object
         else if (isPrimitive(this.data) && !parent) {// For primitive without parent we generate a boxed primitive.
             // todo generate boxed observable for primitive
         }
+
         this.isAlive = true;
     }
 
@@ -96,6 +107,14 @@ export class Node {
         return this.parent ? this.parent.path + "/" + escapeJsonPath(this.subPath) : "";
     }
 
+    removeChild(subPath: string) {
+        // todo implement removeChild
+    }
+
+    detach() {
+        // todo implement detach
+    }
+
     assertAlive() {
         if (!this.isAlive) fail(`${this} cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value`);
     }
@@ -117,7 +136,7 @@ export class Node {
 
     public destroy() {
         // invariant: not called directly but from "die"
-        // this.root.identifierCache!.notifyDied(this); //todo implement identifier cache
+        this.root.identifierCache!.notifyDied(this);
         const self = this;
         const oldPath = this.path;
 
@@ -158,7 +177,7 @@ export class Node {
         } else {
             this.subPath = subPath || "";
             if (newParent && newParent !== this.parent) {
-                // newParent.root.identifierCache!.mergeCache(this); //todo implement identifier cache
+                newParent.root.identifierCache!.mergeCache(this);
                 this.parent = newParent;
             }
         }

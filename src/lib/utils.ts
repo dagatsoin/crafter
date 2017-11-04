@@ -1,4 +1,4 @@
-import {Instance, getNode, isInstance, Node} from "./Node";
+import {Instance, getNode, isInstance, Node} from "./core/Node";
 import {ReferenceType} from "../../dist/lib/Reference";
 import {isType, TypeFlag} from "../api/TypeFlags";
 

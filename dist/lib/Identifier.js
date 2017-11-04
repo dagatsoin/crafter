@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Type_1 = require("../api/Type");
-var Node_1 = require("./Node");
+var Node_1 = require("./core/Node");
 var utils_1 = require("./utils");
 var typeFlags_1 = require("../api/typeFlags");
 var IdentifierType = /** @class */ (function (_super) {

@@ -18,10 +18,11 @@ var Node_1 = require("./Node");
  */
 var CoreType = /** @class */ (function (_super) {
     __extends(CoreType, _super);
-    function CoreType(name, checker, initializer) {
+    function CoreType(name, typeFlag, checker, initializer) {
         if (initializer === void 0) { initializer = utils_1.identity; }
         var _this = _super.call(this, name) || this;
         _this.checker = checker;
+        _this.flag = typeFlag;
         _this.initializer = initializer;
         return _this;
     }

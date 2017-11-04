@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("../lib/utils");
 var CoreType_1 = require("../lib/CoreType");
+var typeFlags_1 = require("./typeFlags");
 /**
  * Creates a type that can only contain a string value.
  * This type is used for string values by default
@@ -15,7 +16,7 @@ var CoreType_1 = require("../lib/CoreType");
  * })
  */
 // tslint:disable-next-line:variable-name
-exports.string = new CoreType_1.CoreType("string", function (v) { return typeof v === "string"; });
+exports.string = new CoreType_1.CoreType("string", typeFlags_1.TypeFlag.String, function (v) { return typeof v === "string"; });
 /**
  * Creates a type that can only contain a numeric value.
  * This type is used for numeric values by default
@@ -29,7 +30,7 @@ exports.string = new CoreType_1.CoreType("string", function (v) { return typeof 
  * })
  */
 // tslint:disable-next-line:variable-name
-exports.number = new CoreType_1.CoreType("number", function (v) { return typeof v === "number"; });
+exports.number = new CoreType_1.CoreType("number", typeFlags_1.TypeFlag.Number, function (v) { return typeof v === "number"; });
 /**
  * Creates a type that can only contain a boolean value.
  * This type is used for boolean values by default
@@ -43,7 +44,7 @@ exports.number = new CoreType_1.CoreType("number", function (v) { return typeof 
  * })
  */
 // tslint:disable-next-line:variable-name
-exports.boolean = new CoreType_1.CoreType("boolean", function (v) { return typeof v === "boolean"; });
+exports.boolean = new CoreType_1.CoreType("boolean", typeFlags_1.TypeFlag.Boolean, function (v) { return typeof v === "boolean"; });
 function getPrimitiveFactoryFromValue(value) {
     switch (typeof value) {
         case "string":

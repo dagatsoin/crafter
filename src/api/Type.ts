@@ -1,6 +1,7 @@
 import {Operation} from "fast-json-patch";
 import {Node, Instance} from "../lib/Node";
 import {assertType, fail} from "../lib/utils";
+import {TypeFlag} from "./typeFlags";
 
 ////////////////////
 ////////////////////
@@ -17,7 +18,7 @@ export type IValidationResult = IValidationError[];
 
 export interface IType<S, T> {
     name: string;
-
+    readonly flag: TypeFlag;
     readonly isType: boolean; // Just to certify it is a types
 
     create(snapshot?: S, check?: boolean): T;
@@ -36,6 +37,8 @@ export interface IType<S, T> {
     getValue(node: Node): T;
 
     getChildType(key: string): IType<any, any>;
+
+    isAssignableFrom(type: IType<any, any>): boolean;
 
     /**
      * When a complex array is receiving a snapshot it needs to change the value of all its children. The most basic method to do this is to recreate a new Node
@@ -79,6 +82,7 @@ export type Snapshot<T> = {
 
 export abstract class Type<S, T> implements IType<S, T> {
     name: string;
+    readonly flag: TypeFlag;
     readonly isType = true;
     constructor(name: string) {
         this.name = name;
@@ -125,6 +129,10 @@ export abstract class Type<S, T> implements IType<S, T> {
     getChildType(key: string): IType<any, any> {
         return fail(`No child '${key}' available in type: ${this.name}`);
     }
+
+    isAssignableFrom(type: IType<any, any>): boolean {
+        return type === this;
+    }
 }
 
 export abstract class ComplexType<S, T> extends Type<S, T> implements IComplexType<S, T> {
@@ -139,8 +147,4 @@ export abstract class ComplexType<S, T> extends Type<S, T> implements IComplexTy
     applyPatch(node: Node, patch: Array<Operation>) {
         throw new Error("Method not implemented.");
     }
-}
-
-export function isType(value: any): value is IType<any, any> {
-    return typeof value === "object" && value && value.isType === true;
 }

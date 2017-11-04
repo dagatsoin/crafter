@@ -1,13 +1,15 @@
-import {ComplexType, IObjectType, isType, IType, } from "../api/Type";
+import {ComplexType, IObjectType, IType, } from "../api/Type";
 import {createNode, getNode, isInstance, Node} from "./Node";
 import {extendShallowObservable, observable, transaction} from "mobx";
 import {isPlainObject, isPrimitive, fail} from "./utils";
 import {getPrimitiveFactoryFromValue} from "../api/Primitives";
 import {optional} from "../api/Optional";
+import {isType, TypeFlag} from "../api/TypeFlags";
 
 export type IObjectProperties<T> = { [K in keyof T]: IType<any, T[K]> | T[K] };
 
 export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S, T> {
+    readonly flag = TypeFlag.Object;
     private readonly propertiesNames: string[];
     private properties: { [K: string]: ComplexType<any, any> } = {};
 

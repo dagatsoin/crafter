@@ -1,6 +1,7 @@
-import {isType, IType} from "./Type";
 import {IdentifierType} from "../lib/Identifier";
 import {string} from "./Primitives";
+import {IType} from "./Type";
+import {isType} from "./TypeFlags";
 
 declare const process: any;
 
@@ -29,7 +30,7 @@ export function identifier<T>(): T;
 export function identifier(baseType: IType<any, any> = string): any {
     if (process.env.NODE_ENV !== "production") {
         if (!isType(baseType))
-            fail("expected a mobx-state-tree type as first argument, got " + baseType + " instead")
+            fail("expected a mobx-state-tree type as first argument, got " + baseType + " instead");
     }
     return new IdentifierType(baseType);
 }

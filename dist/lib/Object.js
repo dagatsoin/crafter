@@ -16,10 +16,12 @@ var mobx_1 = require("mobx");
 var utils_1 = require("./utils");
 var Primitives_1 = require("../api/Primitives");
 var Optional_1 = require("../api/Optional");
+var TypeFlags_1 = require("../api/TypeFlags");
 var ObjectType = /** @class */ (function (_super) {
     __extends(ObjectType, _super);
     function ObjectType(opts) {
         var _this = _super.call(this, opts.name || "AnonymousObject") || this;
+        _this.flag = TypeFlags_1.TypeFlag.Object;
         _this.properties = {};
         /**
          * We create the Node of the Instance. The Node is the final value the user will "see". Is is an object where each property is also a Node.
@@ -116,7 +118,7 @@ function sanitizeProperties(properties) {
                 _a[key] = Optional_1.optional(Primitives_1.getPrimitiveFactoryFromValue(value), value),
                 _a));
         }
-        else if (Type_1.isType(value)) {
+        else if (TypeFlags_1.isType(value)) {
             // its already a type
             return properties;
         }

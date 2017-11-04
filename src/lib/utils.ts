@@ -1,5 +1,7 @@
 import {Instance, getNode, isInstance, Node} from "./Node";
 import {isType, IType} from "../api/Type";
+import {ReferenceType} from "../../dist/lib/Reference";
+import {TypeFlag} from "../api/TypeFlags";
 
 declare let process: any;
 
@@ -35,7 +37,7 @@ export function isPrimitive(value: any): boolean {
  * @param message
  */
 export function fail(message = "Illegal state"): never {
-    throw new Error("[chewing] " + message);
+    throw new Error("[crafter] " + message);
 }
 
 /**
@@ -111,6 +113,10 @@ export function assertType(value: any, type: any, rank?: number, force?: boolean
         if (isType(type) && !type.validate(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a ${type.name}, got ${prettyPrintValue(value)} instead.`);
         if (type === "Instance" && !isInstance(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a Type, got ${prettyPrintValue(value)} instead.`);
     }
+}
+
+export function isReferenceType(type: any): type is ReferenceType<any> {
+    return (type.flags & TypeFlag.Reference) > 0;
 }
 
 /**

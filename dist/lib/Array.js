@@ -14,10 +14,12 @@ var Type_1 = require("../api/Type");
 var utils_1 = require("./utils");
 var mobx_1 = require("mobx");
 var Node_1 = require("./Node");
+var typeFlags_1 = require("../api/typeFlags");
 var ArrayType = /** @class */ (function (_super) {
     __extends(ArrayType, _super);
     function ArrayType(name, itemType) {
         var _this = _super.call(this, name) || this;
+        _this.flag = typeFlags_1.TypeFlag.Array;
         _this.createEmptyInstance = function (snapshot) {
             return mobx_1.observable.array();
         };

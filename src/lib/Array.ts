@@ -2,9 +2,11 @@ import {ComplexType, IType} from "../api/Type";
 import {fail} from "./utils";
 import {IArrayWillChange, IArrayWillSplice, intercept, IObservableArray, observable} from "mobx";
 import {areSame, getNode, isInstance, Instance, valueAsNode, createNode, Node} from "./Node";
+import {TypeFlag} from "../api/typeFlags";
 
 export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     itemType: IType<any, T>;
+    readonly flag: TypeFlag = TypeFlag.Array;
 
     constructor(name: string, itemType: IType<any, any>) {
         super(name);

@@ -1,8 +1,10 @@
 import {IType, Type} from "../api/Type";
 import {createNode, isInstance, Node} from "./Node";
 import {fail} from "./utils";
+import {TypeFlag} from "../api/typeFlags";
 
 export class IdentifierType<T> extends Type<T, T> {
+    readonly flag = TypeFlag.Identifier;
 
     constructor(public readonly identifierType: IType<T, T>) {
         super(`identifier(${identifierType.name})`);

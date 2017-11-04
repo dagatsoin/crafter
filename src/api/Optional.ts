@@ -1,14 +1,15 @@
-import {isType, IType} from "./Type";
+import {IType} from "./Type";
 import {OptionalValue} from "../lib/Optional";
 import {getNode, isInstance} from "../lib/Node";
 import {assertType} from "../../dist/lib/utils";
+import {isType} from "./TypeFlags";
 
 declare const process: any;
 
-export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: S): IType<S, T>
-export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: T): IType<S, T>
-export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: () => S): IType<S, T>
-export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: () => T): IType<S, T>
+export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: S): IType<S, T>;
+export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: T): IType<S, T>;
+export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: () => S): IType<S, T>;
+export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: () => T): IType<S, T>;
 /**
  * `types.optional` can be used to create a property with a default value.
  * If the given value is not provided in the snapshot, it will default to the provided `defaultValue`.
@@ -31,15 +32,15 @@ export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: () => 
 export function optional<S, T>(type: IType<S, T>, defaultValueOrFunction: any): IType<S, T> {
     if (process.env.NODE_ENV !== "production") {
         if (!isType(type))
-            fail("expected a mobx-state-tree type as first argument, got " + type + " instead")
+            fail("expected a mobx-state-tree type as first argument, got " + type + " instead");
         const defaultValue =
             typeof defaultValueOrFunction === "function"
                 ? defaultValueOrFunction()
-                : defaultValueOrFunction
+                : defaultValueOrFunction;
         const defaultSnapshot = isInstance(defaultValue)
             ? getNode(defaultValue).snapshot
-            : defaultValue
+            : defaultValue;
         assertType(type, defaultSnapshot);
     }
-    return new OptionalValue(type, defaultValueOrFunction)
+    return new OptionalValue(type, defaultValueOrFunction);
 }

@@ -13,10 +13,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Type_1 = require("../api/Type");
 var Node_1 = require("./Node");
 var utils_1 = require("./utils");
+var TypeFlags_1 = require("../api/TypeFlags");
 var OptionalValue = /** @class */ (function (_super) {
     __extends(OptionalValue, _super);
     function OptionalValue(type, defaultValue) {
         var _this = _super.call(this, type.name) || this;
+        _this.flag = TypeFlags_1.TypeFlag.Optional;
         _this.type = type;
         _this.defaultValue = defaultValue;
         return _this;

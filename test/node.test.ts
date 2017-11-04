@@ -87,7 +87,7 @@ it("should resolve parents", function () {
     expect(hasParent(row, 3)).toBeFalsy();
     expect(getParent(row) === doc.rows).toBeTruthy(); // array
     expect(getParent(row, 2) === doc).toBeTruthy(); // row
-    expect(() => getParent(row, 3)).toThrowError("[chewing] Failed to find the parent of [object Object] at depth 3");
+    expect(() => getParent(row, 3)).toThrowError("[crafter] Failed to find the parent of [object Object] at depth 3");
 });
 
 it("should clone a node", function () {
@@ -169,7 +169,7 @@ it("should not create a node which already exists in a tree", function () {
 
     const row = Row.create();
     doc.rows.push(row);
-    expect(() => doc.foos.push(row)).toThrowError("[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/foos/0', but it lives already at '/rows/0'");
+    expect(() => doc.foos.push(row)).toThrowError("[crafter] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/foos/0', but it lives already at '/rows/0'");
 });
 
 it("should get the path", function () {
@@ -227,13 +227,13 @@ it("should get children", function () {
     expect(getNode(Fraktar).children.map(node => node.data)).toEqual(["Fraktar", observable(["000", "001"])]);
 });
 
-it("should not find any parent or children in a dead Instance", function () {
+it("should not act nor find any parent or children in a dead Instance", function () {
     const Fraktar = Player.create(snapshots.Fraktar);
     const Flamanoud = Slot.create({prefabId: "0A1", quantity: 1});
     Fraktar.inventory.slots.push(Flamanoud);
     Fraktar.inventory.slots.pop();
     expect(getNode(Flamanoud).isAlive).toBeFalsy();
-    expect(() => getNode(Flamanoud).children).toThrowError("[chewing] This object has died and is no longer part of a state tree. It cannot be used anymore. The object (of type 'Slot') used to live at '/inventory/slots/0'. It is possible to access the last snapshot of this object using 'getSnapshot', or to create a fresh copy using 'clone'. If you want to remove an object from the tree without killing it, use 'detach' instead.");
+    expect(() => getNode(Flamanoud).children).toThrowError("[crafter] This object has died and is no longer part of a state tree. It cannot be used anymore. The object (of type 'Slot') used to live at '/inventory/slots/0'. It is possible to access the last snapshot of this object using 'getSnapshot', or to create a fresh copy using 'clone'. If you want to remove an object from the tree without killing it, use 'detach' instead.");
     expect(getNode(Flamanoud).leafs.size).toEqual(0);
     expect(getNode(Flamanoud).parent).toEqual(null);
 });

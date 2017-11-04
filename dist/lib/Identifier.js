@@ -13,11 +13,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Type_1 = require("../api/Type");
 var Node_1 = require("./Node");
 var utils_1 = require("./utils");
+var typeFlags_1 = require("../api/typeFlags");
 var IdentifierType = /** @class */ (function (_super) {
     __extends(IdentifierType, _super);
     function IdentifierType(identifierType) {
         var _this = _super.call(this, "identifier(" + identifierType.name + ")") || this;
         _this.identifierType = identifierType;
+        _this.flag = typeFlags_1.TypeFlag.Identifier;
         return _this;
     }
     IdentifierType.prototype.instantiate = function (parent, subPath, snapshot) {

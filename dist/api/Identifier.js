@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Type_1 = require("./Type");
 var Identifier_1 = require("../lib/Identifier");
 var Primitives_1 = require("./Primitives");
+var TypeFlags_1 = require("./TypeFlags");
 /**
  * Identifiers are used to make references, lifecycle events and reconciling works.
  * Inside a state tree, for each type can exist only one instance for each given identifier.
@@ -25,7 +25,7 @@ var Primitives_1 = require("./Primitives");
 function identifier(baseType) {
     if (baseType === void 0) { baseType = Primitives_1.string; }
     if (process.env.NODE_ENV !== "production") {
-        if (!Type_1.isType(baseType))
+        if (!TypeFlags_1.isType(baseType))
             fail("expected a mobx-state-tree type as first argument, got " + baseType + " instead");
     }
     return new Identifier_1.IdentifierType(baseType);

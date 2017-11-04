@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var Node_1 = require("./Node");
 var Type_1 = require("../api/Type");
+var TypeFlags_1 = require("../api/TypeFlags");
 exports.EMPTY_ARRAY = Object.freeze([]);
 exports.EMPTY_OBJECT = Object.freeze({});
 /**
@@ -33,7 +34,7 @@ exports.isPrimitive = isPrimitive;
  */
 function fail(message) {
     if (message === void 0) { message = "Illegal state"; }
-    throw new Error("[chewing] " + message);
+    throw new Error("[crafter] " + message);
 }
 exports.fail = fail;
 /**
@@ -115,6 +116,10 @@ function assertType(value, type, rank, force) {
     }
 }
 exports.assertType = assertType;
+function isReferenceType(type) {
+    return (type.flags & TypeFlags_1.TypeFlag.Reference) > 0;
+}
+exports.isReferenceType = isReferenceType;
 /**
  * escape slashes and backslashes
  * http://tools.ietf.org/html/rfc6901

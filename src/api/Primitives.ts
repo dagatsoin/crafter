@@ -1,6 +1,7 @@
 import {fail} from "../lib/utils";
 import {ISimpleType} from "./Type";
 import {CoreType} from "../lib/CoreType";
+import {TypeFlag} from "./typeFlags";
 
 /**
  * Creates a type that can only contain a string value.
@@ -17,6 +18,7 @@ import {CoreType} from "../lib/CoreType";
 // tslint:disable-next-line:variable-name
 export const string: ISimpleType<string> = new CoreType<string, string>(
     "string",
+    TypeFlag.String,
     (v: string) => typeof v === "string"
 );
 
@@ -35,6 +37,7 @@ export const string: ISimpleType<string> = new CoreType<string, string>(
 // tslint:disable-next-line:variable-name
 export const number: ISimpleType<number> = new CoreType<number, number>(
     "number",
+    TypeFlag.Number,
     (v: number) => typeof v === "number"
 );
 
@@ -53,6 +56,7 @@ export const number: ISimpleType<number> = new CoreType<number, number>(
 // tslint:disable-next-line:variable-name
 export const boolean: ISimpleType<boolean> = new CoreType<boolean, boolean>(
     "boolean",
+    TypeFlag.Boolean,
     (v: boolean) => typeof v === "boolean"
 );
 

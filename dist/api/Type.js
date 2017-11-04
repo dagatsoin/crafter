@@ -44,6 +44,9 @@ var Type = /** @class */ (function () {
     Type.prototype.getChildType = function (key) {
         return utils_1.fail("No child '" + key + "' available in type: " + this.name);
     };
+    Type.prototype.isAssignableFrom = function (type) {
+        return type === this;
+    };
     return Type;
 }());
 exports.Type = Type;
@@ -64,8 +67,4 @@ var ComplexType = /** @class */ (function (_super) {
     return ComplexType;
 }(Type));
 exports.ComplexType = ComplexType;
-function isType(value) {
-    return typeof value === "object" && value && value.isType === true;
-}
-exports.isType = isType;
 //# sourceMappingURL=Type.js.map

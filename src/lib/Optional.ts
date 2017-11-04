@@ -1,6 +1,7 @@
 import {IType, Type} from "../api/Type";
 import {getNode, isInstance, Node} from "./Node";
 import {assertType} from "./utils";
+import {TypeFlag} from "../api/TypeFlags";
 
 export type IFunctionReturn<T> = () => T;
 export type IOptionalValue<S, T> = S | T | IFunctionReturn<S> | IFunctionReturn<T>;
@@ -8,6 +9,7 @@ export type IOptionalValue<S, T> = S | T | IFunctionReturn<S> | IFunctionReturn<
 export class OptionalValue<S, T> extends Type<S, T> {
     readonly type: IType<S, T>;
     readonly defaultValue: IOptionalValue<S, T>;
+    readonly flag = TypeFlag.Optional;
 
     constructor(type: IType<S, T>, defaultValue: IOptionalValue<S, T>) {
         super(type.name);

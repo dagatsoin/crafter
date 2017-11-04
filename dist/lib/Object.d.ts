@@ -1,9 +1,11 @@
 import { ComplexType, IObjectType, IType } from "../api/Type";
 import { Node } from "./Node";
+import { TypeFlag } from "../api/TypeFlags";
 export declare type IObjectProperties<T> = {
     [K in keyof T]: IType<any, T[K]> | T[K];
 };
 export declare class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S, T> {
+    readonly flag: TypeFlag;
     private readonly propertiesNames;
     private properties;
     constructor(opts: {

@@ -1,6 +1,7 @@
 import {Type} from "../api/Type";
 import {identity, isPrimitive, fail} from "./utils";
 import {createNode, Node} from "./Node";
+import {TypeFlag} from "../api/typeFlags";
 
 /**
  * From MST implementation https://github.com/mobxjs/mobx-state-tree/blob/master/src/types/primitives.ts
@@ -9,12 +10,15 @@ import {createNode, Node} from "./Node";
 export class CoreType<S, T> extends Type<S, T> {
     readonly checker: (value: any) => boolean;
     readonly initializer: (v: any) => any;
+    readonly flag: TypeFlag;
 
     constructor(name: any,
+                typeFlag: TypeFlag,
                 checker: any,
                 initializer: (v: any) => any = identity) {
         super(name);
         this.checker = checker;
+        this.flag = typeFlag;
         this.initializer = initializer;
     }
 

@@ -2,6 +2,7 @@ import {object} from "../src/api/Object";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {observable, reaction} from "mobx";
+import {identifier} from "../src/api/Identifier";
 
 const Slot = object("Slot", {
     prefabId: string,
@@ -89,11 +90,27 @@ describe("Mutations", function(){
 describe("Snapshot", function(){
 
 });
-/*
+
 describe("Reconciliation", function(){
-    test("https://github.com/mobxjs/mobx-state-tree/issues/340#issuecomment-325581681");
-    it("should not be possible to act on a dead instance");
-    test("check if already belongs to the same parent. if so, avoid pushing item in. only swapping can occur.");
+    /*test("Should properly reorder references", function() {
+        const B = object("Block", {
+            id: identifier(string)
+        });
+
+        const S = object("Store", {
+            blocks: array(B),
+            blockRefs: array(reference(B))
+        });
+
+        const a = S.create({
+            blocks: [{id: "1"}, {id: "2"}],
+            blockRefs: ["1", "2"]
+        })
+
+        a.blockRefs.move(0, 1);
+    });*/
+
+ /*   test("check if already belongs to the same parent. if so, avoid pushing item in. only swapping can occur.");
     it("should keep paths correct when splicing", t => {
         const store = types
             .model({
@@ -147,7 +164,7 @@ describe("Reconciliation", function(){
         t.is(isAlive(c), false)
         t.throws(
             () => store.todos.splice(0, 1, a, c, d),
-            "[chewing] Task@<root>[dead] cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value"
+            "[crafter] Task@<root>[dead] cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value"
         )
         store.todos.splice(0, 1, clone(a), clone(c), clone(d))
         t.deepEqual(store.todos.map(_ => _.x), ["a", "c", "d"])
@@ -287,11 +304,11 @@ describe("Reconciliation", function(){
         s.todos.push(a)
         t.throws(() => {
             s.todos.push(a)
-        }, "[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/todos/1', but it lives already at '/todos/0'")
+        }, "[crafter] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/todos/1', but it lives already at '/todos/0'")
         const b = Task.create()
         t.throws(() => {
             s.todos.push(b, b)
-        }, "[chewing] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/todos/2', but it lives already at '/todos/1'")
+        }, "[crafter] Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '/todos/2', but it lives already at '/todos/1'")
     })
 
     it("should support observable arrays", t => {
@@ -300,5 +317,5 @@ describe("Reconciliation", function(){
         t.true(testArray[0] === 1)
         t.true(testArray.length === 2)
         t.true(Array.isArray(testArray.slice()))
-    })
-});*/
+    })*/
+});

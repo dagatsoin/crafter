@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var Node_1 = require("./Node");
-var Type_1 = require("../api/Type");
 var TypeFlags_1 = require("../api/TypeFlags");
 exports.EMPTY_ARRAY = Object.freeze([]);
 exports.EMPTY_OBJECT = Object.freeze({});
@@ -107,9 +106,9 @@ function assertType(value, type, rank, force) {
             fail("expected " + (rank ? rank.toString() : "") + " argument to be a number, got " + prettyPrintValue(value) + " instead.");
         if (type === "function" && typeof value !== "function")
             fail("expected " + (rank ? rank.toString() : "") + " argument to be a function, got " + prettyPrintValue(value) + " instead.");
-        if (type === "Type" && !Type_1.isType(value))
+        if (type === "Type" && !TypeFlags_1.isType(value))
             fail("expected " + (rank ? rank.toString() : "") + " argument to be a Type, got " + prettyPrintValue(value) + " instead.");
-        if (Type_1.isType(type) && !type.validate(value))
+        if (TypeFlags_1.isType(type) && !type.validate(value))
             fail("expected " + (rank ? rank.toString() : "") + " argument to be a " + type.name + ", got " + prettyPrintValue(value) + " instead.");
         if (type === "Instance" && !Node_1.isInstance(value))
             fail("expected " + (rank ? rank.toString() : "") + " argument to be a Type, got " + prettyPrintValue(value) + " instead.");

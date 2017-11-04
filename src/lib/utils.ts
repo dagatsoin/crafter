@@ -1,7 +1,6 @@
 import {Instance, getNode, isInstance, Node} from "./Node";
-import {isType, IType} from "../api/Type";
 import {ReferenceType} from "../../dist/lib/Reference";
-import {TypeFlag} from "../api/TypeFlags";
+import {isType, TypeFlag} from "../api/TypeFlags";
 
 declare let process: any;
 

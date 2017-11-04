@@ -55,8 +55,8 @@ var ComplexType = /** @class */ (function (_super) {
     function ComplexType() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    ComplexType.prototype.is = function (thing) {
-        throw new Error("Method not implemented.");
+    ComplexType.prototype.is = function (value) {
+        return this.validate(value);
     };
     ComplexType.prototype.applySnapshot = function (node, snapshot) {
         utils_1.fail("Immutable types do not support applying snapshots");

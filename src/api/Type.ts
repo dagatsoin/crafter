@@ -136,8 +136,8 @@ export abstract class Type<S, T> implements IType<S, T> {
 }
 
 export abstract class ComplexType<S, T> extends Type<S, T> implements IComplexType<S, T> {
-    is(thing: any): thing is S | (T & Instance) {
-        throw new Error("Method not implemented.");
+    is(value: any): value is S | T {
+        return this.validate(value);
     }
 
     applySnapshot(node: Node, snapshot: S) {

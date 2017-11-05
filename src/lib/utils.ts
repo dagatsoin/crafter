@@ -113,7 +113,7 @@ export function prettyPrintValue(value: any) {
  * @param {string} rank to specify which argument is not valid: first, second, etc.
  * @param force if true, run event in prod mode
  */
-export function assertType(value: any, type: any, rank?: number, force?: boolean) {
+export function assertType(value: any, type: any, rank: number = 1, force?: boolean) {
     if (process.env.NODE_ENV !== "production" || force) {
         if (type === "string" && typeof value !== "string") fail(`expected ${rank ? rank.toString() : ""} argument to be a string, got ${prettyPrintValue(value)} instead.`);
         if (type === "boolean" && typeof value !== "boolean") fail(`expected ${rank ? rank.toString() : ""} argument to be a boolean, got ${prettyPrintValue(value)} instead.`);
@@ -121,7 +121,7 @@ export function assertType(value: any, type: any, rank?: number, force?: boolean
         if (type === "function" && typeof value !== "function") fail(`expected ${rank ? rank.toString() : ""} argument to be a function, got ${prettyPrintValue(value)} instead.`);
         if (type === "Type" && !isType(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a Type, got ${prettyPrintValue(value)} instead.`);
         if (isType(type) && !type.validate(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a ${type.name}, got ${prettyPrintValue(value)} instead.`);
-        if (type === "Instance" && !isInstance(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be a Type, got ${prettyPrintValue(value)} instead.`);
+        if (type === "Instance" && !isInstance(value)) fail(`expected ${rank ? rank.toString() : ""} argument to be an Instance, got ${prettyPrintValue(value)} instead.`);
     }
 }
 

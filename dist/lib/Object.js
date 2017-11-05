@@ -48,7 +48,12 @@ var ObjectType = /** @class */ (function (_super) {
     }
     ObjectType.prototype.isValidSnapshot = function (value) {
         var _this = this;
-        return !utils_1.isPlainObject(value) ? false : this.propertiesNames.some(function (key) { return _this.properties[key].validate(value[key]); });
+        return !utils_1.isPlainObject(value) ?
+            false :
+            this.propertiesNames.length ?
+                this.propertiesNames.every(function (key) { return _this.properties[key].validate(value[key]); })
+                :
+                    !Object.keys(value).length;
     };
     ObjectType.prototype.instantiate = function (parent, subPath, initialValue) {
         return Node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);

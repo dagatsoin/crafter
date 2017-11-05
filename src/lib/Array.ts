@@ -1,6 +1,6 @@
 import {ComplexType, IType} from "../api/Type";
 import {fail} from "./utils";
-import {extras, IArrayWillChange, IArrayWillSplice, intercept, IObservableArray, observable} from "mobx";
+import {extras, IArrayWillChange, IArrayWillSplice, intercept, IObservableArray, isObservableArray, observable} from "mobx";
 import {areSame, getNode, isInstance, Instance, valueAsNode, createNode, Node} from "./core/Node";
 import {TypeFlag} from "../api/typeFlags";
 
@@ -43,7 +43,8 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     }
 
     isValidSnapshot(value: any): boolean {
-        return value.constructor.name !== "array" ? false : value.some((item: any, index: any) => this.itemType.validate(item));
+        return (Array.isArray(value) || isObservableArray(value)) && value.length ?
+            value.every((item: any, index: any) => this.itemType.validate(item)) : true;
     }
 
     applySnapshot(node: Node, snapshot: any[]): void {

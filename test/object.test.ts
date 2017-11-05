@@ -114,13 +114,11 @@ describe("Factory", function(){
         });
 
         it("should not create an instance without snapshot", function () {
-            const player = Player.create();
-            expect(player).toEqual(observable(snapshots.player));
+            expect(() => Player.create()).toThrow();
         });
 
         test("primitive props are not observable", function () {
-            const player = Player.create();
-            expect(isObservable(player.entity.name)).toBeFalsy();
+            expect(isObservable(Entity.create(snapshots.Fraktar.entity).name)).toBeFalsy();
         });
     });
 });
@@ -162,9 +160,11 @@ describe("Snapshot", function(){
     });
 
     it("should restore an instance with a snapshot of Object", function () {
-        const Fraktar = Player.create({});
-        applySnapshot(Fraktar, snapshots.Fraktar);
-        expect(Fraktar.inventory).toEqual(snapshots.Fraktar.inventory);
+        const initialSnapshot = JSON.parse(JSON.stringify(snapshots.Fraktar));
+        initialSnapshot.entity.name = "TheWen";
+        const player = Player.create(initialSnapshot);
+        applySnapshot(player, snapshots.Fraktar);
+        expect(player).toEqual(observable(snapshots.Fraktar));
     });
 
     it("should accept an optional field", function(){

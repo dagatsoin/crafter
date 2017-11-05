@@ -19,15 +19,14 @@ var Type = /** @class */ (function () {
     Type.prototype.getChildNode = function (node, key) {
         return utils_1.fail("No child '" + key + "' available in type: " + this.name);
     };
-    Type.prototype.is = function (thing) {
-        throw new Error("Method not implemented.");
+    Type.prototype.is = function (value) {
+        return this.validate(value);
     };
     Type.prototype.validate = function (thing) {
         return this.isValidSnapshot(thing);
     };
     Type.prototype.create = function (snapshot, check) {
-        if (check)
-            utils_1.assertType(snapshot, this, 0, check);
+        utils_1.assertType(snapshot, this, 0, check);
         return this.instantiate(null, "", snapshot).value;
     };
     Type.prototype.applySnapshot = function (node, snapshot) {
@@ -58,9 +57,6 @@ var ComplexType = /** @class */ (function (_super) {
     function ComplexType() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    ComplexType.prototype.is = function (value) {
-        return this.validate(value);
-    };
     ComplexType.prototype.create = function (snapshot, check) {
         if (snapshot === void 0) { snapshot = this.getDefaultSnapshot(); }
         return _super.prototype.create.call(this, snapshot, check);

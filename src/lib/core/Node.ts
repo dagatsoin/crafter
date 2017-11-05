@@ -53,18 +53,24 @@ export class Node {
             });
         }
 
-        /* 3 - Add this node to the cache. The cache located in the root.
-         * It is used to quickly retrieve a node based on its Identifier instead of crawling the tree.
-         */
-        if (this.isRoot) {
-            this.identifierCache = new IdentifierCache();
-            this.identifierCache!.addNodeToCache(this);
-        } else this.root.identifierCache!.addNodeToCache(this);
+        let sawExceptions = true;
+        try {
+            /* 3 - Add this node to the cache. The cache located in the root.
+             * It is used to quickly retrieve a node based on its Identifier instead of crawling the tree.
+             */
+            if (this.isRoot) {
+                this.identifierCache = new IdentifierCache();
+                this.identifierCache!.addNodeToCache(this);
+            } else this.root.identifierCache!.addNodeToCache(this);
 
-        /* 4 - Build and hydration phase. */
-        if (!isPrimitive(this.data)) buildType(this, initialValue); // For object
-        else if (isPrimitive(this.data) && !parent) {// For primitive without parent we generate a boxed primitive.
-            // todo generate boxed observable for primitive
+            /* 4 - Build and hydration phase. */
+            if (!isPrimitive(this.data)) buildType(this, initialValue); // For object
+            else if (isPrimitive(this.data) && !parent) {// For primitive without parent we generate a boxed primitive.
+                // todo generate boxed observable for primitive
+            }
+            sawExceptions = false;
+        } finally { // can't use catch here cause tests which use .toThrow will don't see anything
+            if (sawExceptions) this.isAlive = false;
         }
     }
 
@@ -148,17 +154,19 @@ export class Node {
     }
 
     assertAlive() {
-        if (!this.isAlive) fail(`${this} cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value`);
+        if (!this.isAlive) fail(`${this} cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value.`);
     }
 
     beforeDestroy() {}
 
     remove() {
         if (this.isDetaching) return;
-        // 1 - Warn every other descendant nodes that a node will be removed.
-        walk(this.data, child => getNode(child).beforeDestroy());
-        // 2 - Destroy this node and all this children
-        walk(this.data, child => getNode(child).destroy());
+        if (isInstance(this.data)) {
+            // 1 - Warn every other descendant nodes that a node will be removed.
+            walk(this.data, child => getNode(child).beforeDestroy());
+            // 2 - Destroy this node and all this children
+            walk(this.data, child => getNode(child).destroy());
+        }
     }
 
     public destroy() {

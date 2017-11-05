@@ -110,6 +110,7 @@ exports.prettyPrintValue = prettyPrintValue;
  * @param force if true, run event in prod mode
  */
 function assertType(value, type, rank, force) {
+    if (rank === void 0) { rank = 1; }
     if (process.env.NODE_ENV !== "production" || force) {
         if (type === "string" && typeof value !== "string")
             fail("expected " + (rank ? rank.toString() : "") + " argument to be a string, got " + prettyPrintValue(value) + " instead.");
@@ -124,7 +125,7 @@ function assertType(value, type, rank, force) {
         if (TypeFlags_1.isType(type) && !type.validate(value))
             fail("expected " + (rank ? rank.toString() : "") + " argument to be a " + type.name + ", got " + prettyPrintValue(value) + " instead.");
         if (type === "Instance" && !Node_1.isInstance(value))
-            fail("expected " + (rank ? rank.toString() : "") + " argument to be a Type, got " + prettyPrintValue(value) + " instead.");
+            fail("expected " + (rank ? rank.toString() : "") + " argument to be an Instance, got " + prettyPrintValue(value) + " instead.");
     }
 }
 exports.assertType = assertType;

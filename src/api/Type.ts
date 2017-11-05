@@ -101,8 +101,8 @@ export abstract class Type<S, T> implements IType<S, T> {
         return fail(`No child '${key}' available in type: ${this.name}`)
     }
 
-    is(thing: any): thing is S | T {
-        throw new Error("Method not implemented.");
+    is(value: any): value is S | T {
+        return this.validate(value);
     }
 
     validate(thing: any): boolean {
@@ -110,7 +110,7 @@ export abstract class Type<S, T> implements IType<S, T> {
     }
 
     create(snapshot?: S, check?: boolean): T {
-        if (check) assertType(snapshot, this, 0, check);
+        assertType(snapshot, this, 0, check);
         return this.instantiate(null, "", snapshot).value;
     }
 
@@ -145,10 +145,6 @@ export abstract class Type<S, T> implements IType<S, T> {
 
 export abstract class ComplexType<S, T> extends Type<S, T> implements IComplexType<S, T> {
     abstract getDefaultSnapshot(): any;
-
-    is(value: any): value is S | T {
-        return this.validate(value);
-    }
 
     create(snapshot: S = this.getDefaultSnapshot(), check?: boolean): T {
         return super.create(snapshot, check);

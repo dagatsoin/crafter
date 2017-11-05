@@ -52,8 +52,10 @@ const snapshots = {
 
 it("should check if a node can be attached to the value", function () {
     const Type = object("model", {foo: ""});
-    const node = Type.instantiate(null, "", {foo: "foo"});
-    expect(canAttachNode(node)).toBeFalsy();
+    expect(canAttachNode(null)).toBeFalsy();
+    expect(canAttachNode("foo")).toBeFalsy();
+    expect(canAttachNode(new Date())).toBeFalsy();
+    expect(canAttachNode(Type.create({foo: "bar"}))).toBeFalsy();
     expect(canAttachNode({foo: "bar"})).toBeTruthy();
 });
 
@@ -104,7 +106,7 @@ it("should clone a node", function () {
     expect(doc).toEqual(cloned);
 });
 
-it("should be possible to clone a dead object", function() {
+it("should be possible to clone a dead object", function () {
     const Task = object("Task", {
         title: string
     });
@@ -196,11 +198,6 @@ it("should get empty path because it is the root", function () {
     expect(getNode(root).path).toEqual("");
 });
 
-it("should store primitive nodes in parent", function () {
-    const slotNode = Slot.instantiate(null, "", {prefabId: "foo", quantity: 12});
-    expect(slotNode.leafs.values().map(node => node.data)).toEqual(["foo", 12]);
-});
-
 it("should get children", function () {
     // Object children
     const player = Player.create(snapshots.Fraktar);
@@ -210,11 +207,9 @@ it("should get children", function () {
     const slotNode = Slot.instantiate(null, "", {prefabId: "foo", quantity: 12});
     const questLog = array(string).create();
     questLog.push("000", "001");
-    expect(slotNode.children).toEqual([slotNode.leafs.get("prefabId"), slotNode.leafs.get("quantity")]);
-    expect(getNode(questLog).leafs.size).toEqual(2);
+    expect(slotNode.children.length).toEqual(2);
     questLog.pop();
-    expect(getNode(questLog).leafs.size).toEqual(1);
-    expect(getNode(questLog).children).toEqual(getNode(questLog).leafs.values());
+    expect(getNode(questLog).children.length).toEqual(1);
 
     // Mixed
     const Fraktar = object({
@@ -233,7 +228,6 @@ it("should not act nor find any parent or children in a dead Instance", function
     Fraktar.inventory.slots.push(Flamanoud);
     Fraktar.inventory.slots.pop();
     expect(getNode(Flamanoud).isAlive).toBeFalsy();
-    expect(() => getNode(Flamanoud).children).toThrowError("[crafter] This object has died and is no longer part of a state tree. It cannot be used anymore. The object (of type 'Slot') used to live at '/inventory/slots/0'. It is possible to access the last snapshot of this object using 'getSnapshot', or to create a fresh copy using 'clone'. If you want to remove an object from the tree without killing it, use 'detach' instead.");
-    expect(getNode(Flamanoud).leafs.size).toEqual(0);
+    expect(() => getNode(Flamanoud).children).toThrowError("[crafter] [object Object] cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value.");
     expect(getNode(Flamanoud).parent).toEqual(null);
 });

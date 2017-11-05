@@ -42,7 +42,8 @@ var ArrayType = /** @class */ (function (_super) {
     };
     ArrayType.prototype.isValidSnapshot = function (value) {
         var _this = this;
-        return value.constructor.name !== "array" ? false : value.some(function (item, index) { return _this.itemType.validate(item); });
+        return (Array.isArray(value) || mobx_1.isObservableArray(value)) && value.length ?
+            value.every(function (item, index) { return _this.itemType.validate(item); }) : true;
     };
     ArrayType.prototype.applySnapshot = function (node, snapshot) {
         var target = node.data;

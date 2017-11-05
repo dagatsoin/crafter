@@ -1,4 +1,4 @@
-import {ComplexType, IObjectType, IType, } from "../api/Type";
+import {ComplexType, IObjectType, IType,} from "../api/Type";
 import {createNode, getNode, isInstance, Node} from "./core/Node";
 import {extendShallowObservable, extras, intercept, IObjectChange, IObjectWillChange, IObservableObject, observable, observe, transaction} from "mobx";
 import {isPlainObject, isPrimitive, fail, assertType, escapeJsonPath, EMPTY_OBJECT} from "./utils";
@@ -24,7 +24,12 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
     }
 
     isValidSnapshot(value: any): boolean {
-        return !isPlainObject(value) ? false : this.propertiesNames.some(key => this.properties[key].validate(value[key]));
+        return !isPlainObject(value) ?
+            false :
+            this.propertiesNames.length ?
+                this.propertiesNames.every(key => this.properties[key].validate(value[key]))
+                :
+                !Object.keys(value).length;
     }
 
     instantiate(parent: Node, subPath: string, initialValue?: any): Node {

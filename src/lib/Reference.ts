@@ -1,21 +1,22 @@
-import {createNode, getNode, isInstance, Node} from "./core/Node";
+import {assertType, isReferenceType} from "./utils";
+import {getNode, Node, isInstance, createNode, Instance} from "./core/Node";
 import {IType, Type} from "../api/Type";
-import {isReferenceType} from "./utils";
 import {TypeFlag} from "../api/TypeFlags";
 
 class StoredReference {
     constructor(public mode: "identifier" | "object", public value: any) {
         if (mode === "object") {
-            if (!isInstance(value)) fail(`Can only store references to tree nodes, got: '${value}'`);
+            if (!isInstance(value))  fail(`Can only store references to tree nodes, got: '${value}'`);
 
             const targetNode = getNode(value);
-            if (!targetNode.identifierAttribute) fail(`Can only store references with a defined identifier attribute.`);
+            if (!targetNode.identifierAttribute)  fail(`Can only store references with a defined identifier attribute.`);
         }
     }
 }
 
 export class ReferenceType<T> extends Type<string | number, T> {
-    readonly flag = TypeFlag.Reference;
+
+    readonly flags = TypeFlag.Reference;
 
     constructor(private readonly targetType: IType<any, T>) {
         super(`reference(${targetType.name})`);
@@ -51,27 +52,13 @@ export class ReferenceType<T> extends Type<string | number, T> {
     }
 
     instantiate(parent: Node | null, subPath: string, snapshot: any): Node {
+        const isComplex = isInstance(snapshot);
         return createNode(
             this,
             parent,
             subPath,
-            this.createEmptyInstance,
-            this.finalizeInstance
+            new StoredReference(isComplex ? "object" : "identifier", snapshot)
         );
-    }
-
-    private createEmptyInstance(snapshot: any) {
-        const isComplex = isInstance(snapshot);
-        return new StoredReference(isComplex ? "object" : "identifier", snapshot)
-    }
-
-    private finalizeInstance(node: Node, snapshot: any) {
-        Object.defineProperty(node.parent!.data.prototype, node.subPath, {
-            enumerable: false,
-            writable: false,
-            configurable: true,
-            value: this,
-        });
     }
 
     reconcile(current: Node, newValue: any): Node {
@@ -94,11 +81,25 @@ export class ReferenceType<T> extends Type<string | number, T> {
     }
 
     isValidSnapshot(value: any): boolean {
-        return typeof value === "string" || typeof value === "number";
+        return (typeof value === "string" || typeof value === "number")
+            || (isInstance(value) && this.targetType.isAssignableFrom(getNode(value as Instance).type));
     }
 
-    // Return no children
-    getChildren(node: Node): Array<Node> {
+    getChildren(node: Node): Node[] {
         return [];
     }
+}
+
+export function reference<T>(factory: IType<any, T>): IType<string | number, T>;
+/**
+ * Creates a reference to another type, which should have defined an identifier.
+ * See also the [reference and identifiers](https://github.com/mobxjs/mobx-state-tree#references-and-identifiers) section.
+ *
+ * @export
+ * @alias types.reference
+ */
+export function reference<T>(subType: IType<any, T>): any {
+    // check that a type is given
+    assertType(subType, "Type");
+    return new ReferenceType(subType);
 }

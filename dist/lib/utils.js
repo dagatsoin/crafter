@@ -99,7 +99,7 @@ function safeStringify(value) {
 function prettyPrintValue(value) {
     return typeof value === "function"
         ? "<function" + (value.name ? " " + value.name : "") + ">"
-        : Node_1.isInstance(value) ? "<" + value + ">" : "`" + safeStringify(value) + "`";
+        : Node_1.isInstance(value) ? "<" + value + ">" : "`" + safeStringify(value) + "`>";
 }
 exports.prettyPrintValue = prettyPrintValue;
 /**
@@ -113,19 +113,19 @@ function assertType(value, type, rank, force) {
     if (rank === void 0) { rank = 1; }
     if (process.env.NODE_ENV !== "production" || force) {
         if (type === "string" && typeof value !== "string")
-            fail("expected " + (rank ? rank.toString() : "") + " argument to be a string, got " + prettyPrintValue(value) + " instead.");
+            fail("expected argument " + (rank ? rank.toString() + " " : " ") + "to be a string, got " + prettyPrintValue(value) + " instead.");
         if (type === "boolean" && typeof value !== "boolean")
-            fail("expected " + (rank ? rank.toString() : "") + " argument to be a boolean, got " + prettyPrintValue(value) + " instead.");
+            fail("expected argument " + (rank ? rank.toString() + " " : " ") + "to be a boolean, got " + prettyPrintValue(value) + " instead.");
         if (type === "number" && typeof value !== "number")
-            fail("expected " + (rank ? rank.toString() : "") + " argument to be a number, got " + prettyPrintValue(value) + " instead.");
+            fail("expected argument " + (rank ? rank.toString() + " " : " ") + "to be a number, got " + prettyPrintValue(value) + " instead.");
         if (type === "function" && typeof value !== "function")
-            fail("expected " + (rank ? rank.toString() : "") + " argument to be a function, got " + prettyPrintValue(value) + " instead.");
+            fail("expected argument " + (rank ? rank.toString() + " " : " ") + "to be a function, got " + prettyPrintValue(value) + " instead.");
         if (type === "Type" && !TypeFlags_1.isType(value))
-            fail("expected " + (rank ? rank.toString() : "") + " argument to be a Type, got " + prettyPrintValue(value) + " instead.");
+            fail("expected argument " + (rank ? rank.toString() + " " : " ") + "to be a Type, got " + prettyPrintValue(value) + " instead.");
         if (TypeFlags_1.isType(type) && !type.validate(value))
-            fail("expected " + (rank ? rank.toString() : "") + " argument to be a " + type.name + ", got " + prettyPrintValue(value) + " instead.");
+            fail("expected argument " + (rank ? rank.toString() + " " : " ") + "to be a " + type.name + ", got " + prettyPrintValue(value) + " instead.");
         if (type === "Instance" && !Node_1.isInstance(value))
-            fail("expected " + (rank ? rank.toString() : "") + " argument to be an Instance, got " + prettyPrintValue(value) + " instead.");
+            fail("expected argument " + (rank ? rank.toString() + " " : " ") + "to be an Instance, got " + prettyPrintValue(value) + " instead.");
     }
 }
 exports.assertType = assertType;

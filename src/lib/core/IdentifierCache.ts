@@ -9,6 +9,7 @@ export class IdentifierCache {
     constructor() {}
 
     addNodeToCache(node: Node) {
+        //console.log(node.type.name, node.identifierAttribute)
         if (node.identifierAttribute) {
             const identifier = node.identifier!;
             if (!this.cache.has(identifier)) {

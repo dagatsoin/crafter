@@ -52,22 +52,22 @@ export class Node {
                 value: this,
             });
         }
+        if (this.isRoot) this.identifierCache = new IdentifierCache();
 
         let sawExceptions = true;
         try {
-            /* 3 - Add this node to the cache. The cache located in the root.
-             * It is used to quickly retrieve a node based on its Identifier instead of crawling the tree.
-             */
-            if (this.isRoot) {
-                this.identifierCache = new IdentifierCache();
-                this.identifierCache!.addNodeToCache(this);
-            } else this.root.identifierCache!.addNodeToCache(this);
-
-            /* 4 - Build and hydration phase. */
+            /* 3 - Build and hydration phase. */
             if (!isPrimitive(this.data)) buildType(this, initialValue); // For object
             else if (isPrimitive(this.data) && !parent) {// For primitive without parent we generate a boxed primitive.
                 // todo generate boxed observable for primitive
             }
+
+            /* 4 - Add this node to the cache. The cache located in the root.
+             * It is used to quickly retrieve a node based on its Identifier instead of crawling the tree.
+             */
+            if (this.isRoot) this.identifierCache!.addNodeToCache(this);
+            else this.root.identifierCache!.addNodeToCache(this);
+
             sawExceptions = false;
         } finally { // can't use catch here cause tests which use .toThrow will don't see anything
             if (sawExceptions) this.isAlive = false;

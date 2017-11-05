@@ -6,13 +6,13 @@ import {array} from "../src/api/Array";
 import {getSnapshot} from "../src/api/utils";
 import {reference} from "../src/api/Reference";
 
-test("it should support prefixed paths in maps", function() {
-    const User = object({
+test("it should support reference swap", function() {
+    const User = object("User", {
         id: identifier(),
         name: string
     });
 
-    const UserStore = object({
+    const UserStore = object("UserStore", {
         user: reference(User),
         users: array(User)
     });

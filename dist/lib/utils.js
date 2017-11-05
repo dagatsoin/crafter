@@ -27,6 +27,19 @@ function isPrimitive(value) {
         value instanceof Date;
 }
 exports.isPrimitive = isPrimitive;
+function extend(a) {
+    var b = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        b[_i - 1] = arguments[_i];
+    }
+    for (var i = 0; i < b.length; i++) {
+        var current = b[i];
+        for (var key in current)
+            a[key] = current[key];
+    }
+    return a;
+}
+exports.extend = extend;
 /**
  * Wrapper for throwing error
  * @param message

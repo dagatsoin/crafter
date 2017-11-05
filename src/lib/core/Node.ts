@@ -1,7 +1,8 @@
 import {computed, observable, transaction} from "mobx";
 import {IType} from "../../api/Type";
-import {escapeJsonPath, fail, identity, isMutable, isPlainObject, isPrimitive, walk} from "../utils";
+import {escapeJsonPath, extend, fail, identity, isMutable, isPlainObject, isPrimitive, walk} from "../utils";
 import {IdentifierCache} from "./IdentifierCache";
+import {IReversibleJsonPatch, splitPatch, IJsonPatch} from "./jsonPatch";
 
 export type Instance = {
     readonly $node?: Node
@@ -11,13 +12,17 @@ export class Node {
     readonly type: IType<any, any>;
     readonly data: any;
     @observable public parent: Node | null = null;
-    @observable public leafs: Map<string, Node> = new Map(); // Refs to the Node of primitives. Primitive value can't have any children and don't hold a reference to their node.
     identifierAttribute: string | undefined = undefined; // not to be modified directly, only through model initialization
     identifierCache: IdentifierCache | undefined;
     subPath: string;
-    isAlive: boolean;
+    isAlive = true;
 
-    private isDetaching: boolean;
+    private isDetaching = false;
+    private autoUnbox = true; // Read the value instead of the Node
+    private readonly patchSubscribers: ((
+        patch: IJsonPatch,
+        reversePatch: IJsonPatch
+    ) => void)[] = [];
 
     constructor(type: IType<any, any>,
                 parent: Node | null,
@@ -46,7 +51,7 @@ export class Node {
                 configurable: true,
                 value: this,
             });
-        } else if (parent) parent.leafs.set(subPath, this);
+        }
 
         /* 3 - Add this node to the cache. The cache located in the root.
          * It is used to quickly retrieve a node based on its Identifier instead of crawling the tree.
@@ -61,8 +66,6 @@ export class Node {
         else if (isPrimitive(this.data) && !parent) {// For primitive without parent we generate a boxed primitive.
             // todo generate boxed observable for primitive
         }
-
-        this.isAlive = true;
     }
 
     applySnapshot(snapshot: any) {
@@ -89,17 +92,46 @@ export class Node {
     }
 
     @computed
-    get value(): any {
+    public get value() {
+        if (!this.isAlive) return undefined;
         return this.type.getValue(this);
+    }
+
+    getChildNode(subPath: string): Node {
+        this.assertAlive();
+        this.autoUnbox = false;
+        const r = this.type.getChildNode(this, subPath);
+        this.autoUnbox = true;
+        return r;
     }
 
     @computed
     get children(): Array<Node> {
-        return this.type.getChildren(this);
+        this.assertAlive();
+        this.autoUnbox = false;
+        const res = this.type.getChildren(this);
+        this.autoUnbox = true;
+        return res;
     }
 
     get identifier(): string | null {
         return this.identifierAttribute ? this.data[this.identifierAttribute] : null;
+    }
+
+    emitPatch(basePatch: IReversibleJsonPatch, source: Node) {
+        if (this.patchSubscribers.length) {
+            const localizedPatch: IReversibleJsonPatch = extend({}, basePatch, {
+                path: source.path.substr(this.path.length) + "/" + basePatch.path // calculate the relative path of the patch
+            });
+            const [patch, reversePatch] = splitPatch(localizedPatch);
+            this.patchSubscribers.forEach(f => f(patch, reversePatch));
+        }
+        if (this.parent) this.parent.emitPatch(basePatch, source);
+    }
+
+    unbox = (childNode: Node): any => {
+        if (childNode && this.autoUnbox === true) return childNode.value;
+        return childNode;
     }
 
     @computed
@@ -123,15 +155,10 @@ export class Node {
 
     remove() {
         if (this.isDetaching) return;
-        if (isInstance(this.data)) {
-            // 2- Warn every other descendant nodes that a node will be removed.
-            walk(this.data, child => getNode(child).beforeDestroy());
-            // 3- Destroy this node and all this children
-            walk(this.data, child => getNode(child).destroy());
-            // If the Node is an instance of a primitive object. We need to tell the parent to remove it from the leafs map.
-        } else if (!canAttachNode(this.data)) {
-            this.parent!.leafs.delete(this.subPath);
-        }
+        // 1 - Warn every other descendant nodes that a node will be removed.
+        walk(this.data, child => getNode(child).beforeDestroy());
+        // 2 - Destroy this node and all this children
+        walk(this.data, child => getNode(child).destroy());
     }
 
     public destroy() {
@@ -150,7 +177,6 @@ export class Node {
 
         this.isAlive = false;
         this.parent = null;
-        this.leafs.clear();
         this.subPath = "";
 
         // This is quite a hack, once interceptable objects / arrays / maps are extracted from mobx,
@@ -237,7 +263,6 @@ export function canAttachNode(value: any) {
         value &&
         typeof value === "object" &&
         !(value instanceof Date) &&
-        !(value.data && isInstance(value.data)) &&
         !isInstance(value) &&
         !Object.isFrozen(value)
     );

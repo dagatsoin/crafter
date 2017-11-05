@@ -24,6 +24,7 @@ var ArrayType = /** @class */ (function (_super) {
             return mobx_1.observable.array();
         };
         _this.buildInstance = function (node, snapshot) {
+            mobx_1.extras.getAdministration(node.data).dehancer = node.unbox;
             mobx_1.intercept(node.data, function (change) { return _this.willChange(change); });
             node.applySnapshot(snapshot);
         };
@@ -36,6 +37,9 @@ var ArrayType = /** @class */ (function (_super) {
     ArrayType.prototype.instantiate = function (parent, subPath, initialValue) {
         return Node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);
     };
+    ArrayType.prototype.getDefaultSnapshot = function () {
+        return [];
+    };
     ArrayType.prototype.isValidSnapshot = function (value) {
         var _this = this;
         return value.constructor.name !== "array" ? false : value.some(function (item, index) { return _this.itemType.validate(item); });
@@ -45,7 +49,13 @@ var ArrayType = /** @class */ (function (_super) {
         target.replace(snapshot);
     };
     ArrayType.prototype.getChildren = function (node) {
-        return node.data.map(function (item, index) { return Node_1.isInstance(item) ? item.$node : node.leafs.get("" + index); });
+        return node.data.peek();
+    };
+    ArrayType.prototype.getChildNode = function (node, key) {
+        var index = parseInt(key, 10);
+        if (index < node.data.length)
+            return node.data[index];
+        return utils_1.fail("Not a child: " + key);
     };
     ArrayType.prototype.willChange = function (change) {
         var node = Node_1.getNode(change.object);
@@ -58,15 +68,10 @@ var ArrayType = /** @class */ (function (_super) {
                 break;
             case "splice":
                 var index_1 = change.index, removedCount = change.removedCount, added = change.added;
-                change.added = this.reconcileArrayChildren(node, this.itemType, children.slice(index_1, index_1 + removedCount), added, added.map(function (_, i) { return index_1 + i; })).map(function (node) { return node.data; });
+                change.added = this.reconcileArrayChildren(node, this.itemType, children.slice(index_1, index_1 + removedCount), added, added.map(function (_, i) { return index_1 + i; }));
                 // update paths of remaining items
                 for (var i = index_1 + removedCount; i < children.length; i++) {
                     children[i].setParent(node, "" + (i + added.length - removedCount));
-                    // update leaf key for array of primitives
-                    if (node.leafs.size) {
-                        node.leafs.set("" + (i + added.length - removedCount), node.leafs.get("" + i));
-                        node.leafs.delete("" + i);
-                    }
                 }
                 break;
         }

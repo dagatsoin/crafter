@@ -1,10 +1,11 @@
 import {ComplexType, IObjectType, IType, } from "../api/Type";
 import {createNode, getNode, isInstance, Node} from "./core/Node";
-import {extendShallowObservable, observable, transaction} from "mobx";
-import {isPlainObject, isPrimitive, fail} from "./utils";
+import {extendShallowObservable, extras, intercept, IObjectChange, IObjectWillChange, IObservableObject, observable, observe, transaction} from "mobx";
+import {isPlainObject, isPrimitive, fail, assertType, escapeJsonPath, EMPTY_OBJECT} from "./utils";
 import {getPrimitiveFactoryFromValue} from "../api/Primitives";
 import {optional} from "../api/Optional";
 import {isType, TypeFlag} from "../api/TypeFlags";
+import {IJsonPatch} from "./core/jsonPatch";
 
 export type IObjectProperties<T> = { [K in keyof T]: IType<any, T[K]> | T[K] };
 
@@ -37,13 +38,22 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
         );
     }
 
-    getSnapshot(node: Node): S {
-        const value = {};
+    getSnapshot(node: Node): any {
+        const res = {} as any;
         this.forAllProps((name, type) => {
-            const instance = node.data[<keyof T>name];
-            (<any>value)[name] = isPrimitive(instance) ? instance : getNode(instance).snapshot;
+            // TODO: FIXME, make sure the observable ref is used!
+            (extras.getAtom(node.data, name) as any).reportObserved();
+            res[name] = this.getChildNode(node, name).snapshot;
         });
-        return value as any as S;
+        if (typeof node.data.postProcessSnapshot === "function")
+            return node.data.postProcessSnapshot.call(null, res);
+        return res;
+    }
+
+    applyPatchLocally(node: Node, subPath: string, patch: IJsonPatch): void {
+        if (!(patch.op === "replace" || patch.op === "add"))
+            fail(`object does not support operation ${patch.op}`)
+        node.data[subPath] = patch.value;
     }
 
     applySnapshot(node: Node, snapshot: S) {
@@ -54,13 +64,13 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
         });
     }
 
-    getValue(node: Node): T {
-        return node.data;
+    private createEmptyInstance() {
+        const instance = observable.shallowObject(EMPTY_OBJECT);
+        return instance as Object;
     }
 
-    private createEmptyInstance() {
-        const object = observable.shallowObject({});
-        return object as Object;
+    getDefaultSnapshot(): any {
+        return {};
     }
 
     /**
@@ -70,11 +80,41 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
      */
     private buildInstance = (node: Node, snapshot: S) => {
         this.forAllProps((name, type) => {
-            const instance = type.instantiate(node, name, snapshot ? (<any>snapshot)[name] : undefined).data;
             extendShallowObservable(node.data, {
-                [name]: observable.ref(instance)
+                [name]: observable.ref(type.instantiate(node, name, (<any>snapshot)[name]))
             });
+            extras.interceptReads(node.data, name, node.unbox);
         });
+        intercept(node.data as IObservableObject, change => this.willChange(change));
+        observe(node.data, this.didChange);
+    }
+
+    willChange(change: IObjectWillChange): IObjectWillChange | null {
+        const node = getNode(change.object);
+        const type = this.properties[change.name];
+        assertType(change.newValue, type);
+        change.newValue = type.reconcile(node.getChildNode(change.name), change.newValue);
+        return change;
+    }
+
+    didChange(change: IObjectChange) {
+        const node = getNode(change.object);
+        node.emitPatch(
+            {
+                op: "replace",
+                path: escapeJsonPath(change.name),
+                value: change.newValue.snapshot,
+                oldValue: change.oldValue ? change.oldValue.snapshot : undefined
+            },
+            node
+        );
+    }
+
+    getChildNode(node: Node, key: string): Node {
+        if (!(key in this.properties)) return fail("Not a value property: " + key);
+        const childNode = node.data.$mobx.values[key].value;
+        if (!childNode) return fail("Node not available for property " + key);
+        return childNode;
     }
 
     private forAllProps = (fn: (name: string, type: IType<any, any>) => void) => {
@@ -85,13 +125,12 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
      * Return all children Instance of an object Instance.
      * @return {Array<Node>}
      */
-    getChildren(node: Node): Array<Node> {
-        const children: Array<Node> = [];
-        this.forAllProps((name, type) => children.push(isInstance(node.data[name]) ?
-            getNode(node.data[name]) // Complex Instance
-            :
-            node.leafs.get(name)!)); // Primitive Instance
-        return children;
+    getChildren(node: Node): Node[] {
+        const res: Node[] = [];
+        this.forAllProps((name, type) => {
+            res.push(this.getChildNode(node, name));
+        });
+        return res;
     }
 
     getChildType(key: string): IType<any, any> {

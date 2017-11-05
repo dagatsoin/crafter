@@ -16,6 +16,9 @@ var Type = /** @class */ (function () {
         this.isType = true;
         this.name = name;
     }
+    Type.prototype.getChildNode = function (node, key) {
+        return utils_1.fail("No child '" + key + "' available in type: " + this.name);
+    };
     Type.prototype.is = function (thing) {
         throw new Error("Method not implemented.");
     };
@@ -58,11 +61,18 @@ var ComplexType = /** @class */ (function (_super) {
     ComplexType.prototype.is = function (value) {
         return this.validate(value);
     };
+    ComplexType.prototype.create = function (snapshot, check) {
+        if (snapshot === void 0) { snapshot = this.getDefaultSnapshot(); }
+        return _super.prototype.create.call(this, snapshot, check);
+    };
     ComplexType.prototype.applySnapshot = function (node, snapshot) {
         utils_1.fail("Immutable types do not support applying snapshots");
     };
     ComplexType.prototype.applyPatch = function (node, patch) {
         throw new Error("Method not implemented.");
+    };
+    ComplexType.prototype.getChildNode = function (node, key) {
+        return utils_1.fail("No child '" + key + "' available in type: " + this.name);
     };
     return ComplexType;
 }(Type));

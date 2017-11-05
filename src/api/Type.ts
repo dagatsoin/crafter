@@ -38,6 +38,8 @@ export interface IType<S, T> {
 
     getChildType(key: string): IType<any, any>;
 
+    getChildNode(node: Node, key: string): Node;
+
     isAssignableFrom(type: IType<any, any>): boolean;
 
     /**
@@ -69,6 +71,8 @@ export interface IComplexType<S, T> extends IType<S, T & Instance> {
     create(snapshot?: S, check?: boolean): T & ISnapshottable<S>;
 
     applyPatch(node: Node, patch: Array<Operation>): void;
+
+    getDefaultSnapshot(): any;
 }
 
 export interface IObjectType<S, T> extends IComplexType<S, T & Instance> {
@@ -92,6 +96,10 @@ export abstract class Type<S, T> implements IType<S, T> {
     abstract getSnapshot(node: Node): S;
     abstract instantiate(parent: Node | null, subPath: string, initialValue?: any): Node;
     abstract getChildren(node: Node): Array<Node>;
+
+    getChildNode(node: Node, key: string): Node {
+        return fail(`No child '${key}' available in type: ${this.name}`)
+    }
 
     is(thing: any): thing is S | T {
         throw new Error("Method not implemented.");
@@ -136,8 +144,14 @@ export abstract class Type<S, T> implements IType<S, T> {
 }
 
 export abstract class ComplexType<S, T> extends Type<S, T> implements IComplexType<S, T> {
+    abstract getDefaultSnapshot(): any;
+
     is(value: any): value is S | T {
         return this.validate(value);
+    }
+
+    create(snapshot: S = this.getDefaultSnapshot(), check?: boolean): T {
+        return super.create(snapshot, check);
     }
 
     applySnapshot(node: Node, snapshot: S) {
@@ -146,5 +160,9 @@ export abstract class ComplexType<S, T> extends Type<S, T> implements IComplexTy
 
     applyPatch(node: Node, patch: Array<Operation>) {
         throw new Error("Method not implemented.");
+    }
+
+    getChildNode(node: Node, key: string): Node {
+        return fail(`No child '${key}' available in type: ${this.name}`);
     }
 }

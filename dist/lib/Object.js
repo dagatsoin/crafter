@@ -30,12 +30,14 @@ var ObjectType = /** @class */ (function (_super) {
          */
         _this.buildInstance = function (node, snapshot) {
             _this.forAllProps(function (name, type) {
-                var instance = type.instantiate(node, name, snapshot ? snapshot[name] : undefined).data;
                 mobx_1.extendShallowObservable(node.data, (_a = {},
-                    _a[name] = mobx_1.observable.ref(instance),
+                    _a[name] = mobx_1.observable.ref(type.instantiate(node, name, snapshot[name])),
                     _a));
+                mobx_1.extras.interceptReads(node.data, name, node.unbox);
                 var _a;
             });
+            mobx_1.intercept(node.data, function (change) { return _this.willChange(change); });
+            mobx_1.observe(node.data, _this.didChange);
         };
         _this.forAllProps = function (fn) {
             _this.propertiesNames.forEach(function (key) { return fn(key, _this.properties[key]); });
@@ -52,12 +54,21 @@ var ObjectType = /** @class */ (function (_super) {
         return Node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);
     };
     ObjectType.prototype.getSnapshot = function (node) {
-        var value = {};
+        var _this = this;
+        var res = {};
         this.forAllProps(function (name, type) {
-            var instance = node.data[name];
-            value[name] = utils_1.isPrimitive(instance) ? instance : Node_1.getNode(instance).snapshot;
+            // TODO: FIXME, make sure the observable ref is used!
+            mobx_1.extras.getAtom(node.data, name).reportObserved();
+            res[name] = _this.getChildNode(node, name).snapshot;
         });
-        return value;
+        if (typeof node.data.postProcessSnapshot === "function")
+            return node.data.postProcessSnapshot.call(null, res);
+        return res;
+    };
+    ObjectType.prototype.applyPatchLocally = function (node, subPath, patch) {
+        if (!(patch.op === "replace" || patch.op === "add"))
+            utils_1.fail("object does not support operation " + patch.op);
+        node.data[subPath] = patch.value;
     };
     ObjectType.prototype.applySnapshot = function (node, snapshot) {
         var _this = this;
@@ -67,24 +78,48 @@ var ObjectType = /** @class */ (function (_super) {
             });
         });
     };
-    ObjectType.prototype.getValue = function (node) {
-        return node.data;
-    };
     ObjectType.prototype.createEmptyInstance = function () {
-        var object = mobx_1.observable.shallowObject({});
-        return object;
+        var instance = mobx_1.observable.shallowObject(utils_1.EMPTY_OBJECT);
+        return instance;
+    };
+    ObjectType.prototype.getDefaultSnapshot = function () {
+        return {};
+    };
+    ObjectType.prototype.willChange = function (change) {
+        var node = Node_1.getNode(change.object);
+        var type = this.properties[change.name];
+        utils_1.assertType(change.newValue, type);
+        change.newValue = type.reconcile(node.getChildNode(change.name), change.newValue);
+        return change;
+    };
+    ObjectType.prototype.didChange = function (change) {
+        var node = Node_1.getNode(change.object);
+        node.emitPatch({
+            op: "replace",
+            path: utils_1.escapeJsonPath(change.name),
+            value: change.newValue.snapshot,
+            oldValue: change.oldValue ? change.oldValue.snapshot : undefined
+        }, node);
+    };
+    ObjectType.prototype.getChildNode = function (node, key) {
+        if (!(key in this.properties))
+            return utils_1.fail("Not a value property: " + key);
+        var childNode = node.data.$mobx.values[key].value;
+        if (!childNode)
+            return utils_1.fail("Node not available for property " + key);
+        return childNode;
     };
     /**
      * Return all children Instance of an object Instance.
      * @return {Array<Node>}
      */
     ObjectType.prototype.getChildren = function (node) {
-        var children = [];
-        this.forAllProps(function (name, type) { return children.push(Node_1.isInstance(node.data[name]) ?
-            Node_1.getNode(node.data[name]) // Complex Instance
-            :
-                node.leafs.get(name)); }); // Primitive Instance
-        return children;
+        var _this = this;
+        var res = [];
+        this.forAllProps(function (name, type) {
+            res.push(_this.getChildNode(node, name));
+        });
+        return res;
     };
     ObjectType.prototype.getChildType = function (key) {
         return this.properties[key];

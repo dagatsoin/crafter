@@ -19,7 +19,7 @@ test("it should support prefixed paths in maps", function() {
 
     const store = UserStore.create({
         user: "17",
-        users: [{ "17": { id: "17", name: "TheWen" }}, { "18": { id: "18", name: "Fraktar" }}]
+        users: [{ id: "17", name: "TheWen" }, { id: "18", name: "Fraktar" }]
     });
 
     expect(store.users.find(user => user.id === "17")!.name as string).toEqual("TheWen");
@@ -31,7 +31,7 @@ test("it should support prefixed paths in maps", function() {
     expect(store.user.name).toEqual("Charlize");
     expect(getSnapshot(store)).toEqual({
         user: "18",
-        users: { "17": { id: "17", name: "TheWen" }, "18": { id: "18", name: "Charlize" } }
+        users: [{ id: "17", name: "TheWen" }, { id: "18", name: "Charlize"}]
     } as any);
 });
 /*

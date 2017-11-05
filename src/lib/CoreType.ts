@@ -39,6 +39,10 @@ export class CoreType<S, T> extends Type<S, T> {
         throw new Error("Method not implemented.");
     }
 
+    getDefaultSnapshot(): Array<T> {
+        return [];
+    }
+
     /**
      * Return an empty array of Instance because primitive can't have children.
      * @return {Array<Node>}

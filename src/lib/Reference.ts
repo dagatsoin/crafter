@@ -51,13 +51,27 @@ export class ReferenceType<T> extends Type<string | number, T> {
     }
 
     instantiate(parent: Node | null, subPath: string, snapshot: any): Node {
-        const isComplex = isInstance(snapshot);
         return createNode(
             this,
             parent,
             subPath,
-            new StoredReference(isComplex ? "object" : "identifier", snapshot)
+            this.createEmptyInstance,
+            this.finalizeInstance
         );
+    }
+
+    private createEmptyInstance(snapshot: any) {
+        const isComplex = isInstance(snapshot);
+        return new StoredReference(isComplex ? "object" : "identifier", snapshot)
+    }
+
+    private finalizeInstance(node: Node, snapshot: any) {
+        Object.defineProperty(node.parent!.data.prototype, node.subPath, {
+            enumerable: false,
+            writable: false,
+            configurable: true,
+            value: this,
+        });
     }
 
     reconcile(current: Node, newValue: any): Node {

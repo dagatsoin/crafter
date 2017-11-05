@@ -95,13 +95,13 @@ describe("Factory", function(){
         it("should not accept an function property", function () {
             expect(() => object("wrong", {wrong: () => null})).toThrowError();
         });
-
+    });
+    describe("Creation", function(){
         it("should replace primitive value of props by optional prop with default value", function(){
             const Model = object("model", {foo: "foo"});
             expect(Model.create().foo).toEqual("foo");
         });
-    });
-    describe("Creation", function(){
+
         it("should create a complex object with a snapshot", function () {
             const Fraktar = Player.create(snapshots.Fraktar);
             expect(Fraktar).toEqual(observable(snapshots.Fraktar));
@@ -113,7 +113,7 @@ describe("Factory", function(){
             expect(foo.prefabId).toEqual("gd78hj62c");
         });
 
-        it("should create an instance of object without snapshot", function () {
+        it("should not create an instance without snapshot", function () {
             const player = Player.create();
             expect(player).toEqual(observable(snapshots.player));
         });

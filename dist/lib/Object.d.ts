@@ -16,7 +16,6 @@ export declare class ObjectType<S, T> extends ComplexType<S, T> implements IObje
     instantiate(parent: Node, subPath: string, initialValue?: any): Node;
     getSnapshot(node: Node): S;
     applySnapshot(node: Node, snapshot: S): void;
-    getValue(node: Node): T;
     private createEmptyInstance();
     /**
      * We create the Node of the Instance. The Node is the final value the user will "see". Is is an object where each property is also a Node.

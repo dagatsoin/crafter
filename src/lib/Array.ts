@@ -1,6 +1,6 @@
 import {ComplexType, IType} from "../api/Type";
 import {fail} from "./utils";
-import {IArrayWillChange, IArrayWillSplice, intercept, IObservableArray, observable} from "mobx";
+import {extras, IArrayWillChange, IArrayWillSplice, intercept, IObservableArray, observable} from "mobx";
 import {areSame, getNode, isInstance, Instance, valueAsNode, createNode, Node} from "./core/Node";
 import {TypeFlag} from "../api/typeFlags";
 
@@ -28,11 +28,16 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
         );
     }
 
+    getDefaultSnapshot(): Array<T> {
+        return [];
+    }
+
     private createEmptyInstance = (snapshot: S[]) => {
         return observable.array();
     }
 
     private buildInstance = (node: Node, snapshot: S[]) => {
+        extras.getAdministration(node.data).dehancer = node.unbox;
         intercept(node.data as IObservableArray<any>, change => this.willChange(change) as any);
         node.applySnapshot(snapshot);
     }
@@ -47,7 +52,13 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     }
 
     getChildren(node: Node): Node[] {
-        return node.data.map((item: Instance, index: number) => isInstance(item) ? item.$node : node.leafs.get("" + index));
+        return node.data.peek();
+    }
+
+    getChildNode(node: Node, key: string): Node {
+        const index = parseInt(key, 10);
+        if (index < node.data.length) return node.data[index];
+        return fail("Not a child: " + key);
     }
 
     private willChange(change: IArrayWillChange<any> | IArrayWillSplice<any>): Object | null {
@@ -73,16 +84,11 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
                     children.slice(index, index + removedCount),
                     added,
                     added.map((_, i) => index + i)
-                ).map(node => node.data);
+                );
 
                 // update paths of remaining items
                 for (let i = index + removedCount; i < children.length; i++) {
                     children[i].setParent(node, "" + (i + added.length - removedCount));
-                    // update leaf key for array of primitives
-                    if (node.leafs.size) {
-                        node.leafs.set("" + (i + added.length - removedCount), node.leafs.get("" + i)!);
-                        node.leafs.delete("" + i);
-                    }
                 }
                 break;
         }

@@ -40,6 +40,9 @@ var CoreType = /** @class */ (function (_super) {
     CoreType.prototype.applySnapshot = function (node, snapshot) {
         throw new Error("Method not implemented.");
     };
+    CoreType.prototype.getDefaultSnapshot = function () {
+        return [];
+    };
     /**
      * Return an empty array of Instance because primitive can't have children.
      * @return {Array<Node>}

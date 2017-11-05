@@ -23,6 +23,15 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
         this.propertiesNames = Object.keys(this.properties);
     }
 
+    describe(): string {
+        // optimization: cache
+        return "{ " +
+            this.propertiesNames
+                .map(key => key + ": " + this.properties[key].describe())
+                .join("; ") +
+            " }";
+    }
+
     isValidSnapshot(value: any): boolean {
         return !isPlainObject(value) ?
             false :

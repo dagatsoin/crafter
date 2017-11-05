@@ -1,8 +1,12 @@
 import {ComplexType, IType} from "../api/Type";
-import {fail} from "./utils";
+import {addHiddenFinalProp, fail} from "./utils";
 import {extras, IArrayWillChange, IArrayWillSplice, intercept, IObservableArray, isObservableArray, observable} from "mobx";
 import {areSame, getNode, isInstance, Instance, valueAsNode, createNode, Node} from "./core/Node";
 import {TypeFlag} from "../api/typeFlags";
+
+export function arrayToString(this: IObservableArray<any> & Instance) {
+    return `${getNode(this)}(${this.length} items)`;
+}
 
 export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     itemType: IType<any, T>;
@@ -13,8 +17,12 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
         this.itemType = itemType;
     }
 
+    describe() {
+        return this.itemType.describe() + "[]";
+    }
+
     getSnapshot(node: Node): S[] {
-        return node.data.map((item: Instance) => item.$node!.snapshot);
+        return node.children.map(childNode => childNode.snapshot);
     }
 
     instantiate(parent: Node, subPath: string, initialValue?: any): Node {
@@ -33,7 +41,9 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     }
 
     private createEmptyInstance = (snapshot: S[]) => {
-        return observable.array();
+        const array = observable.shallowArray()
+        addHiddenFinalProp(array, "toString", arrayToString)
+        return array;
     }
 
     private buildInstance = (node: Node, snapshot: S[]) => {

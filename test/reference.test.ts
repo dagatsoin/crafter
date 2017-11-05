@@ -1,10 +1,12 @@
 
 import {identifier} from "../src/api/Identifier";
 import {object} from "../src/api/Object";
-import {string} from "../src/api/Primitives";
+import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {applySnapshot, getSnapshot} from "../src/api/utils";
 import {reference} from "../src/api/Reference";
+import {map} from "../src/api/Map";
+import {refinement} from "../src/api/Refinement";
 
 test("it should support prefixed paths in arrays", function() {
     const User = object("User", {
@@ -34,37 +36,35 @@ test("it should support prefixed paths in arrays", function() {
         users: [{ id: "17", name: "TheWen" }, { id: "18", name: "Charlize"}]
     } as any);
 });
-/*
-test("it should support prefixed paths in maps", t => {
-    const User = types.model({
-        id: types.identifier(),
-        name: types.string
-    })
-    const UserStore = types.model({
-        user: types.reference(User),
-        users: types.map(User)
-    })
+
+test("it should support prefixed paths in maps", function() {
+    const User = object({
+        id: identifier(),
+        name: string
+    });
+    const UserStore = object({
+        user: reference(User),
+        users: map(User)
+    });
     const store = UserStore.create({
         user: "17",
         users: {
-            "17": { id: "17", name: "Michel" },
-            "18": { id: "18", name: "Veria" }
+            "17": { id: "17", name: "Fraktar" },
+            "18": { id: "18", name: "TheWen" }
         }
-    })
-    unprotect(store)
-    t.is(store.users.get("17")!.name as string, "Michel")
-    t.is(store.users.get("18")!.name as string, "Veria")
-    t.is(store.user!.name as string, "Michel")
-    store.user = store.users.get("18")!
-    t.is(store.user.name as string, "Veria")
-    store.users.get("18")!.name = "Noa"
-    t.is(store.user.name as string, "Noa")
-    t.deepEqual(getSnapshot(store), {
+    });
+    expect(store.users.get("17")!.name).toEqual("Fraktar");
+    expect(store.users.get("18")!.name).toEqual("TheWen");
+    expect(store.user!.name).toEqual("Fraktar");
+    store.user = store.users.get("18")!;
+    expect(store.user.name).toEqual("TheWen");
+    store.users.get("18")!.name = "Charlize";
+    expect(store.user.name).toEqual("Charlize");
+    expect(getSnapshot(store)).toEqual({
         user: "18",
-        users: { "17": { id: "17", name: "Michel" }, "18": { id: "18", name: "Noa" } }
-    } as any) // TODO: better typings
-})
-*/
+        users: { "17": { id: "17", name: "Fraktar" }, "18": { id: "18", name: "Charlize" } }
+    });
+});
 
 test("identifiers are required", function() {
     const Todo = object({
@@ -83,9 +83,9 @@ test("identifiers cannot be modified", function() {
 
     expect(() => (todo.id = "stuff")).toThrowError("[crafter] Tried to change identifier from 'x' to 'stuff'. Changing identifiers is not allowed.");
     expect(() => applySnapshot(todo, { id: "stuff" })).toThrowError("[crafter] Tried to change identifier from 'x' to 'stuff'. Changing identifiers is not allowed.");
-})
-/*
-test("it should resolve refs during creation, when using path", t => {
+});
+
+test("it should resolve refs during creation, when using path"); /*, t => {
     const values: number[] = []
     const Book = types.model({
         id: types.identifier(),
@@ -117,9 +117,9 @@ test("it should resolve refs during creation, when using path", t => {
     t.is(s.entries[1].price, 4)
     t.is(s.entries.reduce((a, e) => a + e.price, 0), 8)
     t.deepEqual(values, [4, 8])
-})
+})*/
 
-test("it should resolve refs over late types", t => {
+test("it should resolve refs over late types"); /*, t => {
     const Book = types.model({
         id: types.identifier(),
         price: types.number
@@ -144,9 +144,9 @@ test("it should resolve refs over late types", t => {
     s.entries.push({ book: s.books[0] } as any)
     t.is(s.entries[0].price, 4)
     t.is(s.entries.reduce((a, e) => a + e.price, 0), 4)
-})
+})*/
 
-test("it should resolve refs during creation, when using generic reference", t => {
+test("it should resolve refs during creation, when using generic reference"); /*, t => {
     const values: number[] = []
     const Book = types.model({
         id: types.identifier(),
@@ -177,61 +177,50 @@ test("it should resolve refs during creation, when using generic reference", t =
     t.deepEqual(getSnapshot(entry), { book: "3" })
     s.entries.push(entry)
     t.deepEqual(values, [4, 8])
-})
+})*/
 
-test("identifiers should only support types.string and types.number", t => {
-    t.throws(() =>
-        types
-            .model({
-                id: types.identifier(types.model({ x: 1 }))
-            })
-            .create({ id: {} })
-    )
-})
+test("identifiers should only support types.string and types.number", function() {
+    expect(() => object({id: identifier(object({ x: 1 }))}).create({ id: {} })).toThrow();
+});
 
-test("identifiers should support subtypes of types.string and types.number", t => {
-    debugger
-    const M = types.model({
-        id: types.identifier(types.refinement("Number greater then 5", types.number, n => n > 5))
-    })
-    t.is(M.is({}), false)
-    t.is(M.is({ id: "test" }), false)
-    t.is(M.is({ id: 6 }), true)
-    t.is(M.is({ id: 4 }), false)
-})
+test("identifiers should support subtypes of types.string and types.number", function() {
+    debugger;
+    const M = object({
+        id: identifier(refinement("Number greater then 5", number, n => n > 5))
+    });
+    expect(M.is({})).toBeFalsy();
+    expect(M.is({ id: "test" })).toBeFalsy();
+    expect(M.is({ id: 6 })).toBeTruthy();
+    expect(M.is({ id: 4 })).toBeFalsy();
+});
 
-test("string identifiers should not accept numbers", t => {
-    const F = types.model({
-        id: types.identifier()
-    })
-    t.is(F.is({ id: "4" }), true)
-    t.is(F.is({ id: 4 }), false)
-    const F2 = types.model({
-        id: types.identifier(types.string)
-    })
-    t.is(F2.is({ id: "4" }), true)
-    t.is(F2.is({ id: 4 }), false)
-})
+test("string identifiers should not accept numbers", function() {
+    const F = object({
+        id: identifier()
+    });
+    expect(F.is({ id: "4" })).toBeTruthy();
+    expect(F.is({ id: 4 })).toBeFalsy();
+    const F2 = object({
+        id: identifier(string)
+    });
+    expect(F2.is({ id: "4" })).toBeTruthy();
+    expect(F2.is({ id: 4 })).toBeFalsy();
+});
 
-test("122 - identifiers should support numbers as well", t => {
-    const F = types.model({
-        id: types.identifier(types.number)
-    })
-    t.is(
-        F.create({
-            id: 3
-        }).id,
-        3
-    )
-    t.is(F.is({ id: 4 }), true)
-    t.is(F.is({ id: "4" }), false)
-})
+test("identifiers should support numbers as well", function() {
+    const F = object({
+        id: identifier(number)
+    });
+    expect(F.create({id: 3}).id).toEqual(3);
+    expect(F.is({ id: 4 })).toBeTruthy();
+    expect(F.is({ id: "4" })).toBeFalsy();
+});
 
-test("self reference with a late type", t => {
+test("self reference with a late type"); /*, function() {
     interface IBook {
-        id: string
-        genre: string
-        reference: IBook
+        id: string;
+        genre: string;
+        reference: IBook;
     }
     const Book = types.model("Book", {
         id: types.identifier(),
@@ -260,26 +249,25 @@ test("self reference with a late type", t => {
     })
     s.addBook(book2)
     t.is((s as any).books[1].reference.genre, "thriller")
-})
+})*/
 
-test("when applying a snapshot, reference should resolve correctly if value added after", t => {
-    const Box = types.model({
-        id: types.identifier(types.number),
-        name: types.string
-    })
-    const Factory = types.model({
-        selected: types.reference(Box),
-        boxes: types.array(Box)
-    })
-    t.notThrows(() =>
-        Factory.create({
+test("when applying a snapshot, reference should resolve correctly if value added after", function() {
+    const Box = object({
+        id: identifier(number),
+        name: string
+    });
+    const Factory = object({
+        selected: reference(Box),
+        boxes: array(Box)
+    });
+    expect(() => Factory.create({
             selected: 1,
             boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
         })
-    )
-})
+    ).not.toThrow();
+});
 
-test("it should fail when reference snapshot is ambiguous", t => {
+test("it should fail when reference snapshot is ambiguous"); /*, function() {
     const Box = types.model("Box", {
         id: types.identifier(types.number),
         name: types.string
@@ -314,93 +302,81 @@ test("it should fail when reference snapshot is ambiguous", t => {
         err.message,
         "[crafter] Cannot resolve a reference to type '(Arrow | Box)' with id: '1' unambigously, there are multiple candidates: /boxes/0, /arrows/1"
     )
-})
+})*/
 
-test("it should support array of references", t => {
-    const Box = types.model({
-        id: types.identifier(types.number),
-        name: types.string
-    })
-    const Factory = types.model({
-        selected: types.array(types.reference(Box)),
-        boxes: types.array(Box)
-    })
+test("it should support array of references", function() {
+    const Box = object({
+        id: identifier(number),
+        name: string
+    });
+    const Factory = object({
+        selected: array(reference(Box)),
+        boxes: array(Box)
+    });
     const store = Factory.create({
         selected: [],
         boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
-    })
-    unprotect(store)
-    t.notThrows(() => {
-        store.selected.push(store.boxes[0])
-    })
-    t.deepEqual<any>(getSnapshot(store.selected), [1])
-    t.notThrows(() => {
-        store.selected.push(store.boxes[1])
-    })
-    t.deepEqual<any>(getSnapshot(store.selected), [1, 2])
-})
+    });
+    expect(() => store.selected.push(store.boxes[0])).not.toThrow();
+    expect(getSnapshot(store.selected)).toEqual([1]);
+    expect(() => store.selected.push(store.boxes[1])).not.toThrow();
+    expect(getSnapshot(store.selected)).toEqual([1, 2]);
+});
 
-test("it should restore array of references from snapshot", t => {
-    const Box = types.model({
-        id: types.identifier(types.number),
-        name: types.string
-    })
-    const Factory = types.model({
-        selected: types.array(types.reference(Box)),
-        boxes: types.array(Box)
-    })
+test("it should restore array of references from snapshot", function() {
+    const Box = object({
+        id: identifier(number),
+        name: string
+    });
+    const Factory = object({
+        selected: array(reference(Box)),
+        boxes: array(Box)
+    });
     const store = Factory.create({
         selected: [1, 2],
         boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
-    })
-    unprotect(store)
-    t.deepEqual<any>(store.selected[0] === store.boxes[0], true)
-    t.deepEqual<any>(store.selected[1] === store.boxes[1], true)
-})
+    });
+    expect(store.selected[0] === store.boxes[0]).toBeTruthy();
+    expect(store.selected[1] === store.boxes[1]).toBeTruthy();
+});
 
-test("it should support map of references", t => {
-    const Box = types.model({
-        id: types.identifier(types.number),
-        name: types.string
-    })
-    const Factory = types.model({
-        selected: types.map(types.reference(Box)),
-        boxes: types.array(Box)
-    })
+test("it should support map of references", function() {
+    const Box = object({
+        id: identifier(number),
+        name: string
+    });
+    const Factory = object({
+        selected: map(reference(Box)),
+        boxes: array(Box)
+    });
     const store = Factory.create({
         selected: {},
         boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
-    })
-    unprotect(store)
-    t.notThrows(() => {
-        store.selected.set("from", store.boxes[0])
-    })
-    t.deepEqual<any>(getSnapshot(store.selected), { from: 1 })
-    t.notThrows(() => {
-        store.selected.set("to", store.boxes[1])
-    })
-    t.deepEqual<any>(getSnapshot(store.selected), { from: 1, to: 2 })
-})
+    });
+    expect(() => store.selected.set("from", store.boxes[0])).not.toThrow();
+    expect(getSnapshot(store.selected)).toEqual({ from: 1 });
+    expect(() => store.selected.set("to", store.boxes[1])).not.toThrow();
+    expect(getSnapshot(store.selected)).toEqual({ from: 1, to: 2 });
+});
 
-test("it should restore map of references from snapshot", t => {
-    const Box = types.model({
-        id: types.identifier(types.number),
-        name: types.string
-    })
-    const Factory = types.model({
-        selected: types.map(types.reference(Box)),
-        boxes: types.array(Box)
-    })
+test("it should restore map of references from snapshot", function () {
+    const Box = object({
+        id: identifier(number),
+        name: string
+    });
+    const Factory = object({
+        selected: map(reference(Box)),
+        boxes: array(Box)
+    });
     const store = Factory.create({
         selected: { from: 1, to: 2 },
         boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
-    })
-    unprotect(store)
-    t.deepEqual<any>(store.selected.get("from") === store.boxes[0], true)
-    t.deepEqual<any>(store.selected.get("to") === store.boxes[1], true)
-})
+    });
+    expect(store.selected.get("from") === store.boxes[0]).toBeTruthy();
+    expect(store.selected.get("to") === store.boxes[1]).toBeTruthy();
+});
 
-test("it should support relative lookups", t => {
+test("it should support relative lookups"); /*, t => {
     const Node = types.model({
         id: types.identifier(types.number),
         children: types.optional(types.array(types.late(() => Node)), [])
@@ -442,9 +418,9 @@ test("it should support relative lookups", t => {
     n2.children.push(n5)
     t.is(resolveIdentifier(Node, n5, 4), n2.children[0])
     t.is(resolveIdentifier(Node, n2.children[0], 5), n5)
-})
+})*/
 
-test("References are non-nullable by default", t => {
+test("References are non-nullable by default"); /*, t => {
     const Todo = types.model({
         id: types.identifier(types.number)
     })
@@ -480,9 +456,9 @@ test("References are non-nullable by default", t => {
     store.maybeRef = null
     t.is(store.maybeRef, null)
     t.snapshot(t.throws(() => (store.ref = null as any)).message)
-})
+})*/
 
-test("References are described properly", t => {
+test("References are described properly"); /*, t => {
     const Todo = types.model({
         id: types.identifier(types.number)
     })
@@ -495,9 +471,9 @@ test("References are described properly", t => {
         Store.describe(),
         "{ todo: ({ id: identifier(number) } | null?); ref: reference(AnonymousModel); maybeRef: (reference(AnonymousModel) | null?) }"
     )
-})
+})*/
 
-test("References in recursive structures", t => {
+test("References in recursive structures"); /*, t => {
     const Folder = types.model("Folder", {
         id: types.identifier(),
         name: types.string,
@@ -582,9 +558,9 @@ test("References in recursive structures", t => {
     })
     t.is(store.objects.get("1"), store.tree.children[0].data)
     t.is(store.objects.get("2"), store.tree.children[0].children[0].data)
-})
+})*/
 
-test("it should applyPatch references in array", t => {
+test("it should applyPatch references in array"); /*, t => {
     const Item = types.model("Item", {
         id: types.identifier(),
         name: types.string
@@ -641,9 +617,9 @@ test("it should applyPatch references in array", t => {
         },
         hovers: []
     })
-})
+})*/
 
-test("it should applySnapshot references in array", t => {
+test("it should applySnapshot references in array"); /*, t => {
     const Item = types.model("Item", {
         id: types.identifier(),
         name: types.string
@@ -686,9 +662,9 @@ test("it should applySnapshot references in array", t => {
         },
         hovers: []
     })
-})
+})*/
 
-test("array of references should work fine", t => {
+test("array of references should work fine"); /*, t => {
     const B = types.model("Block", { id: types.identifier(types.string) })
 
     const S = types

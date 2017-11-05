@@ -22,6 +22,10 @@ export class CoreType<S, T> extends Type<S, T> {
         this.initializer = initializer;
     }
 
+    describe(): string {
+        return this.name;
+    }
+
     instantiate(parent: Node, subPath: string, initialValue?: any): Node {
         if (!this.checker(initialValue)) fail(`Error while instantiating ${this.name}. Expected a ${this.name}, got ${initialValue} `);
         return createNode(this, parent, subPath, initialValue, this.initializer);

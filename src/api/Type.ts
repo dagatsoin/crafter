@@ -42,6 +42,8 @@ export interface IType<S, T> {
 
     isAssignableFrom(type: IType<any, any>): boolean;
 
+    describe(): string;
+
     /**
      * When a complex array is receiving a snapshot it needs to change the value of all its children. The most basic method to do this is to recreate a new Node
      * for each children.
@@ -96,6 +98,7 @@ export abstract class Type<S, T> implements IType<S, T> {
     abstract getSnapshot(node: Node): S;
     abstract instantiate(parent: Node | null, subPath: string, initialValue?: any): Node;
     abstract getChildren(node: Node): Array<Node>;
+    abstract describe(): string;
 
     getChildNode(node: Node, key: string): Node {
         return fail(`No child '${key}' available in type: ${this.name}`)

@@ -1,4 +1,4 @@
-import {assertType, isReferenceType} from "./utils";
+import {assertType, fail, isReferenceType} from "./utils";
 import {getNode, Node, isInstance, createNode, Instance} from "./core/Node";
 import {IType, Type} from "../api/Type";
 import {TypeFlag} from "../api/TypeFlags";

@@ -26,6 +26,9 @@ var CoreType = /** @class */ (function (_super) {
         _this.initializer = initializer;
         return _this;
     }
+    CoreType.prototype.describe = function () {
+        return this.name;
+    };
     CoreType.prototype.instantiate = function (parent, subPath, initialValue) {
         if (!this.checker(initialValue))
             utils_1.fail("Error while instantiating " + this.name + ". Expected a " + this.name + ", got " + initialValue + " ");

@@ -17,6 +17,10 @@ export class OptionalValue<S, T> extends Type<S, T> {
         this.defaultValue = defaultValue;
     }
 
+    describe(): string {
+        return this.type.describe() + "?";
+    }
+
     instantiate(parent: Node, subPath: string, value: S): Node {
         if (value === undefined) {
             const defaultValue = this.getDefaultValue();

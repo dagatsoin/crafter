@@ -23,6 +23,9 @@ var OptionalValue = /** @class */ (function (_super) {
         _this.defaultValue = defaultValue;
         return _this;
     }
+    OptionalValue.prototype.describe = function () {
+        return this.type.describe() + "?";
+    };
     OptionalValue.prototype.instantiate = function (parent, subPath, value) {
         if (value === undefined) {
             var defaultValue = this.getDefaultValue();

@@ -22,6 +22,9 @@ var IdentifierType = /** @class */ (function (_super) {
         _this.flag = typeFlags_1.TypeFlag.Identifier;
         return _this;
     }
+    IdentifierType.prototype.describe = function () {
+        return this.identifierType.describe();
+    };
     IdentifierType.prototype.instantiate = function (parent, subPath, snapshot) {
         if (!parent || !Node_1.isInstance(parent.data))
             return utils_1.fail("Identifier types can only be instantiated as direct child of an object type");

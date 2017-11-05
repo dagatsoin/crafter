@@ -10,12 +10,15 @@ export enum TypeFlag {
     String = 1 << 0,
     Number = 1 << 1,
     Boolean = 1 << 2,
-    Array = 1 << 3,
-    Object = 1 << 4,
-    Frozen = 1 << 5,
-    Optional = 1 << 6,
-    Reference = 1 << 7,
-    Identifier = 1 << 8,
+    Date = 1 << 3,
+    Array = 1 << 4,
+    Map = 1 << 5,
+    Object = 1 << 6,
+    Frozen = 1 << 7,
+    Optional = 1 << 8,
+    Reference = 1 << 9,
+    Identifier = 1 << 10,
+    Refinement = 1 << 11,
 }
 
 export function isType(value: any): value is IType<any, any> {

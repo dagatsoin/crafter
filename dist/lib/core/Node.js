@@ -38,14 +38,8 @@ var Node = /** @class */ (function () {
          * and use functions like restore, snapshot, type check, etc.
          * If it is a primitive type, the node ref is stored in the parent as a leaf.
          */
-        if (canAttachNode(this.data)) {
-            Object.defineProperty(this.data, "$node", {
-                enumerable: false,
-                writable: false,
-                configurable: true,
-                value: this,
-            });
-        }
+        if (canAttachNode(this.data))
+            utils_1.addHiddenFinalProp(this.data, "$node", this);
         if (this.isRoot)
             this.identifierCache = new IdentifierCache_1.IdentifierCache();
         var sawExceptions = true;

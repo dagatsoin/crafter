@@ -1,6 +1,6 @@
 import {computed, observable, transaction} from "mobx";
 import {IType} from "../../api/Type";
-import {escapeJsonPath, extend, fail, identity, isMutable, isPlainObject, isPrimitive, walk} from "../utils";
+import {addHiddenFinalProp, escapeJsonPath, extend, fail, identity, isMutable, isPlainObject, isPrimitive, walk} from "../utils";
 import {IdentifierCache} from "./IdentifierCache";
 import {IReversibleJsonPatch, splitPatch, IJsonPatch} from "./jsonPatch";
 
@@ -44,14 +44,7 @@ export class Node {
          * and use functions like restore, snapshot, type check, etc.
          * If it is a primitive type, the node ref is stored in the parent as a leaf.
          */
-        if (canAttachNode(this.data)) {
-            Object.defineProperty(this.data, "$node", {
-                enumerable: false,
-                writable: false,
-                configurable: true,
-                value: this,
-            });
-        }
+        if (canAttachNode(this.data)) addHiddenFinalProp(this.data, "$node", this);
         if (this.isRoot) this.identifierCache = new IdentifierCache();
 
         let sawExceptions = true;

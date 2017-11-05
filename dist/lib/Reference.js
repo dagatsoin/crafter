@@ -20,10 +20,10 @@ var StoredReference = /** @class */ (function () {
         this.value = value;
         if (mode === "object") {
             if (!Node_1.isInstance(value))
-                fail("Can only store references to tree nodes, got: '" + value + "'");
+                utils_1.fail("Can only store references to tree nodes, got: '" + value + "'");
             var targetNode = Node_1.getNode(value);
             if (!targetNode.identifierAttribute)
-                fail("Can only store references with a defined identifier attribute.");
+                utils_1.fail("Can only store references with a defined identifier attribute.");
         }
     }
     return StoredReference;
@@ -48,7 +48,7 @@ var ReferenceType = /** @class */ (function (_super) {
         // reference was initialized with the identifier of the target
         var target = node.root.identifierCache.resolve(this.targetType, ref.value);
         if (!target)
-            return fail("Failed to resolve reference of type " + this.targetType
+            return utils_1.fail("Failed to resolve reference of type " + this.targetType
                 .name + ": '" + ref.value + "' (in: " + node.path + ")");
         return target.value;
     };

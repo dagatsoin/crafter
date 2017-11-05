@@ -1,11 +1,13 @@
 import { ComplexType, IType } from "../api/Type";
 import { IObservableArray } from "mobx";
-import { Node } from "./core/Node";
+import { Instance, Node } from "./core/Node";
 import { TypeFlag } from "../api/typeFlags";
+export declare function arrayToString(this: IObservableArray<any> & Instance): string;
 export declare class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     itemType: IType<any, T>;
     readonly flag: TypeFlag;
     constructor(name: string, itemType: IType<any, any>);
+    describe(): string;
     getSnapshot(node: Node): S[];
     instantiate(parent: Node, subPath: string, initialValue?: any): Node;
     getDefaultSnapshot(): Array<T>;

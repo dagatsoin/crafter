@@ -15,13 +15,19 @@ var utils_1 = require("./utils");
 var mobx_1 = require("mobx");
 var Node_1 = require("./core/Node");
 var typeFlags_1 = require("../api/typeFlags");
+function arrayToString() {
+    return Node_1.getNode(this) + "(" + this.length + " items)";
+}
+exports.arrayToString = arrayToString;
 var ArrayType = /** @class */ (function (_super) {
     __extends(ArrayType, _super);
     function ArrayType(name, itemType) {
         var _this = _super.call(this, name) || this;
         _this.flag = typeFlags_1.TypeFlag.Array;
         _this.createEmptyInstance = function (snapshot) {
-            return mobx_1.observable.array();
+            var array = mobx_1.observable.shallowArray();
+            utils_1.addHiddenFinalProp(array, "toString", arrayToString);
+            return array;
         };
         _this.buildInstance = function (node, snapshot) {
             mobx_1.extras.getAdministration(node.data).dehancer = node.unbox;
@@ -31,8 +37,11 @@ var ArrayType = /** @class */ (function (_super) {
         _this.itemType = itemType;
         return _this;
     }
+    ArrayType.prototype.describe = function () {
+        return this.itemType.describe() + "[]";
+    };
     ArrayType.prototype.getSnapshot = function (node) {
-        return node.data.map(function (item) { return item.$node.snapshot; });
+        return node.children.map(function (childNode) { return childNode.snapshot; });
     };
     ArrayType.prototype.instantiate = function (parent, subPath, initialValue) {
         return Node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);

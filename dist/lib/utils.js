@@ -148,4 +148,13 @@ function unescapeJsonPath(str) {
     return str.replace(/~0/g, "/").replace(/~1/g, "~");
 }
 exports.unescapeJsonPath = unescapeJsonPath;
+function addHiddenFinalProp(object, propName, value) {
+    Object.defineProperty(object, propName, {
+        enumerable: false,
+        writable: false,
+        configurable: true,
+        value: value
+    });
+}
+exports.addHiddenFinalProp = addHiddenFinalProp;
 //# sourceMappingURL=utils.js.map

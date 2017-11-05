@@ -10,6 +10,10 @@ export class IdentifierType<T> extends Type<T, T> {
         super(`identifier(${identifierType.name})`);
     }
 
+    describe(): string {
+        return this.identifierType.describe();
+    }
+
     instantiate(parent: Node | null, subPath: string, snapshot: T): Node {
         if (!parent || !isInstance(parent.data))
             return fail(`Identifier types can only be instantiated as direct child of an object type`);

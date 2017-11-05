@@ -46,6 +46,15 @@ var ObjectType = /** @class */ (function (_super) {
         _this.propertiesNames = Object.keys(_this.properties);
         return _this;
     }
+    ObjectType.prototype.describe = function () {
+        var _this = this;
+        // optimization: cache
+        return "{ " +
+            this.propertiesNames
+                .map(function (key) { return key + ": " + _this.properties[key].describe(); })
+                .join("; ") +
+            " }";
+    };
     ObjectType.prototype.isValidSnapshot = function (value) {
         var _this = this;
         return !utils_1.isPlainObject(value) ?

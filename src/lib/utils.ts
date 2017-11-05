@@ -143,3 +143,12 @@ export function escapeJsonPath(str: string) {
 export function unescapeJsonPath(str: string) {
     return str.replace(/~0/g, "/").replace(/~1/g, "~");
 }
+
+export function addHiddenFinalProp(object: any, propName: string, value: any) {
+    Object.defineProperty(object, propName, {
+        enumerable: false,
+        writable: false,
+        configurable: true,
+        value
+    })
+}

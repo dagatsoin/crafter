@@ -28,7 +28,7 @@ export class Refinement<S, T> extends Type<S, T> {
     }
 
     getChildren(node: Node): Node[] {
-        throw new Error("Method not implemented.");
+        return [];
     }
 
     describe() {

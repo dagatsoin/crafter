@@ -1,5 +1,6 @@
 import { IType } from "../../api/Type";
 import { IdentifierCache } from "./IdentifierCache";
+import { IReversibleJsonPatch } from "./jsonPatch";
 export declare type Instance = {
     readonly $node?: Node;
 };
@@ -7,20 +8,24 @@ export declare class Node {
     readonly type: IType<any, any>;
     readonly data: any;
     parent: Node | null;
-    leafs: Map<string, Node>;
     identifierAttribute: string | undefined;
     identifierCache: IdentifierCache | undefined;
     subPath: string;
     isAlive: boolean;
     private isDetaching;
+    private autoUnbox;
+    private readonly patchSubscribers;
     constructor(type: IType<any, any>, parent: Node | null, subPath: string, initialValue: any, initBaseType?: (baseTypeIdentity: any) => any, buildType?: (node: Node, snapshot: any) => void);
     applySnapshot(snapshot: any): void;
     readonly snapshot: any;
     readonly isRoot: boolean;
     readonly root: Node;
     readonly value: any;
+    getChildNode(subPath: string): Node;
     readonly children: Array<Node>;
     readonly identifier: string | null;
+    emitPatch(basePatch: IReversibleJsonPatch, source: Node): void;
+    unbox: (childNode: Node) => any;
     readonly path: string;
     removeChild(subPath: string): void;
     detach(): void;

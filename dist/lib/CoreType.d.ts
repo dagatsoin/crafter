@@ -9,10 +9,12 @@ export declare class CoreType<S, T> extends Type<S, T> {
     readonly initializer: (v: any) => any;
     readonly flag: TypeFlag;
     constructor(name: any, typeFlag: TypeFlag, checker: any, initializer?: (v: any) => any);
+    describe(): string;
     instantiate(parent: Node, subPath: string, initialValue?: any): Node;
     isValidSnapshot(value: any): boolean;
     getSnapshot(node: Node): S;
     applySnapshot(node: Node, snapshot: S): void;
+    getDefaultSnapshot(): Array<T>;
     /**
      * Return an empty array of Instance because primitive can't have children.
      * @return {Array<Node>}

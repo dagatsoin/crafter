@@ -47,7 +47,7 @@ export declare function prettyPrintValue(value: any): string;
  * @param {string} rank to specify which argument is not valid: first, second, etc.
  * @param force if true, run event in prod mode
  */
-export declare function assertType(value: any, type: any, rank?: number, force?: boolean): void;
+export declare function assertType(value: any, type: any, rank?: string, force?: boolean): void;
 export declare function isReferenceType(type: any): type is ReferenceType<any>;
 /**
  * escape slashes and backslashes
@@ -58,3 +58,4 @@ export declare function escapeJsonPath(str: string): string;
  * unescape slashes and backslashes
  */
 export declare function unescapeJsonPath(str: string): string;
+export declare function addHiddenFinalProp(object: any, propName: string, value: any): void;

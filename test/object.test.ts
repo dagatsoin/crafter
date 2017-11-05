@@ -4,8 +4,6 @@ import {array} from "../src/api/Array";
 import {isObservable, observable, reaction} from "mobx";
 import {applySnapshot, getSnapshot} from "../src/api/utils";
 import {optional} from "../src/api/Optional";
-import {isInstance} from "../src/lib/core/Node";
-
 
 const Entity = object("Entity", {
     name: "",

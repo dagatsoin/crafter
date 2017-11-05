@@ -18,7 +18,9 @@ export interface IType<S, T> {
     instantiate(parent: Node, subPath: string, initialValue?: any): Node;
     getValue(node: Node): T;
     getChildType(key: string): IType<any, any>;
+    getChildNode(node: Node, key: string): Node;
     isAssignableFrom(type: IType<any, any>): boolean;
+    describe(): string;
     /**
      * When a complex array is receiving a snapshot it needs to change the value of all its children. The most basic method to do this is to recreate a new Node
      * for each children.
@@ -43,6 +45,7 @@ export interface ISnapshottable<S> {
 export interface IComplexType<S, T> extends IType<S, T & Instance> {
     create(snapshot?: S, check?: boolean): T & ISnapshottable<S>;
     applyPatch(node: Node, patch: Array<Operation>): void;
+    getDefaultSnapshot(): any;
 }
 export interface IObjectType<S, T> extends IComplexType<S, T & Instance> {
 }
@@ -61,7 +64,9 @@ export declare abstract class Type<S, T> implements IType<S, T> {
     abstract getSnapshot(node: Node): S;
     abstract instantiate(parent: Node | null, subPath: string, initialValue?: any): Node;
     abstract getChildren(node: Node): Array<Node>;
-    is(thing: any): thing is S | T;
+    abstract describe(): string;
+    getChildNode(node: Node, key: string): Node;
+    is(value: any): value is S | T;
     validate(thing: any): boolean;
     create(snapshot?: S, check?: boolean): T;
     applySnapshot(node: Node, snapshot: S): void;
@@ -71,7 +76,9 @@ export declare abstract class Type<S, T> implements IType<S, T> {
     isAssignableFrom(type: IType<any, any>): boolean;
 }
 export declare abstract class ComplexType<S, T> extends Type<S, T> implements IComplexType<S, T> {
-    is(value: any): value is S | T;
+    abstract getDefaultSnapshot(): any;
+    create(snapshot?: S, check?: boolean): T;
     applySnapshot(node: Node, snapshot: S): void;
     applyPatch(node: Node, patch: Array<Operation>): void;
+    getChildNode(node: Node, key: string): Node;
 }

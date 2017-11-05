@@ -9,12 +9,16 @@ export declare enum TypeFlag {
     String = 1,
     Number = 2,
     Boolean = 4,
-    Array = 8,
-    Object = 16,
-    Frozen = 32,
-    Optional = 64,
-    Reference = 128,
-    Identifier = 256,
+    Date = 8,
+    Array = 16,
+    Map = 32,
+    Object = 64,
+    Frozen = 128,
+    Optional = 256,
+    Reference = 512,
+    Identifier = 1024,
+    Refinement = 2048,
+    Union = 4096,
 }
 export declare function isType(value: any): value is IType<any, any>;
 export declare function isPrimitiveType(type: any): type is CoreType<any, any>;

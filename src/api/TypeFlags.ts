@@ -19,6 +19,7 @@ export enum TypeFlag {
     Reference = 1 << 9,
     Identifier = 1 << 10,
     Refinement = 1 << 11,
+    Union= 1 << 12,
 }
 
 export function isType(value: any): value is IType<any, any> {

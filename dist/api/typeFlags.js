@@ -14,6 +14,7 @@ var TypeFlag;
     TypeFlag[TypeFlag["Reference"] = 512] = "Reference";
     TypeFlag[TypeFlag["Identifier"] = 1024] = "Identifier";
     TypeFlag[TypeFlag["Refinement"] = 2048] = "Refinement";
+    TypeFlag[TypeFlag["Union"] = 4096] = "Union";
 })(TypeFlag = exports.TypeFlag || (exports.TypeFlag = {}));
 function isType(value) {
     return typeof value === "object" && value && value.isType === true;

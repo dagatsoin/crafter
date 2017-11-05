@@ -8,6 +8,7 @@ export declare class OptionalValue<S, T> extends Type<S, T> {
     readonly defaultValue: IOptionalValue<S, T>;
     readonly flag: TypeFlag;
     constructor(type: IType<S, T>, defaultValue: IOptionalValue<S, T>);
+    describe(): string;
     instantiate(parent: Node, subPath: string, value: S): Node;
     reconcile(current: Node, newValue: any): Node;
     private getDefaultValue();

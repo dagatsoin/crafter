@@ -7,6 +7,8 @@ import {applySnapshot, getSnapshot} from "../src/api/utils";
 import {reference} from "../src/api/Reference";
 import {map} from "../src/api/Map";
 import {refinement} from "../src/api/Refinement";
+import {autorun} from "mobx";
+import {union} from "../src/api/Union";
 
 test("it should support prefixed paths in arrays", function() {
     const User = object("User", {
@@ -267,42 +269,41 @@ test("when applying a snapshot, reference should resolve correctly if value adde
     ).not.toThrow();
 });
 
-test("it should fail when reference snapshot is ambiguous"); /*, function() {
-    const Box = types.model("Box", {
-        id: types.identifier(types.number),
-        name: types.string
-    })
-    const Arrow = types.model("Arrow", {
-        id: types.identifier(types.number),
-        name: types.string
-    })
-    const BoxOrArrow = types.union(Box, Arrow)
-    const Factory = types.model({
-        selected: types.reference(BoxOrArrow),
-        boxes: types.array(Box),
-        arrows: types.array(Arrow)
-    })
+test("it should fail when reference snapshot is ambiguous", function() {
+    const Box = object("Box", {
+        id: identifier(number),
+        name: string
+    });
+    const Arrow = object("Arrow", {
+        id: identifier(number),
+        name: string
+    });
+    const BoxOrArrow = union(Box, Arrow)
+    const Factory = object({
+        selected: reference(BoxOrArrow),
+        boxes: array(Box),
+        arrows: array(Arrow)
+    });
     const store = Factory.create({
         selected: 2,
         boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }],
         arrows: [{ id: 2, name: "arrow" }]
-    })
-    t.throws(() => {
-        store.selected // store.boxes[1] // throws because it can't know if you mean a box or an arrow!
-    }, "[crafter] Cannot resolve a reference to type '(Arrow | Box)' with id: '2' unambigously, there are multiple candidates: /boxes/1, /arrows/0")
-    unprotect(store)
+    });
+    expect(() => {
+        store.selected; // store.boxes[1] // throws because it can't know if you mean a box or an arrow!
+    }).toThrowError("[crafter] Cannot resolve a reference to type '(Arrow | Box)' with id: '2' unambigously, there are multiple candidates: /boxes/1, /arrows/0");
+
     // first update the reference, than create a new matching item! Ref becomes ambigous now...
-    store.selected = 1 as any
-    t.is(store.selected, store.boxes[0]) // unambigous identifier
-    let err
-    autorun(() => store.selected).onError(e => (err = e))
-    t.is(store.selected, store.boxes[0]) // unambigous identifier
-    store.arrows.push({ id: 1, name: "oops" })
-    t.is(
-        err.message,
+    store.selected = 1 as any;
+    expect(store.selected).toEqual(store.boxes[0]); // unambigous identifier
+    let err;
+    autorun(() => store.selected).onError(e => (err = e));
+    expect(store.selected).toEqual(store.boxes[0]); // unambigous identifier
+    store.arrows.push({ id: 1, name: "oops" });
+    expect(err.message).toEqual(
         "[crafter] Cannot resolve a reference to type '(Arrow | Box)' with id: '1' unambigously, there are multiple candidates: /boxes/0, /arrows/1"
-    )
-})*/
+    );
+});
 
 test("it should support array of references", function() {
     const Box = object({

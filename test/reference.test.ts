@@ -3,10 +3,10 @@ import {identifier} from "../src/api/Identifier";
 import {object} from "../src/api/Object";
 import {string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
-import {getSnapshot} from "../src/api/utils";
+import {applySnapshot, getSnapshot} from "../src/api/utils";
 import {reference} from "../src/api/Reference";
 
-test("it should support reference swap", function() {
+test("it should support prefixed paths in arrays", function() {
     const User = object("User", {
         id: identifier(),
         name: string
@@ -35,62 +35,56 @@ test("it should support reference swap", function() {
     } as any);
 });
 /*
-test("it should support prefixed paths in arrays", t => {
-    const User = model({
+test("it should support prefixed paths in maps", t => {
+    const User = types.model({
         id: types.identifier(),
         name: types.string
     })
     const UserStore = types.model({
         user: types.reference(User),
-        users: types.array(User)
+        users: types.map(User)
     })
     const store = UserStore.create({
         user: "17",
-        users: [{ id: "17", name: "Michel" }, { id: "18", name: "Veria" }]
+        users: {
+            "17": { id: "17", name: "Michel" },
+            "18": { id: "18", name: "Veria" }
+        }
     })
     unprotect(store)
-    t.is(store.users[0].name, "Michel")
-    t.is(store.users[1].name, "Veria")
-    t.is(store.user!.name, "Michel")
-    store.user = store.users[1]
-    t.is(store.user.name, "Veria")
-    store.users[1].name = "Noa"
-    t.is(store.user.name, "Noa")
+    t.is(store.users.get("17")!.name as string, "Michel")
+    t.is(store.users.get("18")!.name as string, "Veria")
+    t.is(store.user!.name as string, "Michel")
+    store.user = store.users.get("18")!
+    t.is(store.user.name as string, "Veria")
+    store.users.get("18")!.name = "Noa"
+    t.is(store.user.name as string, "Noa")
     t.deepEqual(getSnapshot(store), {
         user: "18",
-        users: [{ id: "17", name: "Michel" }, { id: "18", name: "Noa" }]
+        users: { "17": { id: "17", name: "Michel" }, "18": { id: "18", name: "Noa" } }
     } as any) // TODO: better typings
 })
+*/
 
-test("identifiers are required", t => {
-    const Todo = types.model({
-        id: types.identifier()
-    })
-    t.is(Todo.is({}), false)
-    t.is(Todo.is({ id: "x" }), true)
-    t.throws(
-        () => Todo.create(),
-        "[mobx-state-tree] Error while converting `{}` to `AnonymousModel`:\n" +
-        'at path "/id" value `undefined` is not assignable to type: `identifier(string)` (Value is not a string), expected an instance of `identifier(string)` or a snapshot like `identifier(string)` instead.'
-    )
+test("identifiers are required", function() {
+    const Todo = object({
+        id: identifier()
+    });
+    expect(Todo.is({})).toBeFalsy();
+    expect(Todo.is({ id: "x" })).toBeTruthy();
+    expect(() => Todo.create()).toThrowError("[crafter] expected first argument to be a AnonymousModel, got `{}` instead.");
+});
+
+test("identifiers cannot be modified", function() {
+    const Todo = object({
+        id: identifier()
+    });
+    const todo = Todo.create({ id: "x" });
+
+    expect(() => (todo.id = "stuff")).toThrowError("[crafter] Tried to change identifier from 'x' to 'stuff'. Changing identifiers is not allowed.");
+    expect(() => applySnapshot(todo, { id: "stuff" })).toThrowError("[crafter] Tried to change identifier from 'x' to 'stuff'. Changing identifiers is not allowed.");
 })
-
-test("identifiers cannot be modified", t => {
-    const Todo = types.model({
-        id: types.identifier()
-    })
-    const todo = Todo.create({ id: "x" })
-    unprotect(todo)
-    t.throws(
-        () => (todo.id = "stuff"),
-        "[mobx-state-tree] Tried to change identifier from 'x' to 'stuff'. Changing identifiers is not allowed."
-    )
-    t.throws(
-        () => applySnapshot(todo, { id: "stuff" }),
-        "[mobx-state-tree] Tried to change identifier from 'x' to 'stuff'. Changing identifiers is not allowed."
-    )
-})
-
+/*
 test("it should resolve refs during creation, when using path", t => {
     const values: number[] = []
     const Book = types.model({
@@ -307,7 +301,7 @@ test("it should fail when reference snapshot is ambiguous", t => {
     })
     t.throws(() => {
         store.selected // store.boxes[1] // throws because it can't know if you mean a box or an arrow!
-    }, "[mobx-state-tree] Cannot resolve a reference to type '(Arrow | Box)' with id: '2' unambigously, there are multiple candidates: /boxes/1, /arrows/0")
+    }, "[crafter] Cannot resolve a reference to type '(Arrow | Box)' with id: '2' unambigously, there are multiple candidates: /boxes/1, /arrows/0")
     unprotect(store)
     // first update the reference, than create a new matching item! Ref becomes ambigous now...
     store.selected = 1 as any
@@ -318,7 +312,7 @@ test("it should fail when reference snapshot is ambiguous", t => {
     store.arrows.push({ id: 1, name: "oops" })
     t.is(
         err.message,
-        "[mobx-state-tree] Cannot resolve a reference to type '(Arrow | Box)' with id: '1' unambigously, there are multiple candidates: /boxes/0, /arrows/1"
+        "[crafter] Cannot resolve a reference to type '(Arrow | Box)' with id: '1' unambigously, there are multiple candidates: /boxes/0, /arrows/1"
     )
 })
 

@@ -10,7 +10,7 @@ describe("All primitives", function () {
     });
 
     it("should not create an undefined primitive", function () {
-        expect(() => string.create()).toThrowError("[crafter] expected  argument to be a string, got `undefined` instead.");
+        expect(() => string.create()).toThrowError("[crafter] expected first argument to be a string, got `undefined` instead.");
     });
 
     it("should create an optional primitive", function () {

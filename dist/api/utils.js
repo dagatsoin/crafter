@@ -53,7 +53,7 @@ function hasParent(target, depth) {
     if (depth === void 0) { depth = 1; }
     // check all arguments
     utils_1.assertType(target, "Instance");
-    utils_1.assertType(depth, "number", 1);
+    utils_1.assertType(depth, "number", "first");
     if (process.env.NODE_ENV !== "production" && depth < 0)
         utils_1.fail("Invalid depth: " + depth + ", should be >= 1");
     var parent = Node_1.getNode(target).parent;
@@ -80,7 +80,7 @@ function getParent(target, depth) {
     if (depth === void 0) { depth = 1; }
     // check all arguments
     utils_1.assertType(target, "Instance");
-    utils_1.assertType(depth, "number", 1);
+    utils_1.assertType(depth, "number");
     if (process.env.NODE_ENV !== "production" && depth < 0)
         utils_1.fail("Invalid depth: " + depth + ", should be >= 1");
     var d = depth;

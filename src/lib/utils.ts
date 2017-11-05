@@ -81,8 +81,8 @@ export function isMutable(value: any) {
  */
 export function walk(start: Instance, process: (item: Instance) => void) {
     // check all arguments
-    assertType(start, "Instance", 1);
-    assertType(process, "function", 2);
+    assertType(start, "Instance");
+    assertType(process, "function", "second");
 
     const node = getNode(start);
     node.children.forEach(child => {
@@ -103,7 +103,7 @@ function safeStringify(value: any) {
 export function prettyPrintValue(value: any) {
     return typeof value === "function"
         ? `<function${value.name ? " " + value.name : ""}>`
-        : isInstance(value) ? `<${value}>` : `\`${safeStringify(value)}\`>`;
+        : isInstance(value) ? `<${value}>` : `\`${safeStringify(value)}\``;
 }
 
 /**
@@ -113,15 +113,15 @@ export function prettyPrintValue(value: any) {
  * @param {string} rank to specify which argument is not valid: first, second, etc.
  * @param force if true, run event in prod mode
  */
-export function assertType(value: any, type: any, rank: number = 1, force?: boolean) {
+export function assertType(value: any, type: any, rank: string = "first", force?: boolean) {
     if (process.env.NODE_ENV !== "production" || force) {
-        if (type === "string" && typeof value !== "string") fail(`expected argument ${rank ? rank.toString() + " " : " "}to be a string, got ${prettyPrintValue(value)} instead.`);
-        if (type === "boolean" && typeof value !== "boolean") fail(`expected argument ${rank ? rank.toString() + " " : " "}to be a boolean, got ${prettyPrintValue(value)} instead.`);
-        if (type === "number" && typeof value !== "number") fail(`expected argument ${rank ? rank.toString() + " " : " "}to be a number, got ${prettyPrintValue(value)} instead.`);
-        if (type === "function" && typeof value !== "function") fail(`expected argument ${rank ? rank.toString() + " " : " "}to be a function, got ${prettyPrintValue(value)} instead.`);
-        if (type === "Type" && !isType(value)) fail(`expected argument ${rank ? rank.toString() + " " : " "}to be a Type, got ${prettyPrintValue(value)} instead.`);
-        if (isType(type) && !type.validate(value)) fail(`expected argument ${rank ? rank.toString() + " " : " "}to be a ${type.name}, got ${prettyPrintValue(value)} instead.`);
-        if (type === "Instance" && !isInstance(value)) fail(`expected argument ${rank ? rank.toString() + " " : " "}to be an Instance, got ${prettyPrintValue(value)} instead.`);
+        if (type === "string" && typeof value !== "string") fail(`expected ${rank + " " || ""}argument to be a string, got ${prettyPrintValue(value)} instead.`);
+        if (type === "boolean" && typeof value !== "boolean") fail(`expected ${rank + " " || ""}argument to be a boolean, got ${prettyPrintValue(value)} instead.`);
+        if (type === "number" && typeof value !== "number") fail(`expected ${rank + " " || ""}argument to be a number, got ${prettyPrintValue(value)} instead.`);
+        if (type === "function" && typeof value !== "function") fail(`expected ${rank + " " || ""}argument to be a function, got ${prettyPrintValue(value)} instead.`);
+        if (type === "Type" && !isType(value)) fail(`expected ${rank + " " || ""}argument to be a Type, got ${prettyPrintValue(value)} instead.`);
+        if (isType(type) && !type.validate(value)) fail(`expected ${rank + " " || ""}argument to be a ${type.name}, got ${prettyPrintValue(value)} instead.`);
+        if (type === "Instance" && !isInstance(value)) fail(`expected ${rank + " " || ""}argument to be an Instance, got ${prettyPrintValue(value)} instead.`);
     }
 }
 

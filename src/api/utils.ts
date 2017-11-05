@@ -53,7 +53,7 @@ export function getSnapshot<S>(target: Instance): S {
 export function hasParent(target: Instance, depth: number = 1): boolean {
     // check all arguments
     assertType(target, "Instance");
-    assertType(depth, "number", 1);
+    assertType(depth, "number", "first");
     if (process.env.NODE_ENV !== "production" && depth < 0) fail(`Invalid depth: ${depth}, should be >= 1`);
 
     let parent: Node | null = getNode(target).parent;
@@ -80,7 +80,7 @@ export function getParent<T>(target: Instance, depth?: number): T & Instance;
 export function getParent<T>(target: Instance, depth = 1): T & Instance {
     // check all arguments
     assertType(target, "Instance");
-    assertType(depth, "number", 1);
+    assertType(depth, "number");
     if (process.env.NODE_ENV !== "production" && depth < 0) fail(`Invalid depth: ${depth}, should be >= 1`);
 
     let d = depth;

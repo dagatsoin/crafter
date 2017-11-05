@@ -26,7 +26,7 @@ var Type = /** @class */ (function () {
         return this.isValidSnapshot(thing);
     };
     Type.prototype.create = function (snapshot, check) {
-        utils_1.assertType(snapshot, this, 0, check);
+        utils_1.assertType(snapshot, this, "first", check);
         return this.instantiate(null, "", snapshot).value;
     };
     Type.prototype.applySnapshot = function (node, snapshot) {

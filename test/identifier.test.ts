@@ -16,7 +16,7 @@ it( "should throw if identifier of wrong type", function() {
     expect(() => {
         const Model = object("Model", { id: identifier(number) });
         Model.create({ id: "1" }, true);
-    }).toThrowError(`[crafter] expected  argument to be a Model, got \`{"id":"1"}\` instead.`);
+    }).toThrowError(`[crafter] expected first argument to be a Model, got \`{"id":"1"}\` instead.`);
 });
 
 it("should be used only on model types - no parent provided", function() {

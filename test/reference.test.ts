@@ -621,16 +621,16 @@ test("it should applyPatch references in array"); /*, t => {
     })
 })*/
 
-test("it should applySnapshot references in array"); /*, t => {
-    const Item = types.model("Item", {
-        id: types.identifier(),
-        name: types.string
-    })
-    const Folder = types.model("Folder", {
-        id: types.identifier(),
-        objects: types.map(Item),
-        hovers: types.array(types.reference(Item))
-    })
+test("it should applySnapshot references in array", function () {
+    const Item = object("Item", {
+        id: identifier(),
+        name: string
+    });
+    const Folder = object("Folder", {
+        id: identifier(),
+        objects: map(Item),
+        hovers: array(reference(Item))
+    });
     const folder = Folder.create({
         id: "folder 1",
         objects: {
@@ -640,9 +640,9 @@ test("it should applySnapshot references in array"); /*, t => {
             }
         },
         hovers: ["folder 1"]
-    })
-    const snapshot = JSON.parse(JSON.stringify(getSnapshot(folder)))
-    t.deepEqual(snapshot, {
+    });
+    const snapshot = JSON.parse(JSON.stringify(getSnapshot(folder)));
+    expect(snapshot).toEqual({
         id: "folder 1",
         objects: {
             "item 1": {
@@ -651,10 +651,10 @@ test("it should applySnapshot references in array"); /*, t => {
             }
         },
         hovers: ["folder 1"]
-    })
-    snapshot.hovers = []
-    applySnapshot(folder, snapshot)
-    t.deepEqual(getSnapshot(folder), {
+    });
+    snapshot.hovers = [];
+    applySnapshot(folder, snapshot);
+    expect(getSnapshot(folder)).toEqual({
         id: "folder 1",
         objects: {
             "item 1": {
@@ -663,8 +663,8 @@ test("it should applySnapshot references in array"); /*, t => {
             }
         },
         hovers: []
-    })
-})*/
+    });
+});
 
 test("array of references should work fine"); /*, t => {
     const B = types.model("Block", { id: types.identifier(types.string) })

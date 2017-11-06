@@ -3,12 +3,14 @@ import {identifier} from "../src/api/Identifier";
 import {object} from "../src/api/Object";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
-import {applySnapshot, getSnapshot} from "../src/api/utils";
+import {applySnapshot, detach, getSnapshot, resolveIdentifier} from "../src/api/utils";
 import {reference} from "../src/api/Reference";
 import {map} from "../src/api/Map";
 import {refinement} from "../src/api/Refinement";
 import {autorun} from "mobx";
 import {union} from "../src/api/Union";
+import {optional} from "../src/api/Optional";
+import {late} from "../src/api/Late";
 
 test("it should support prefixed paths in arrays", function() {
     const User = object("User", {
@@ -278,7 +280,7 @@ test("it should fail when reference snapshot is ambiguous", function() {
         id: identifier(number),
         name: string
     });
-    const BoxOrArrow = union(Box, Arrow)
+    const BoxOrArrow = union(Box, Arrow);
     const Factory = object({
         selected: reference(BoxOrArrow),
         boxes: array(Box),
@@ -377,11 +379,11 @@ test("it should restore map of references from snapshot", function () {
     expect(store.selected.get("to") === store.boxes[1]).toBeTruthy();
 });
 
-test("it should support relative lookups"); /*, t => {
-    const Node = types.model({
-        id: types.identifier(types.number),
-        children: types.optional(types.array(types.late(() => Node)), [])
-    })
+test("it should support relative lookups", function() {
+    const Node = object({
+        id: identifier(number),
+        children: optional(array(late(() => Node)), [])
+    });
     const root = Node.create({
         id: 1,
         children: [
@@ -397,29 +399,28 @@ test("it should support relative lookups"); /*, t => {
                 id: 3
             }
         ]
-    })
-    unprotect(root)
-    t.deepEqual(getSnapshot(root), {
+    });
+
+    expect(getSnapshot(root)).toEqual({
         id: 1,
         children: [{ id: 2, children: [{ id: 4, children: [] }] }, { id: 3, children: [] }]
-    })
-    t.is(resolveIdentifier(Node, root, 1), root)
-    t.is(resolveIdentifier(Node, root, 4), root.children[0].children[0])
-    t.is(resolveIdentifier(Node, root.children[0].children[0], 3), root.children[1])
-    const n2 = detach(root.children[0])
-    unprotect(n2)
-    t.is(resolveIdentifier(Node, n2, 2), n2)
-    t.is(resolveIdentifier(Node, root, 2), undefined)
-    t.is(resolveIdentifier(Node, root, 4), undefined)
-    t.is(resolveIdentifier(Node, n2, 3), undefined)
-    t.is(resolveIdentifier(Node, n2, 4), n2.children[0])
-    t.is(resolveIdentifier(Node, n2.children[0], 2), n2)
-    const n5 = Node.create({ id: 5 })
-    t.is(resolveIdentifier(Node, n5, 4), undefined)
-    n2.children.push(n5)
-    t.is(resolveIdentifier(Node, n5, 4), n2.children[0])
-    t.is(resolveIdentifier(Node, n2.children[0], 5), n5)
-})*/
+    });
+    expect(resolveIdentifier(Node, root, 1)).toEqual(root);
+    expect(resolveIdentifier(Node, root, 4)).toEqual(root.children[0].children[0]);
+    expect(resolveIdentifier(Node, root.children[0].children[0], 3)).toEqual(root.children[1]);
+    const n2 = detach(root.children[0]);
+    expect(resolveIdentifier(Node, n2, 2)).toEqual(n2);
+    expect(resolveIdentifier(Node, root, 2)).toEqual(undefined);
+    expect(resolveIdentifier(Node, root, 4)).toEqual( undefined);
+    expect(resolveIdentifier(Node, n2, 3)).toEqual(undefined);
+    expect(resolveIdentifier(Node, n2, 4)).toEqual(n2.children[0]);
+    expect(resolveIdentifier(Node, n2.children[0], 2)).toEqual(n2);
+    const n5 = Node.create({ id: 5 });
+    expect(resolveIdentifier(Node, n5, 4)).toEqual(undefined);
+    n2.children.push(n5);
+    expect(resolveIdentifier(Node, n5, 4)).toEqual(n2.children[0]);
+    expect(resolveIdentifier(Node, n2.children[0], 5)).toEqual(n5);
+});
 
 test("References are non-nullable by default"); /*, t => {
     const Todo = types.model({

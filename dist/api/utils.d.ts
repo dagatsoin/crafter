@@ -60,3 +60,20 @@ export declare function getType(instance: Instance): IType<any, any>;
  * @return {IType<any, any>}
  */
 export declare function getChildType(instance: Instance, childName: string): IType<any, any>;
+/**
+ * Resolves a model instance given a root target, the type and the identifier you are searching for.
+ * Returns undefined if no value can be found.
+ *
+ * @export
+ * @param {IType<any, any>} type
+ * @param {Instance} target
+ * @param {(string | number)} identifier
+ * @returns {*}
+ */
+export declare function resolveIdentifier(type: IType<any, any>, target: Instance, identifier: string | number): any;
+/**
+ * Removes a model element from the state tree, and let it live on as a new state tree
+ * @param {T} target
+ * @return {T}
+ */
+export declare function detach<T extends Instance>(target: T): T;

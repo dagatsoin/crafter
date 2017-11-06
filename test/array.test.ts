@@ -81,7 +81,6 @@ describe("Mutations", function(){
 
         for (let j = 0; j < operations.length; j ++) {
             (<any>operations[j][0])(slots);
-            console.log(slots.length, i);
             i ++;
         }
     });

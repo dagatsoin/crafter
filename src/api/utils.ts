@@ -1,6 +1,7 @@
 import {Node, getNode, Instance} from "../lib/core/Node";
 import {fail, assertType} from "../lib/utils";
 import {IType} from "./Type";
+import {isType} from "./TypeFlags";
 
 declare const process: any;
 /**
@@ -119,7 +120,7 @@ export function getRoot(target: Instance): Instance {
  */
 export function isAlive(target: Instance): boolean {
     // check all arguments
-    assertType(target, "Instance");
+    assertType(target, "Instance", "first", true);
     return getNode(target).isAlive;
 }
 
@@ -140,4 +141,32 @@ export function getType(instance: Instance): IType<any, any> {
  */
 export function getChildType(instance: Instance, childName: string): IType<any, any> {
     return getNode(instance).getChildType(childName);
+}
+
+/**
+ * Resolves a model instance given a root target, the type and the identifier you are searching for.
+ * Returns undefined if no value can be found.
+ *
+ * @export
+ * @param {IType<any, any>} type
+ * @param {Instance} target
+ * @param {(string | number)} identifier
+ * @returns {*}
+ */
+export function resolveIdentifier(type: IType<any, any>, target: Instance, identifier: string | number) {
+    assertType(type, "Type", "first", true);
+    assertType(target, "Instance", "second", true);
+    const node = getNode(target).root.identifierCache!.resolve(type, "" + identifier);
+    return node ? node.value : undefined;
+}
+
+/**
+ * Removes a model element from the state tree, and let it live on as a new state tree
+ * @param {T} target
+ * @return {T}
+ */
+export function detach<T extends Instance>(target: T): T {
+    assertType(target, "Instance");
+    getNode(target).detach();
+    return target;
 }

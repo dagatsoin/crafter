@@ -11,11 +11,11 @@ export type Instance = {
 export class Node {
     readonly type: IType<any, any>;
     readonly data: any;
-    @observable public parent: Node | null = null;
+    @observable protected _parent: Node | null = null;
     identifierAttribute: string | undefined = undefined; // not to be modified directly, only through model initialization
     identifierCache: IdentifierCache | undefined;
     subPath: string;
-    isAlive = true;
+    _isAlive = true;
 
     private isDetaching = false;
     private autoUnbox = true; // Read the value instead of the Node
@@ -32,7 +32,7 @@ export class Node {
                 buildType: (node: Node, snapshot: any) => void = () => {
                 }) {
         this.type = type;
-        this.parent = parent;
+        this._parent = parent;
         this.subPath = subPath;
 
         /* 1 - Init an empty instance of the type. If the type is an primitive type it will get its value.
@@ -63,7 +63,7 @@ export class Node {
 
             sawExceptions = false;
         } finally { // can't use catch here cause tests which use .toThrow will don't see anything
-            if (sawExceptions) this.isAlive = false;
+            if (sawExceptions) this._isAlive = false;
         }
     }
 
@@ -80,6 +80,14 @@ export class Node {
 
     get isRoot(): boolean {
         return this.parent === null;
+    }
+
+    get parent(){
+        return this._parent;
+    }
+
+    public get isAlive() {
+        return this._isAlive;
     }
 
     @computed
@@ -143,7 +151,16 @@ export class Node {
     }
 
     detach() {
-        // todo implement detach
+        if (!this.isAlive) fail(`Error while detaching, node is not alive.`);
+        if (this.isRoot) return;
+        else {
+            this.isDetaching = true;
+            this.identifierCache = this.root.identifierCache!.splitCache(this);
+            this.parent!.removeChild(this.subPath);
+            this._parent = null;
+            this.subPath = "";
+            this.isDetaching = false;
+        }
     }
 
     assertAlive() {
@@ -176,8 +193,8 @@ export class Node {
             value: this.snapshot
         });
 
-        this.isAlive = false;
-        this.parent = null;
+        this._isAlive = false;
+        this._parent = null;
         this.subPath = "";
 
         // This is quite a hack, once interceptable objects / arrays / maps are extracted from mobx,
@@ -205,7 +222,7 @@ export class Node {
             this.subPath = subPath || "";
             if (newParent && newParent !== this.parent) {
                 newParent.root.identifierCache!.mergeCache(this);
-                this.parent = newParent;
+                this._parent = newParent;
             }
         }
     }

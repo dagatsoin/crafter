@@ -1,7 +1,7 @@
 import {IType} from "./Type";
 import {isType} from "./TypeFlags";
 import {Refinement} from "../lib/Refinement";
-import { fail } from "../lib/utils";
+import {assertType} from "../lib/utils";
 
 declare const process: any;
 
@@ -44,19 +44,10 @@ export function refinement(...args: any[]): IType<any, any> {
         ? args[2]
         : (v: any) => "Value does not respect the refinement predicate";
     // ensures all parameters are correct
-    if (process.env.NODE_ENV !== "production") {
-        if (typeof name !== "string")
-            fail("expected a string as first argument, got " + name + " instead");
-        if (!isType(type))
-            fail(
-                "expected a mobx-state-tree type as first or second argument, got " +
-                    type +
-                    " instead"
-            );
-        if (typeof predicate !== "function")
-            fail("expected a function as third argument, got " + predicate + " instead");
-        if (typeof message !== "function")
-            fail("expected a function as fourth argument, got " + message + " instead");
-    }
+    assertType(name, "string", "first");
+    assertType(type, "Type", "first or second");
+    assertType(predicate, "function");
+    assertType(message, "function");
+
     return new Refinement(name, type, predicate, message);
 }

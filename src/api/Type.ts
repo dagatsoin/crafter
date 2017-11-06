@@ -32,7 +32,7 @@ export interface IType<S, T> {
     applySnapshot(node: Node, snapshot: S): void;
 
     // Internal API
-    instantiate(parent: Node, subPath: string, initialValue?: any): Node;
+    instantiate(parent: Node | null, subPath: string, initialValue?: any): Node;
 
     getValue(node: Node): T;
 

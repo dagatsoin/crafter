@@ -118,7 +118,7 @@ exports.getRoot = getRoot;
  */
 function isAlive(target) {
     // check all arguments
-    utils_1.assertType(target, "Instance");
+    utils_1.assertType(target, "Instance", "first", true);
     return Node_1.getNode(target).isAlive;
 }
 exports.isAlive = isAlive;
@@ -141,4 +141,32 @@ function getChildType(instance, childName) {
     return Node_1.getNode(instance).getChildType(childName);
 }
 exports.getChildType = getChildType;
+/**
+ * Resolves a model instance given a root target, the type and the identifier you are searching for.
+ * Returns undefined if no value can be found.
+ *
+ * @export
+ * @param {IType<any, any>} type
+ * @param {Instance} target
+ * @param {(string | number)} identifier
+ * @returns {*}
+ */
+function resolveIdentifier(type, target, identifier) {
+    utils_1.assertType(type, "Type", "first", true);
+    utils_1.assertType(target, "Instance", "second", true);
+    var node = Node_1.getNode(target).root.identifierCache.resolve(type, "" + identifier);
+    return node ? node.value : undefined;
+}
+exports.resolveIdentifier = resolveIdentifier;
+/**
+ * Removes a model element from the state tree, and let it live on as a new state tree
+ * @param {T} target
+ * @return {T}
+ */
+function detach(target) {
+    utils_1.assertType(target, "Instance");
+    Node_1.getNode(target).detach();
+    return target;
+}
+exports.detach = detach;
 //# sourceMappingURL=utils.js.map

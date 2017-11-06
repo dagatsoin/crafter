@@ -16,9 +16,9 @@ var Node = /** @class */ (function () {
         if (buildType === void 0) { buildType = function () {
         }; }
         var _this = this;
-        this.parent = null;
+        this._parent = null;
         this.identifierAttribute = undefined; // not to be modified directly, only through model initialization
-        this.isAlive = true;
+        this._isAlive = true;
         this.isDetaching = false;
         this.autoUnbox = true; // Read the value instead of the Node
         this.patchSubscribers = [];
@@ -28,7 +28,7 @@ var Node = /** @class */ (function () {
             return childNode;
         };
         this.type = type;
-        this.parent = parent;
+        this._parent = parent;
         this.subPath = subPath;
         /* 1 - Init an empty instance of the type. If the type is an primitive type it will get its value.
          * If it it an object return {}, if it is an array it return  [], etc...
@@ -61,7 +61,7 @@ var Node = /** @class */ (function () {
         }
         finally {
             if (sawExceptions)
-                this.isAlive = false;
+                this._isAlive = false;
         }
     }
     Node.prototype.applySnapshot = function (snapshot) {
@@ -81,6 +81,20 @@ var Node = /** @class */ (function () {
     Object.defineProperty(Node.prototype, "isRoot", {
         get: function () {
             return this.parent === null;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Node.prototype, "parent", {
+        get: function () {
+            return this._parent;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Node.prototype, "isAlive", {
+        get: function () {
+            return this._isAlive;
         },
         enumerable: true,
         configurable: true
@@ -152,7 +166,18 @@ var Node = /** @class */ (function () {
         // todo implement removeChild
     };
     Node.prototype.detach = function () {
-        // todo implement detach
+        if (!this.isAlive)
+            utils_1.fail("Error while detaching, node is not alive.");
+        if (this.isRoot)
+            return;
+        else {
+            this.isDetaching = true;
+            this.identifierCache = this.root.identifierCache.splitCache(this);
+            this.parent.removeChild(this.subPath);
+            this._parent = null;
+            this.subPath = "";
+            this.isDetaching = false;
+        }
     };
     Node.prototype.assertAlive = function () {
         if (!this.isAlive)
@@ -181,8 +206,8 @@ var Node = /** @class */ (function () {
             configurable: true,
             value: this.snapshot
         });
-        this.isAlive = false;
-        this.parent = null;
+        this._isAlive = false;
+        this._parent = null;
         this.subPath = "";
         // This is quite a hack, once interceptable objects / arrays / maps are extracted from mobx,
         // we could express this in a much nicer way
@@ -209,7 +234,7 @@ var Node = /** @class */ (function () {
             this.subPath = subPath || "";
             if (newParent && newParent !== this.parent) {
                 newParent.root.identifierCache.mergeCache(this);
-                this.parent = newParent;
+                this._parent = newParent;
             }
         }
     };
@@ -218,7 +243,7 @@ var Node = /** @class */ (function () {
     };
     __decorate([
         mobx_1.observable
-    ], Node.prototype, "parent", void 0);
+    ], Node.prototype, "_parent", void 0);
     __decorate([
         mobx_1.computed
     ], Node.prototype, "snapshot", null);

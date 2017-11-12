@@ -1,12 +1,18 @@
 import {Instance, getNode, isInstance, Node} from "./core/Node";
 import {isType, TypeFlag} from "../api/TypeFlags";
 import {ReferenceType} from "./Reference";
+import {joinJsonPath} from "./core/jsonPatch";
+import {isObservableArray} from "mobx";
 
 declare let process: any;
 
 export const EMPTY_ARRAY: ReadonlyArray<any> = Object.freeze([]);
 export const EMPTY_OBJECT: {} = Object.freeze({});
+export type IDisposer = () => void;
 
+export function isArray(val: any): boolean {
+    return (Array.isArray(val) || isObservableArray(val)) as boolean;
+}
 
 /**
  * Return the
@@ -150,5 +156,55 @@ export function addHiddenFinalProp(object: any, propName: string, value: any) {
         writable: false,
         configurable: true,
         value
-    })
+    });
+}
+
+export function remove<T>(collection: T[], item: T) {
+    const idx = collection.indexOf(item);
+    if (idx !== -1) collection.splice(idx, 1);
+}
+
+export function registerEventHandler(handlers: Function[], handler: Function): IDisposer {
+    handlers.push(handler);
+    return () => {
+        remove(handlers, handler);
+    };
+}
+
+export function asArray<T>(val: undefined | null | T | T[]): T[] {
+    if (!val) return (EMPTY_ARRAY as any) as T[];
+    if (isArray(val)) return val as T[];
+    return [val] as T[];
+}
+
+export function resolvePath(node: Node, pathParts: string[]): Node;
+export function resolvePath(node: Node, pathParts: string[], failIfResolveFails: boolean): Node | undefined;
+export function resolvePath(node: Node, pathParts: string[], failIfResolveFails: boolean = true): Node | undefined {
+    // counter part of getRelativePath
+    // note that `../` is not part of the JSON pointer spec, which is actually a prefix format
+    // in json pointer: "" = current, "/a", attribute a, "/" is attribute "" etc...
+    // so we treat leading ../ apart...
+    for (let i = 0; i < pathParts.length; i++) {
+        if (pathParts[i] === "") node = node!.root;
+        else if (
+            pathParts[i] === ".." // '/bla' or 'a//b' splits to empty strings
+        )
+            node = node.parent!;
+        else if (pathParts[i] === "." || pathParts[i] === "") continue;
+        else if (node) {
+            node = node.getChildNode(pathParts[i]);
+            continue;
+        }
+
+        if (!node) {
+            if (failIfResolveFails)
+                return fail(
+                    `Could not resolve '${pathParts[i]}' in '${joinJsonPath(
+                        pathParts.slice(0, i - 1)
+                    )}', path of the patch does not resolve`
+                );
+            else return undefined;
+        }
+    }
+    return node!;
 }

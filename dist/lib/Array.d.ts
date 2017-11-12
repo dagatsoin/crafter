@@ -1,7 +1,8 @@
 import { ComplexType, IType } from "../api/Type";
-import { IObservableArray } from "mobx";
+import { IArrayChange, IArraySplice, IObservableArray } from "mobx";
 import { Instance, Node } from "./core/Node";
 import { TypeFlag } from "../api/typeFlags";
+import { IJsonPatch } from "./core/jsonPatch";
 export declare function arrayToString(this: IObservableArray<any> & Instance): string;
 export declare class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     itemType: IType<any, T>;
@@ -17,7 +18,9 @@ export declare class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T
     applySnapshot(node: Node, snapshot: any[]): void;
     getChildren(node: Node): Node[];
     getChildNode(node: Node, key: string): Node;
+    applyPatchLocally(node: Node, subpath: string, patch: IJsonPatch): void;
     private willChange(change);
+    didChange(this: {}, change: IArrayChange<any> | IArraySplice<any>): void;
     private reconcileArrayChildren<T>(parent, childType, currentNodes, newValues, newPaths);
     getChildType(key: string): IType<any, any>;
 }

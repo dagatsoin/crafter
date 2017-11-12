@@ -29,6 +29,9 @@ var Type = /** @class */ (function () {
         utils_1.assertType(snapshot, this, "first", check);
         return this.instantiate(null, "", snapshot).value;
     };
+    Type.prototype.applyPatchLocally = function (node, subpath, patch) {
+        utils_1.fail("Immutable types do not support applying patches");
+    };
     Type.prototype.applySnapshot = function (node, snapshot) {
         utils_1.fail("Error from abstract class Type. Immutable value can't be restored.");
     };

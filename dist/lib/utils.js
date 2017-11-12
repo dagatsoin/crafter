@@ -2,8 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var Node_1 = require("./core/Node");
 var TypeFlags_1 = require("../api/TypeFlags");
+var jsonPatch_1 = require("./core/jsonPatch");
+var mobx_1 = require("mobx");
 exports.EMPTY_ARRAY = Object.freeze([]);
 exports.EMPTY_OBJECT = Object.freeze({});
+function isArray(val) {
+    return (Array.isArray(val) || mobx_1.isObservableArray(val));
+}
+exports.isArray = isArray;
 /**
  * Return the
  * @param _
@@ -157,4 +163,53 @@ function addHiddenFinalProp(object, propName, value) {
     });
 }
 exports.addHiddenFinalProp = addHiddenFinalProp;
+function remove(collection, item) {
+    var idx = collection.indexOf(item);
+    if (idx !== -1)
+        collection.splice(idx, 1);
+}
+exports.remove = remove;
+function registerEventHandler(handlers, handler) {
+    handlers.push(handler);
+    return function () {
+        remove(handlers, handler);
+    };
+}
+exports.registerEventHandler = registerEventHandler;
+function asArray(val) {
+    if (!val)
+        return exports.EMPTY_ARRAY;
+    if (isArray(val))
+        return val;
+    return [val];
+}
+exports.asArray = asArray;
+function resolvePath(node, pathParts, failIfResolveFails) {
+    if (failIfResolveFails === void 0) { failIfResolveFails = true; }
+    // counter part of getRelativePath
+    // note that `../` is not part of the JSON pointer spec, which is actually a prefix format
+    // in json pointer: "" = current, "/a", attribute a, "/" is attribute "" etc...
+    // so we treat leading ../ apart...
+    for (var i = 0; i < pathParts.length; i++) {
+        if (pathParts[i] === "")
+            node = node.root;
+        else if (pathParts[i] === ".." // '/bla' or 'a//b' splits to empty strings
+        )
+            node = node.parent;
+        else if (pathParts[i] === "." || pathParts[i] === "")
+            continue;
+        else if (node) {
+            node = node.getChildNode(pathParts[i]);
+            continue;
+        }
+        if (!node) {
+            if (failIfResolveFails)
+                return fail("Could not resolve '" + pathParts[i] + "' in '" + jsonPatch_1.joinJsonPath(pathParts.slice(0, i - 1)) + "', path of the patch does not resolve");
+            else
+                return undefined;
+        }
+    }
+    return node;
+}
+exports.resolvePath = resolvePath;
 //# sourceMappingURL=utils.js.map

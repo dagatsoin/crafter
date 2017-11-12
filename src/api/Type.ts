@@ -2,6 +2,7 @@ import {Operation} from "fast-json-patch";
 import {Node, Instance} from "../lib/core/Node";
 import {assertType, fail} from "../lib/utils";
 import {TypeFlag} from "./typeFlags";
+import {IJsonPatch} from "../lib/core/jsonPatch";
 
 ////////////////////
 ////////////////////
@@ -41,6 +42,8 @@ export interface IType<S, T> {
     getChildNode(node: Node, key: string): Node;
 
     isAssignableFrom(type: IType<any, any>): boolean;
+
+    applyPatchLocally(node: Node, subpath: string, patch: IJsonPatch): void;
 
     describe(): string;
 
@@ -115,6 +118,10 @@ export abstract class Type<S, T> implements IType<S, T> {
     create(snapshot?: S, check?: boolean): T {
         assertType(snapshot, this, "first", check);
         return this.instantiate(null, "", snapshot).value;
+    }
+
+    applyPatchLocally(node: Node, subpath: string, patch: IJsonPatch) {
+        fail("Immutable types do not support applying patches");
     }
 
     applySnapshot(node: Node, snapshot: S): void {

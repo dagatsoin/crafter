@@ -121,7 +121,7 @@ test("it should resolve refs during creation, when using path"); /*, t => {
     t.is(s.entries[1].price, 4)
     t.is(s.entries.reduce((a, e) => a + e.price, 0), 8)
     t.deepEqual(values, [4, 8])
-})*/
+})
 
 test("it should resolve refs over late types"); /*, t => {
     const Book = types.model({

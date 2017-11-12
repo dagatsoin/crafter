@@ -64,6 +64,14 @@ var Node = /** @class */ (function () {
                 this._isAlive = false;
         }
     }
+    Node.prototype.applyPatches = function (patches) {
+        var _this = this;
+        patches.forEach(function (patch) {
+            var parts = jsonPatch_1.splitJsonPath(patch.path);
+            var node = utils_1.resolvePath(_this, parts.slice(0, -1));
+            node.applyPatchLocally(parts[parts.length - 1], patch);
+        });
+    };
     Node.prototype.applySnapshot = function (snapshot) {
         var _this = this;
         mobx_1.transaction(function () {
@@ -144,6 +152,13 @@ var Node = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Node.prototype.applyPatchLocally = function (subpath, patch) {
+        this.assertAlive();
+        this.type.applyPatchLocally(this, subpath, patch);
+    };
+    Node.prototype.onPatch = function (handler) {
+        return utils_1.registerEventHandler(this.patchSubscribers, handler);
+    };
     Node.prototype.emitPatch = function (basePatch, source) {
         if (this.patchSubscribers.length) {
             var localizedPatch = utils_1.extend({}, basePatch, {
@@ -244,6 +259,9 @@ var Node = /** @class */ (function () {
     __decorate([
         mobx_1.observable
     ], Node.prototype, "_parent", void 0);
+    __decorate([
+        mobx_1.action
+    ], Node.prototype, "applyPatches", null);
     __decorate([
         mobx_1.computed
     ], Node.prototype, "snapshot", null);

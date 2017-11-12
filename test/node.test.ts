@@ -3,7 +3,7 @@ import {canAttachNode, createNode, getNode, isInstance} from "../src/lib/core/No
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {optional} from "../src/api/Optional";
-import {getChildType, getType, clone, getParent, hasParent, isAlive} from "../src/api/utils";
+import {getChildType, getType, clone, getParent, hasParent, isAlive, getSnapshot, recordPatches} from "../src/api/utils";
 import {observable} from "mobx";
 
 const Entity = object("Entity", {
@@ -230,4 +230,21 @@ it("should not act nor find any parent or children in a dead Instance", function
     expect(getNode(Flamanoud).isAlive).toBeFalsy();
     expect(() => getNode(Flamanoud).children).toThrowError("[crafter] [object Object] cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value.");
     expect(getNode(Flamanoud).parent).toEqual(null);
+});
+
+it("should record and replay patches", function () {
+    const Row = object({
+        article_id: 0
+    });
+    const Document = object({
+        customer_id: 0,
+        rows: optional(array(Row), [])
+    });
+    const source = Document.create();
+    const target = Document.create();
+    const recorder = recordPatches(source);
+    source.customer_id = 1;
+    source.rows.push(Row.create({ article_id: 1 }));
+    recorder.replay(target);
+    expect(getSnapshot(source)).toEqual(getSnapshot(target));
 });

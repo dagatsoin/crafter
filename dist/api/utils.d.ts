@@ -1,5 +1,7 @@
 import { Instance } from "../lib/core/Node";
+import { IDisposer } from "../lib/utils";
 import { IType } from "./Type";
+import { IJsonPatch } from "../lib/core/jsonPatch";
 /**
  * Returns a deep copy of the given state tree node as new tree.
  * Short hand for `snapshot(x) = getType(x).create(getSnapshot(x))`
@@ -77,3 +79,58 @@ export declare function resolveIdentifier(type: IType<any, any>, target: Instanc
  * @return {T}
  */
 export declare function detach<T extends Instance>(target: T): T;
+/**
+ * Applies a JSON-patch to the given model instance or bails out if the patch couldn't be applied
+ *
+ * Can apply a single past, or an array of patches.
+ *
+ * @export
+ * @param {Object} target
+ * @param {IJsonPatch} patch
+ * @returns
+ */
+export declare function applyPatch(target: Instance, patch: IJsonPatch | IJsonPatch[]): void;
+export interface IPatchRecorder {
+    patches: ReadonlyArray<IJsonPatch>;
+    inversePatches: ReadonlyArray<IJsonPatch>;
+    stop(): any;
+    replay(target?: Instance): any;
+    undo(target?: Instance): void;
+}
+/**
+ * Small abstraction around `onPatch` and `applyPatch`, attaches a patch listener to a tree and records all the patches.
+ * Returns an recorder object with the following signature:
+ *
+ * @example
+ * export interface IPatchRecorder {
+ *      // the recorded patches
+ *      patches: IJsonPatch[]
+ *      // the inverse of the recorded patches
+ *      inversePatches: IJsonPatch[]
+ *      // stop recording patches
+ *      stop(target?: Instance): any
+ *      // resume recording patches
+ *      resume()
+ *      // apply all the recorded patches on the given target (the original subject if omitted)
+ *      replay(target?: Instance): any
+ *      // reverse apply the recorded patches on the given target  (the original subject if omitted)
+ *      // stops the recorder if not already stopped
+ *      undo(): void
+ * }
+ *
+ * @export
+ * @param {Instance} subject
+ * @returns {IPatchRecorder}
+ */
+export declare function recordPatches(subject: Instance): IPatchRecorder;
+/**
+ * Registers a function that will be invoked for each mutation that is applied to the provided model instance, or to any of its children.
+ * See [patches](https://github.com/mobxjs/mobx-state-tree#patches) for more details. onPatch events are emitted immediately and will not await the end of a transaction.
+ * Patches can be used to deep observe a model tree.
+ *
+ * @export
+ * @param {Object} target the model instance from which to receive patches
+ * @param {(patch: IJsonPatch, reversePatch) => void} callback the callback that is invoked for each patch. The reversePatch is a patch that would actually undo the emitted patch
+ * @returns {IDisposer} function to remove the listener
+ */
+export declare function onPatch(target: Instance, callback: (patch: IJsonPatch, reversePatch: IJsonPatch) => void): IDisposer;

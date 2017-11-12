@@ -1,8 +1,12 @@
 import {ComplexType, IType} from "../api/Type";
 import {addHiddenFinalProp, fail} from "./utils";
-import {extras, IArrayWillChange, IArrayWillSplice, intercept, IObservableArray, isObservableArray, observable} from "mobx";
+import {
+    extras, IArrayChange, IArraySplice, IArrayWillChange, IArrayWillSplice, intercept, IObservableArray, isObservableArray, observable,
+    observe
+} from "mobx";
 import {areSame, getNode, isInstance, Instance, valueAsNode, createNode, Node} from "./core/Node";
 import {TypeFlag} from "../api/typeFlags";
+import {IJsonPatch} from "./core/jsonPatch";
 
 export function arrayToString(this: IObservableArray<any> & Instance) {
     return `${getNode(this)}(${this.length} items)`;
@@ -41,8 +45,8 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
     }
 
     private createEmptyInstance = (snapshot: S[]) => {
-        const array = observable.shallowArray()
-        addHiddenFinalProp(array, "toString", arrayToString)
+        const array = observable.shallowArray();
+        addHiddenFinalProp(array, "toString", arrayToString);
         return array;
     }
 
@@ -50,6 +54,7 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
         extras.getAdministration(node.data).dehancer = node.unbox;
         intercept(node.data as IObservableArray<any>, change => this.willChange(change) as any);
         node.applySnapshot(snapshot);
+        observe(node.data, this.didChange);
     }
 
     isValidSnapshot(value: any): boolean {
@@ -70,6 +75,22 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
         const index = parseInt(key, 10);
         if (index < node.data.length) return node.data[index];
         return fail("Not a child: " + key);
+    }
+
+    applyPatchLocally(node: Node, subpath: string, patch: IJsonPatch): void {
+        const target = node.data as IObservableArray<any>;
+        const index = subpath === "-" ? target.length : parseInt(subpath);
+        switch (patch.op) {
+            case "replace":
+                target[index] = patch.value;
+                break;
+            case "add":
+                target.splice(index, 0, patch.value);
+                break;
+            case "remove":
+                target.splice(index, 1);
+                break;
+        }
     }
 
     private willChange(change: IArrayWillChange<any> | IArrayWillSplice<any>): Object | null {
@@ -104,6 +125,43 @@ export class ArrayType<S, T> extends ComplexType<S[], IObservableArray<T>> {
                 break;
         }
         return change;
+    }
+
+    didChange(this: {}, change: IArrayChange<any> | IArraySplice<any>): void {
+        const node = getNode(change.object as Instance);
+        switch (change.type) {
+            case "update":
+                return void node.emitPatch(
+                    {
+                        op: "replace",
+                        path: "" + change.index,
+                        value: change.newValue.snapshot,
+                        oldValue: change.oldValue ? change.oldValue.snapshot : undefined
+                    },
+                    node
+                );
+            case "splice":
+                for (let i = change.removedCount - 1; i >= 0; i--)
+                    node.emitPatch(
+                        {
+                            op: "remove",
+                            path: "" + (change.index + i),
+                            oldValue: change.removed[i].snapshot
+                        },
+                        node
+                    );
+                for (let i = 0; i < change.addedCount; i++)
+                    node.emitPatch(
+                        {
+                            op: "add",
+                            path: "" + (change.index + i),
+                            value: node.getChildNode("" + (change.index + i)).snapshot,
+                            oldValue: undefined
+                        },
+                        node
+                    );
+                return;
+        }
     }
 
     private reconcileArrayChildren<T>(

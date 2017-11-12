@@ -33,6 +33,7 @@ var ArrayType = /** @class */ (function (_super) {
             mobx_1.extras.getAdministration(node.data).dehancer = node.unbox;
             mobx_1.intercept(node.data, function (change) { return _this.willChange(change); });
             node.applySnapshot(snapshot);
+            mobx_1.observe(node.data, _this.didChange);
         };
         _this.itemType = itemType;
         return _this;
@@ -67,6 +68,21 @@ var ArrayType = /** @class */ (function (_super) {
             return node.data[index];
         return utils_1.fail("Not a child: " + key);
     };
+    ArrayType.prototype.applyPatchLocally = function (node, subpath, patch) {
+        var target = node.data;
+        var index = subpath === "-" ? target.length : parseInt(subpath);
+        switch (patch.op) {
+            case "replace":
+                target[index] = patch.value;
+                break;
+            case "add":
+                target.splice(index, 0, patch.value);
+                break;
+            case "remove":
+                target.splice(index, 1);
+                break;
+        }
+    };
     ArrayType.prototype.willChange = function (change) {
         var node = Node_1.getNode(change.object);
         var children = node.children;
@@ -86,6 +102,33 @@ var ArrayType = /** @class */ (function (_super) {
                 break;
         }
         return change;
+    };
+    ArrayType.prototype.didChange = function (change) {
+        var node = Node_1.getNode(change.object);
+        switch (change.type) {
+            case "update":
+                return void node.emitPatch({
+                    op: "replace",
+                    path: "" + change.index,
+                    value: change.newValue.snapshot,
+                    oldValue: change.oldValue ? change.oldValue.snapshot : undefined
+                }, node);
+            case "splice":
+                for (var i = change.removedCount - 1; i >= 0; i--)
+                    node.emitPatch({
+                        op: "remove",
+                        path: "" + (change.index + i),
+                        oldValue: change.removed[i].snapshot
+                    }, node);
+                for (var i = 0; i < change.addedCount; i++)
+                    node.emitPatch({
+                        op: "add",
+                        path: "" + (change.index + i),
+                        value: node.getChildNode("" + (change.index + i)).snapshot,
+                        oldValue: undefined
+                    }, node);
+                return;
+        }
     };
     ArrayType.prototype.reconcileArrayChildren = function (parent, childType, currentNodes, newValues, newPaths) {
         var currentNode, newValue, hasNewNode = false, currentMatch = undefined;

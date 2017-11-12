@@ -1,8 +1,11 @@
-import {computed, observable, transaction} from "mobx";
+import {action, computed, observable, transaction} from "mobx";
 import {IType} from "../../api/Type";
-import {addHiddenFinalProp, escapeJsonPath, extend, fail, identity, isMutable, isPlainObject, isPrimitive, walk} from "../utils";
+import {
+    addHiddenFinalProp, escapeJsonPath, extend, fail, identity, IDisposer, isMutable, isPlainObject, isPrimitive, registerEventHandler, resolvePath,
+    walk
+} from "../utils";
 import {IdentifierCache} from "./IdentifierCache";
-import {IReversibleJsonPatch, splitPatch, IJsonPatch} from "./jsonPatch";
+import {IReversibleJsonPatch, splitPatch, IJsonPatch, splitJsonPath} from "./jsonPatch";
 
 export type Instance = {
     readonly $node?: Node
@@ -67,6 +70,15 @@ export class Node {
         }
     }
 
+    @action
+    applyPatches(patches: IJsonPatch[]) {
+        patches.forEach(patch => {
+            const parts = splitJsonPath(patch.path);
+            const node = resolvePath(this, parts.slice(0, -1));
+            node.applyPatchLocally(parts[parts.length - 1], patch);
+        });
+    }
+
     applySnapshot(snapshot: any) {
         transaction(() => {
             if (snapshot !== this.snapshot) this.type.applySnapshot(this, snapshot);
@@ -123,6 +135,15 @@ export class Node {
 
     get identifier(): string | null {
         return this.identifierAttribute ? this.data[this.identifierAttribute] : null;
+    }
+
+    applyPatchLocally(subpath: string, patch: IJsonPatch): void {
+        this.assertAlive();
+        this.type.applyPatchLocally(this, subpath, patch);
+    }
+
+    public onPatch(handler: (patch: IJsonPatch, reversePatch: IJsonPatch) => void): IDisposer {
+        return registerEventHandler(this.patchSubscribers, handler);
     }
 
     emitPatch(basePatch: IReversibleJsonPatch, source: Node) {

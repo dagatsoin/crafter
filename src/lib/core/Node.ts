@@ -6,12 +6,15 @@ import {
 } from "../utils";
 import {IdentifierCache} from "./IdentifierCache";
 import {IReversibleJsonPatch, splitPatch, IJsonPatch, splitJsonPath} from "./jsonPatch";
+import { SAMModel, Proposals } from "../../api/SAMModel";
 
 export type Instance = {
     readonly $node?: Node
 };
 
-export class Node {
+export type Mutation = (payload: any) => void;
+
+export class Node implements SAMModel {
     readonly type: IType<any, any>;
     readonly data: any;
     @observable protected _parent: Node | null = null;
@@ -82,6 +85,19 @@ export class Node {
     applySnapshot(snapshot: any) {
         transaction(() => {
             if (snapshot !== this.snapshot) this.type.applySnapshot(this, snapshot);
+        });
+    }
+
+    propose(proposals: Proposals): void {
+        if (this.type.mutations === undefined) {
+            fail(`Model.propose: only IObjectType<S, T> can have mutations. Tried to access mutations on ${this.type}`);
+        }
+        proposals.forEach(proposal => {
+            if (!this.type.mutations.has(proposal.mutationType)) console.warn("Model.propose: unknown mutator", proposal.mutationType);
+            else {
+                const mutation = this.type.mutations.get(proposal.mutationType)!;
+                mutation(proposal.data);
+            }
         });
     }
 

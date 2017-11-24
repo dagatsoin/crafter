@@ -1,5 +1,5 @@
 import {ComplexType, IObjectType, IType,} from "../api/Type";
-import {createNode, getNode, isInstance, Node} from "./core/Node";
+import {createNode, getNode, isInstance, Node, Mutation} from "./core/Node";
 import {extendShallowObservable, extras, intercept, IObjectChange, IObjectWillChange, IObservableObject, observable, observe, transaction} from "mobx";
 import {isPlainObject, isPrimitive, fail, assertType, escapeJsonPath, EMPTY_OBJECT} from "./utils";
 import {getPrimitiveFactoryFromValue} from "../api/Primitives";
@@ -21,6 +21,7 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
         super(opts.name || "AnonymousObject");
         this.properties = sanitizeProperties(opts.properties || {});
         this.propertiesNames = Object.keys(this.properties);
+        this.mutations = new Map();
     }
 
     describe(): string {
@@ -150,6 +151,9 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
     getChildType(key: string): IType<any, any> {
         return this.properties[key];
     }
+
+    registerMutation(type: string, mutation: Mutation) { };
+    unregisterMutation(type: string) { };
 }
 
 /**

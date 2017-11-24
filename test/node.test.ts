@@ -248,3 +248,8 @@ it("should record and replay patches", function () {
     recorder.replay(target);
     expect(getSnapshot(source)).toEqual(getSnapshot(target));
 });
+
+it("should throw when attemps to access mutation of a non IObject<T, S> type", function(){
+   const Fraktar = Player.create(snapshots.Fraktar);
+   expect(()=>getNode(Fraktar.inventory.slots).propose([{mutationType: "foo", data: "bar"}])).toThrowError();
+});

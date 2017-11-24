@@ -1,5 +1,5 @@
 import {Operation} from "fast-json-patch";
-import {Node, Instance} from "../lib/core/Node";
+import {Node, Instance, Mutation} from "../lib/core/Node";
 import {assertType, fail} from "../lib/utils";
 import {TypeFlag} from "./typeFlags";
 import {IJsonPatch} from "../lib/core/jsonPatch";
@@ -21,6 +21,7 @@ export interface IType<S, T> {
     name: string;
     readonly flag: TypeFlag;
     readonly isType: boolean; // Just to certify it is a types
+    readonly mutations: Map<string, Mutation>;
 
     create(snapshot?: S, check?: boolean): T;
 
@@ -81,6 +82,8 @@ export interface IComplexType<S, T> extends IType<S, T & Instance> {
 }
 
 export interface IObjectType<S, T> extends IComplexType<S, T & Instance> {
+    registerMutation(type: string, mutation: Mutation): void;
+    unregisterMutation(type: string): void;
 }
 
 export type IObjectProperties<T> = { [K in keyof T]: IType<any, T[K]> | T[K] };
@@ -91,8 +94,10 @@ export type Snapshot<T> = {
 
 export abstract class Type<S, T> implements IType<S, T> {
     name: string;
+    mutations: Map<string, Mutation>;
     readonly flag: TypeFlag;
     readonly isType = true;
+
     constructor(name: string) {
         this.name = name;
     }

@@ -1,18 +1,19 @@
-import {action, computed, observable, transaction} from "mobx";
-import {IType} from "../../api/Type";
+import { action, computed, observable, transaction } from "mobx";
+import { IType } from "../../api/Type";
 import {
     addHiddenFinalProp, escapeJsonPath, extend, fail, identity, IDisposer, isMutable, isPlainObject, isPrimitive, registerEventHandler, resolvePath,
     walk
 } from "../utils";
-import {IdentifierCache} from "./IdentifierCache";
-import {IReversibleJsonPatch, splitPatch, IJsonPatch, splitJsonPath} from "./jsonPatch";
+import { IdentifierCache } from "./IdentifierCache";
+import { IReversibleJsonPatch, splitPatch, IJsonPatch, splitJsonPath } from "./jsonPatch";
 import { SAMModel, Proposals } from "../../api/SAMModel";
+import { ObjectType } from "../Object";
 
 export type Instance = {
     readonly $node?: Node
 };
 
-export type Mutation = (payload: any) => void;
+export type Mutation<T> = (self: T, payload: any) => void;
 
 export class Node implements SAMModel {
     readonly type: IType<any, any>;
@@ -25,18 +26,19 @@ export class Node implements SAMModel {
 
     private isDetaching = false;
     private autoUnbox = true; // Read the value instead of the Node
+    private readonly mutations: Array<string> = [];
     private readonly patchSubscribers: ((
         patch: IJsonPatch,
         reversePatch: IJsonPatch
     ) => void)[] = [];
 
     constructor(type: IType<any, any>,
-                parent: Node | null,
-                subPath: string,
-                initialValue: any,
-                initBaseType: (baseTypeIdentity: any) => any = identity,
-                buildType: (node: Node, snapshot: any) => void = () => {
-                }) {
+        parent: Node | null,
+        subPath: string,
+        initialValue: any,
+        initBaseType: (baseTypeIdentity: any) => any = identity,
+        buildType: (node: Node, snapshot: any) => void = () => { },
+    ) {
         this.type = type;
         this._parent = parent;
         this.subPath = subPath;
@@ -88,15 +90,16 @@ export class Node implements SAMModel {
         });
     }
 
-    propose(proposals: Proposals): void {
-        if (this.type.mutations === undefined) {
-            fail(`Model.propose: only IObjectType<S, T> can have mutations. Tried to access mutations on ${this.type}`);
-        }
+    present(proposals: Proposals): void {
         proposals.forEach(proposal => {
-            if (!this.type.mutations.has(proposal.mutationType)) console.warn("Model.propose: unknown mutator", proposal.mutationType);
+            if (this.mutations.indexOf(proposal.mutationType) === -1 && this.type.mutations.indexOf(proposal.mutationType) === -1)
+                console.error(`Present: this mutation ${proposal.mutationType} is not allowed on this node`);
             else {
-                const mutation = this.type.mutations.get(proposal.mutationType)!;
-                mutation(proposal.data);
+                const mutation = this.type.getMutation(proposal.mutationType);
+                if (!mutation) console.error(
+                    `Unknown mutation ${proposal.mutationType}. Make sure the mutation is registered and has been added to the ${this.type.name} type.`
+                );
+                else mutation(this.value, proposal.data);
             }
         });
     }
@@ -110,7 +113,7 @@ export class Node implements SAMModel {
         return this.parent === null;
     }
 
-    get parent(){
+    get parent() {
         return this._parent;
     }
 
@@ -204,7 +207,7 @@ export class Node implements SAMModel {
         if (!this.isAlive) fail(`${this} cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value.`);
     }
 
-    beforeDestroy() {}
+    beforeDestroy() { }
 
     remove() {
         if (this.isDetaching) return;
@@ -267,6 +270,26 @@ export class Node implements SAMModel {
     getChildType(key: string): IType<any, any> {
         return this.type.getChildType(key);
     }
+
+    /**
+     * Add a mutation function for this Type. Override previous existing key.
+     * The mutation function is bound to this.data.
+     * @param type
+     * @param mutationType
+     */
+    addMutation(mutationType: string) {
+        if (this.mutations.indexOf(mutationType) > -1) console.info(`Node.registerMutation: Mutation ${mutationType} is already active on`, this);
+        else this.mutations.push(mutationType);
+    };
+
+    /**
+     * Remove a mutation function for this Type.
+     */
+    removeMutation(mutationType: string) {
+        const index = this.mutations.indexOf(mutationType);
+        if (index === -1) console.info(`Node.registerMutation: attempt to delete ${mutationType} which is not active on`, this);
+        else this.mutations.splice(index, 1);
+    };
 }
 
 /**
@@ -292,13 +315,14 @@ export function isInstance(value: any): value is Instance {
     return !!(value && value.$node);
 }
 
-export function createNode<S, T>(type: IType<S, T>,
-                                 parent: Node | null,
-                                 subPath: string,
-                                 initialValue: any,
-                                 createEmptyInstance: (initialValue: any) => T = identity,
-                                 hydrateInstance: (node: Node, snapshot: any) => void = () => {
-                                 }) {
+export function createNode<S, T>(
+    type: IType<S, T>,
+    parent: Node | null,
+    subPath: string,
+    initialValue: any,
+    createEmptyInstance: (initialValue: any) => T = identity,
+    hydrateInstance: (node: Node, snapshot: any) => void = () => { },
+) {
     if (isInstance(initialValue)) {
         const targetNode = getNode(initialValue);
         if (!targetNode.isRoot)
@@ -333,10 +357,11 @@ export function canAttachNode(value: any) {
  * @return {any}
  */
 export function valueAsNode(childType: IType<any, any>,
-                            parent: Node,
-                            subpath: string,
-                            newValue: any,
-                            oldNode?: Node) {
+    parent: Node,
+    subpath: string,
+    newValue: any,
+    oldNode?: Node
+) {
     // the new value has a MST node
     if (isInstance(newValue)) {
         const child = getNode(newValue);

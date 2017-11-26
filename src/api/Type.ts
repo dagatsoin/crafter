@@ -21,7 +21,13 @@ export interface IType<S, T> {
     name: string;
     readonly flag: TypeFlag;
     readonly isType: boolean; // Just to certify it is a types
-    readonly mutations: Map<string, Mutation>;
+    Type: T; // For 
+
+    /**
+     * The type mutations are "static". This means that any addition/deletion will be reflected
+     * on all Instance of this Type.
+     */
+    readonly mutations: Array<string>;
 
     create(snapshot?: S, check?: boolean): T;
 
@@ -47,6 +53,8 @@ export interface IType<S, T> {
     applyPatchLocally(node: Node, subpath: string, patch: IJsonPatch): void;
 
     describe(): string;
+
+    getMutation(type: string): Mutation<any> | null;
 
     /**
      * When a complex array is receiving a snapshot it needs to change the value of all its children. The most basic method to do this is to recreate a new Node
@@ -82,8 +90,8 @@ export interface IComplexType<S, T> extends IType<S, T & Instance> {
 }
 
 export interface IObjectType<S, T> extends IComplexType<S, T & Instance> {
-    registerMutation(type: string, mutation: Mutation): void;
-    unregisterMutation(type: string): void;
+    addMutations(mutationTypes: Array<string>): void;
+    removeMutations(mutationTypes: Array<string>): void;
 }
 
 export type IObjectProperties<T> = { [K in keyof T]: IType<any, T[K]> | T[K] };
@@ -94,9 +102,10 @@ export type Snapshot<T> = {
 
 export abstract class Type<S, T> implements IType<S, T> {
     name: string;
-    mutations: Map<string, Mutation>;
     readonly flag: TypeFlag;
     readonly isType = true;
+    readonly mutations: Array<string>;
+    protected static readonly allowedMutations: Array<{ mutationType: string, mutation: Mutation<any> }> = [];
 
     constructor(name: string) {
         this.name = name;
@@ -107,6 +116,42 @@ export abstract class Type<S, T> implements IType<S, T> {
     abstract instantiate(parent: Node | null, subPath: string, initialValue?: any): Node;
     abstract getChildren(node: Node): Array<Node>;
     abstract describe(): string;
+    
+    get Type(): T {
+        return fail(
+            "Factory.Type should not be actually called. It is just a Type signature that can be used at compile time with Typescript, by using `typeof type.Type`"
+        )
+    }
+
+    /**
+     * Register an allowed mutation for an ObjectType instance
+     * @param mutationType
+     */
+    static registerMutation(mutationType: string, mutation: Mutation<any>) {
+        const index = Type.allowedMutations.findIndex(m => m.mutationType === mutationType);
+        if (index === -1) Type.allowedMutations.push({ mutationType, mutation });
+        else Type.allowedMutations[index].mutation = mutation;
+    }
+
+    addMutations(mutationTypes: Array<string>) {
+        mutationTypes.forEach(type => {
+            // Check if it is an allowed mutation.
+            if (!Type.allowedMutations.find(m => m.mutationType === type)) console.warn(`The mutation ${type} is not allowed.`)
+            else this.mutations.push(type);
+        });
+    };
+
+    removeMutations(mutationTypes: Array<string>) {
+        mutationTypes.forEach(type => {
+            const index = this.mutations.indexOf(type);
+            if (index > -1) this.mutations.splice(index, 1);
+        });
+    };
+
+    getMutation(type: string): Mutation<any> | null {
+        const allowedMutation = Type.allowedMutations.find(m => m.mutationType === type);
+        return allowedMutation ? allowedMutation.mutation : null;
+    }
 
     getChildNode(node: Node, key: string): Node {
         return fail(`No child '${key}' available in type: ${this.name}`)

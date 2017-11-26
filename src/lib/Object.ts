@@ -1,16 +1,19 @@
-import {ComplexType, IObjectType, IType,} from "../api/Type";
-import {createNode, getNode, isInstance, Node, Mutation} from "./core/Node";
-import {extendShallowObservable, extras, intercept, IObjectChange, IObjectWillChange, IObservableObject, observable, observe, transaction} from "mobx";
-import {isPlainObject, isPrimitive, fail, assertType, escapeJsonPath, EMPTY_OBJECT} from "./utils";
-import {getPrimitiveFactoryFromValue} from "../api/Primitives";
-import {optional} from "../api/Optional";
-import {isType, TypeFlag} from "../api/TypeFlags";
-import {IJsonPatch} from "./core/jsonPatch";
+import { ComplexType, IObjectType, IType, Type, } from "../api/Type";
+import { createNode, getNode, isInstance, Node, Mutation } from "./core/Node";
+import { extendShallowObservable, extras, intercept, IObjectChange, IObjectWillChange, IObservableObject, observable, observe, transaction } from "mobx";
+import { isPlainObject, isPrimitive, fail, assertType, escapeJsonPath, EMPTY_OBJECT } from "./utils";
+import { getPrimitiveFactoryFromValue } from "../api/Primitives";
+import { optional } from "../api/Optional";
+import { isType, TypeFlag } from "../api/TypeFlags";
+import { IJsonPatch } from "./core/jsonPatch";
+import { Instance } from "../../dist/lib/core/Node";
 
-export type IObjectProperties<T> = { [K in keyof T]: IType<any, T[K]> | T[K] };
+export type IObjectProperties<T> = {[K in keyof T]: IType<any, T[K]> | T[K]};
 
 export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S, T> {
     readonly flag = TypeFlag.Object;
+    readonly mutations: Array<string> = [];
+
     private readonly propertiesNames: string[];
     private properties: { [K: string]: ComplexType<any, any> } = {};
 
@@ -21,7 +24,7 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
         super(opts.name || "AnonymousObject");
         this.properties = sanitizeProperties(opts.properties || {});
         this.propertiesNames = Object.keys(this.properties);
-        this.mutations = new Map();
+
     }
 
     describe(): string {
@@ -49,7 +52,7 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
             subPath,
             initialValue,
             this.createEmptyInstance,
-            this.buildInstance
+            this.buildInstance,
         );
     }
 
@@ -151,9 +154,6 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
     getChildType(key: string): IType<any, any> {
         return this.properties[key];
     }
-
-    registerMutation(type: string, mutation: Mutation) { };
-    unregisterMutation(type: string) { };
 }
 
 /**
@@ -163,16 +163,16 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
  * @param {IObjectProperties<T>} properties
  * @return {object}
  */
-function sanitizeProperties<T>(properties: IObjectProperties<T>): { [K in keyof T]: IType<any, T> } {
+function sanitizeProperties<T>(properties: IObjectProperties<T>): {[K in keyof T]: IType<any, T> } {
     // loop through properties and ensures that all items are types
     return Object.keys(properties).reduce((properties, key) => {
         // the user intended to use a view
-        const descriptor = Object.getOwnPropertyDescriptor(properties, key);
+        const descriptor = Object.getOwnPropertyDescriptor(properties, key)!;
         if ("get" in descriptor) {
             fail("Getters are not supported as properties. Please use views instead");
         }
         // undefined and null are not valid
-        const {value} = descriptor;
+        const { value } = descriptor;
         if (value === null || undefined) {
             fail(
                 "The default value of an attribute cannot be null or undefined as the type cannot be inferred. Did you mean `types.maybe(someType)`?"

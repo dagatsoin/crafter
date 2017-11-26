@@ -1,6 +1,6 @@
-import {Node, getNode, Instance, isInstance} from "../lib/core/Node";
+import {Node, getNode, Instance, isInstance, Mutation} from "../lib/core/Node";
 import {fail, assertType, IDisposer, asArray} from "../lib/utils";
-import {IType} from "./Type";
+import {IType, Type} from "./Type";
 import {isType} from "./TypeFlags";
 import {IJsonPatch} from "../lib/core/jsonPatch";
 
@@ -279,4 +279,33 @@ export function onPatch(target: Instance,
     assertType(target, "Instance");
     assertType(callback, "function");
     return getNode(target).onPatch(callback);
+}
+
+/**
+ * Register a mutation globally to be used on any Type.
+ * @param mutationType 
+ * @param mutation 
+ */
+export function registerMutation<T>(mutationType: string, mutation: Mutation<T>) {
+    Type.registerMutation(mutationType, mutation);
+}
+
+/**
+ * Add a mutation on an instance.
+ * @param instance
+ * @param mutationType 
+ */
+export function addInstanceMutation(instance: Instance, mutationType: string) {
+    assertType(instance, "Instance");
+    getNode(instance).addMutation(mutationType);
+}
+
+/**
+ * Remove a mutation from an instance.
+ * @param instance 
+ * @param mutationType 
+ */
+export function removeInstanceMutation(instance: Instance, mutationType: string) {
+    assertType(instance, "Instance");
+    getNode(instance).removeMutation(mutationType);
 }

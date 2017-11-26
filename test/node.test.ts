@@ -1,10 +1,11 @@
-import {object} from "../src/api/Object";
-import {canAttachNode, createNode, getNode, isInstance} from "../src/lib/core/Node";
-import {number, string} from "../src/api/Primitives";
-import {array} from "../src/api/Array";
-import {optional} from "../src/api/Optional";
-import {getChildType, getType, clone, getParent, hasParent, isAlive, getSnapshot, recordPatches} from "../src/api/utils";
-import {observable} from "mobx";
+import { object } from "../src/api/Object";
+import { canAttachNode, createNode, getNode, isInstance } from "../src/lib/core/Node";
+import { number, string } from "../src/api/Primitives";
+import { array } from "../src/api/Array";
+import { optional } from "../src/api/Optional";
+import { getChildType, getType, clone, getParent, hasParent, isAlive, getSnapshot, recordPatches, registerMutation, addInstanceMutation } from "../src/api/utils";
+import { observable } from "mobx";
+import { identifier } from "../src/api/Identifier";
 
 const Entity = object("Entity", {
     name: string,
@@ -51,12 +52,12 @@ const snapshots = {
 };
 
 it("should check if a node can be attached to the value", function () {
-    const Type = object("model", {foo: ""});
+    const Type = object("model", { foo: "" });
     expect(canAttachNode(null)).toBeFalsy();
     expect(canAttachNode("foo")).toBeFalsy();
     expect(canAttachNode(new Date())).toBeFalsy();
-    expect(canAttachNode(Type.create({foo: "bar"}))).toBeFalsy();
-    expect(canAttachNode({foo: "bar"})).toBeTruthy();
+    expect(canAttachNode(Type.create({ foo: "bar" }))).toBeFalsy();
+    expect(canAttachNode({ foo: "bar" })).toBeTruthy();
 });
 
 it("should check if it is a node", function () {
@@ -67,8 +68,8 @@ it("should check if it is a node", function () {
 });
 
 it("should create a Node from an existing Node", function () {
-    const Type = object("model", {foo: "foo"});
-    const node = Type.create({foo: "foo"});
+    const Type = object("model", { foo: "foo" });
+    const node = Type.create({ foo: "foo" });
     expect(() => createNode(Type, null, "", node)).not.toThrowError();
     expect(createNode(Type, null, "", node).data.foo).toEqual("foo");
 });
@@ -110,12 +111,12 @@ it("should be possible to clone a dead object", function () {
     const Task = object("Task", {
         title: string
     });
-    const a = Task.create({title: "a"});
+    const a = Task.create({ title: "a" });
     const store = object("Store", {
         todos: optional(array(Task), [])
-    }).create({todos: [a]});
+    }).create({ todos: [a] });
 
-    expect(store.todos.slice()).toEqual([{"title": "a"}]);
+    expect(store.todos.slice()).toEqual([{ "title": "a" }]);
 
     expect(isAlive(a)).toBeTruthy();
     store.todos.splice(0, 1);
@@ -153,7 +154,7 @@ it("should recognize a root", function () {
                 thirdLvl: object("thirdLvl")
             })
         })
-    }).create({firstLvl: {scdLvl: {thirdLvl: {}}}});
+    }).create({ firstLvl: { scdLvl: { thirdLvl: {} } } });
 
     expect(getNode(root.firstLvl.scdLvl.thirdLvl).isRoot).toBeFalsy();
     expect(getNode(root).isRoot).toBeTruthy();
@@ -181,7 +182,7 @@ it("should get the path", function () {
                 thirdLvl: object("thirdLvl")
             })
         })
-    }).create({firstLvl: {scdLvl: {thirdLvl: {}}}});
+    }).create({ firstLvl: { scdLvl: { thirdLvl: {} } } });
 
     expect(getNode(root.firstLvl.scdLvl.thirdLvl).path).toEqual("/firstLvl/scdLvl/thirdLvl");
 });
@@ -193,7 +194,7 @@ it("should get empty path because it is the root", function () {
                 thirdLvl: object("thirdLvl")
             })
         })
-    }).create({firstLvl: {scdLvl: {thirdLvl: {}}}});
+    }).create({ firstLvl: { scdLvl: { thirdLvl: {} } } });
 
     expect(getNode(root).path).toEqual("");
 });
@@ -204,7 +205,7 @@ it("should get children", function () {
     expect(getNode(player).children).toEqual([getNode(player.entity), getNode(player.inventory)]);
 
     // Primitives are stored in the leafs map
-    const slotNode = Slot.instantiate(null, "", {prefabId: "foo", quantity: 12});
+    const slotNode = Slot.instantiate(null, "", { prefabId: "foo", quantity: 12 });
     const questLog = array(string).create();
     questLog.push("000", "001");
     expect(slotNode.children.length).toEqual(2);
@@ -224,7 +225,7 @@ it("should get children", function () {
 
 it("should not act nor find any parent or children in a dead Instance", function () {
     const Fraktar = Player.create(snapshots.Fraktar);
-    const Flamanoud = Slot.create({prefabId: "0A1", quantity: 1});
+    const Flamanoud = Slot.create({ prefabId: "0A1", quantity: 1 });
     Fraktar.inventory.slots.push(Flamanoud);
     Fraktar.inventory.slots.pop();
     expect(getNode(Flamanoud).isAlive).toBeFalsy();
@@ -249,7 +250,200 @@ it("should record and replay patches", function () {
     expect(getSnapshot(source)).toEqual(getSnapshot(target));
 });
 
-it("should throw when attemps to access mutation of a non IObject<T, S> type", function(){
-   const Fraktar = Player.create(snapshots.Fraktar);
-   expect(()=>getNode(Fraktar.inventory.slots).propose([{mutationType: "foo", data: "bar"}])).toThrowError();
+test("Should register static mutations.", function () {
+    const Todo = object({
+        id: identifier(number),
+        title: string,
+        done: false
+    })
+
+    registerMutation<typeof Todo.Type>("SET_TITLE", function (self, title: string) {
+        if (title) self.title = title;
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE_UPPERCASE", function (self) {
+        self.title = self.title.toUpperCase();
+    });
+
+    Todo.addMutations(["SET_TITLE", "SET_TITLE_UPPERCASE"]);
+
+    const todo = Todo.create({
+        id: 0,
+        title: "stop coding bugs",
+        done: false
+    });
+
+    todo.$node.present([{ mutationType: "SET_TITLE_UPPERCASE", data: true }]);
+
+    expect(todo.title === "STOP CODING BUGS").toBeTruthy();
+});
+
+test("Existing Instances should have their mutations updated when their type receives new mutations.", function () {
+    const Todo = object({
+        id: identifier(number),
+        title: string,
+        done: false
+    })
+
+    const todo = Todo.create({
+        id: 0,
+        title: "",
+        done: false
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE", function (self, title: string) {
+        if (title) self.title = title;
+    });
+
+    Todo.addMutations(["SET_TITLE"]);
+
+    todo.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
+
+    expect(todo.title === "stop coding bugs").toBeTruthy();
+
+    registerMutation<typeof Todo.Type>("SET_TITLE", function (self, title: string) {
+        self.title = title.toUpperCase();
+    });
+
+    todo.$node.present([{ mutationType: "SET_TITLE", data: "new title" }]);
+
+    expect(todo.title === "NEW TITLE").toBeTruthy();
+});
+
+it("should add a mutation only on a specific instance of the same Type.", function () {
+    const Todo = object({
+        id: identifier(number),
+        title: string,
+        done: false
+    })
+
+    const todo0 = Todo.create({
+        id: 0,
+        title: "",
+        done: false
+    });
+
+    const todo1 = Todo.create({
+        id: 1,
+        title: "",
+        done: false
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE", function (self, title: string) {
+        if (title) self.title = title;
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE_UPPERCASE", function (self) {
+        self.title = self.title.toUpperCase();
+    });
+
+    Todo.addMutations(["SET_TITLE"]);
+    addInstanceMutation(todo1, "SET_TITLE_UPPERCASE");
+
+    todo0.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
+    todo1.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
+
+    todo0.$node.present([{ mutationType: "SET_TITLE_UPPERCASE", data: "stop coding bugs" }]);
+    todo1.$node.present([{ mutationType: "SET_TITLE_UPPERCASE", data: "stop coding bugs" }]);
+
+    expect(todo0.title === "stop coding bugs").toBeTruthy();
+    expect(todo1.title === "STOP CODING BUGS").toBeTruthy();
+});
+
+it("should remove a global mutation", function () {
+    const Todo = object({
+        id: identifier(number),
+        title: string,
+        done: false
+    })
+
+    const todo0 = Todo.create({
+        id: 0,
+        title: "",
+        done: false
+    });
+
+    const todo1 = Todo.create({
+        id: 1,
+        title: "",
+        done: false
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE", function (self, title: string) {
+        if (title) self.title = title;
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE_UPPERCASE", function (self) {
+        self.title = self.title.toUpperCase();
+    });
+
+    Todo.addMutations(["SET_TITLE", "SET_TITLE_UPPERCASE"]);
+
+    todo0.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
+    todo0.$node.present([{ mutationType: "SET_TITLE_UPPERCASE" }]);
+
+    Todo.removeMutations(["SET_TITLE_UPPERCASE"]);
+
+    todo1.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
+    todo1.$node.present([{ mutationType: "SET_TITLE_UPPERCASE" }]);
+
+    expect(todo0.title === "STOP CODING BUGS").toBeTruthy();
+    expect(todo1.title === "stop coding bugs").toBeTruthy();
+});
+
+it("should not add a non registred mutation on an object", function () {
+    const Todo = object({
+        id: identifier(number),
+        title: string,
+        done: false
+    })
+
+    const todo = Todo.create({
+        id: 0,
+        title: "",
+        done: false
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE", function (self, title: string) {
+        if (title) self.title = title;
+    });
+
+
+    Todo.addMutations(["SET_TITLE"]);
+
+    todo.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
+    todo.$node.present([{ mutationType: "SET_TITLE_UPPERCASE" }]);
+
+    expect(todo.title === "stop coding bugs").toBeTruthy();
+    expect(todo.title === "STOP CODING BUGS").toBeFalsy();
+});
+
+it("should not add a forbidden mutation on an object", function () {
+    const Todo = object({
+        id: identifier(number),
+        title: string,
+        done: false
+    })
+
+    const todo = Todo.create({
+        id: 0,
+        title: "",
+        done: false
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE", function (self, title: string) {
+        if (title) self.title = title;
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE_UPPERCASE", function (self) {
+        self.title = self.title.toUpperCase();
+    });
+
+    Todo.addMutations(["SET_TITLE"]);
+
+    todo.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
+    todo.$node.present([{ mutationType: "SET_TITLE_UPPERCASE" }]);
+
+    expect(todo.title === "stop coding bugs").toBeTruthy();
+    expect(todo.title === "STOP CODING BUGS").toBeFalsy();
 });

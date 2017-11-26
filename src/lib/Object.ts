@@ -24,7 +24,6 @@ export class ObjectType<S, T> extends ComplexType<S, T> implements IObjectType<S
         super(opts.name || "AnonymousObject");
         this.properties = sanitizeProperties(opts.properties || {});
         this.propertiesNames = Object.keys(this.properties);
-
     }
 
     describe(): string {

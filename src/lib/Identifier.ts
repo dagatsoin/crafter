@@ -8,10 +8,11 @@ export class IdentifierType<T> extends Type<T, T> {
 
     constructor(public readonly identifierType: IType<T, T>) {
         super(`identifier(${identifierType.name})`);
+        console.log(this.name)
     }
 
     describe(): string {
-        return this.identifierType.describe();
+        return `identifier(${this.identifierType.describe()})`
     }
 
     instantiate(parent: Node | null, subPath: string, snapshot: T): Node {

@@ -7,7 +7,7 @@ import {
 import { IdentifierCache } from "./IdentifierCache";
 import { IReversibleJsonPatch, splitPatch, IJsonPatch, splitJsonPath } from "./jsonPatch";
 import { SAMModel, Proposals } from "../../api/SAMModel";
-import { ObjectType } from "../Object";
+import { ObjectType } from "../object";
 
 export type Instance = {
     readonly $node?: Node

@@ -67,6 +67,9 @@ export class Union extends Type<any, any> {
     }
 
     isValidSnapshot(value: any): boolean {
-        return this.dispatcher !== null ? this.dispatcher(value).validate(value) : this.types.every(type => type.validate(value));
+        if (this.dispatcher !== null) {
+            return this.dispatcher(value).validate(value);
+        }
+        return true;
     }
 }

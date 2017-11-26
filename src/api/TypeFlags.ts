@@ -4,7 +4,7 @@ import {CoreType} from "../lib/CoreType";
 import {IdentifierType} from "../lib/Identifier";
 import {OptionalValue} from "../lib/Optional";
 import {ReferenceType} from "../lib/Reference";
-import {ObjectType} from "../lib/Object";
+import {ObjectType} from "../lib/object";
 
 export enum TypeFlag {
     String = 1 << 0,
@@ -20,7 +20,8 @@ export enum TypeFlag {
     Identifier = 1 << 10,
     Refinement = 1 << 11,
     Union= 1 << 12,
-    Late = 1 << 13
+    Late = 1 << 13,
+    Null = 1 << 14,
 }
 
 export function isType(value: any): value is IType<any, any> {

@@ -1,4 +1,4 @@
-import {object} from "../src/api/Object";
+import {object} from "../src/api/object";
 import {number, string} from "../src/api/Primitives";
 import {array} from "../src/api/Array";
 import {observable, reaction} from "mobx";

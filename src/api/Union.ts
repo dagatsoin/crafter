@@ -2,6 +2,7 @@ import { fail } from "../lib/utils";
 import {IType} from "./Type";
 import {isType} from "./TypeFlags";
 import {Union, ITypeDispatcher} from "../lib/Union";
+import { assertType } from "../lib/utils";
 
 declare const process: any;
 
@@ -238,12 +239,7 @@ export function union(
     // check all options
     if (process.env.NODE_ENV !== "production") {
         types.forEach(type => {
-            if (!isType(type))
-                fail(
-                    "expected all possible types to be a mobx-state-tree type, got " +
-                        type +
-                        " instead"
-                );
+            assertType(type, "Type");
         });
     }
     return new Union(name, types, dispatcher);

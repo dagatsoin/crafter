@@ -1,18 +1,19 @@
 
-import {identifier} from "../src/api/Identifier";
-import {object} from "../src/api/Object";
-import {number, string} from "../src/api/Primitives";
-import {array} from "../src/api/Array";
-import {applySnapshot, detach, getSnapshot, resolveIdentifier} from "../src/api/utils";
-import {reference} from "../src/api/Reference";
-import {map} from "../src/api/Map";
-import {refinement} from "../src/api/Refinement";
-import {autorun} from "mobx";
-import {union} from "../src/api/Union";
-import {optional} from "../src/api/Optional";
-import {late} from "../src/api/Late";
+import { identifier } from "../src/api/Identifier";
+import { object } from "../src/api/object";
+import { number, string } from "../src/api/Primitives";
+import { array } from "../src/api/Array";
+import { applySnapshot, detach, getSnapshot, resolveIdentifier } from "../src/api/utils";
+import { reference } from "../src/api/Reference";
+import { map } from "../src/api/Map";
+import { refinement } from "../src/api/Refinement";
+import { autorun } from "mobx";
+import { union } from "../src/api/Union";
+import { optional } from "../src/api/Optional";
+import { late } from "../src/api/Late";
+import { maybe } from "../src/api/maybe";
 
-test("it should support prefixed paths in arrays", function() {
+test("it should support prefixed paths in arrays", function () {
     const User = object("User", {
         id: identifier(),
         name: string
@@ -37,11 +38,11 @@ test("it should support prefixed paths in arrays", function() {
     expect(store.user.name).toEqual("Charlize");
     expect(getSnapshot(store)).toEqual({
         user: "18",
-        users: [{ id: "17", name: "TheWen" }, { id: "18", name: "Charlize"}]
+        users: [{ id: "17", name: "TheWen" }, { id: "18", name: "Charlize" }]
     } as any);
 });
 
-test("it should support prefixed paths in maps", function() {
+test("it should support prefixed paths in maps", function () {
     const User = object({
         id: identifier(),
         name: string
@@ -70,7 +71,7 @@ test("it should support prefixed paths in maps", function() {
     });
 });
 
-test("identifiers are required", function() {
+test("identifiers are required", function () {
     const Todo = object({
         id: identifier()
     });
@@ -79,7 +80,7 @@ test("identifiers are required", function() {
     expect(() => Todo.create()).toThrowError("[crafter] expected first argument to be a AnonymousModel, got `{}` instead.");
 });
 
-test("identifiers cannot be modified", function() {
+test("identifiers cannot be modified", function () {
     const Todo = object({
         id: identifier()
     });
@@ -183,11 +184,11 @@ test("it should resolve refs during creation, when using generic reference"); /*
     t.deepEqual(values, [4, 8])
 })*/
 
-test("identifiers should only support types.string and types.number", function() {
-    expect(() => object({id: identifier(object({ x: 1 }))}).create({ id: {} })).toThrow();
+test("identifiers should only support types.string and types.number", function () {
+    expect(() => object({ id: identifier(object({ x: 1 })) }).create({ id: {} })).toThrow();
 });
 
-test("identifiers should support subtypes of types.string and types.number", function() {
+test("identifiers should support subtypes of types.string and types.number", function () {
     debugger;
     const M = object({
         id: identifier(refinement("Number greater then 5", number, n => n > 5))
@@ -198,7 +199,7 @@ test("identifiers should support subtypes of types.string and types.number", fun
     expect(M.is({ id: 4 })).toBeFalsy();
 });
 
-test("string identifiers should not accept numbers", function() {
+test("string identifiers should not accept numbers", function () {
     const F = object({
         id: identifier()
     });
@@ -211,11 +212,11 @@ test("string identifiers should not accept numbers", function() {
     expect(F2.is({ id: 4 })).toBeFalsy();
 });
 
-test("identifiers should support numbers as well", function() {
+test("identifiers should support numbers as well", function () {
     const F = object({
         id: identifier(number)
     });
-    expect(F.create({id: 3}).id).toEqual(3);
+    expect(F.create({ id: 3 }).id).toEqual(3);
     expect(F.is({ id: 4 })).toBeTruthy();
     expect(F.is({ id: "4" })).toBeFalsy();
 });
@@ -255,7 +256,7 @@ test("self reference with a late type"); /*, function() {
     t.is((s as any).books[1].reference.genre, "thriller")
 })*/
 
-test("when applying a snapshot, reference should resolve correctly if value added after", function() {
+test("when applying a snapshot, reference should resolve correctly if value added after", function () {
     const Box = object({
         id: identifier(number),
         name: string
@@ -265,13 +266,13 @@ test("when applying a snapshot, reference should resolve correctly if value adde
         boxes: array(Box)
     });
     expect(() => Factory.create({
-            selected: 1,
-            boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
-        })
+        selected: 1,
+        boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
+    })
     ).not.toThrow();
 });
 
-test("it should fail when reference snapshot is ambiguous", function() {
+test("it should fail when reference snapshot is ambiguous", function () {
     const Box = object("Box", {
         id: identifier(number),
         name: string
@@ -307,7 +308,7 @@ test("it should fail when reference snapshot is ambiguous", function() {
     );
 });
 
-test("it should support array of references", function() {
+test("it should support array of references", function () {
     const Box = object({
         id: identifier(number),
         name: string
@@ -326,7 +327,7 @@ test("it should support array of references", function() {
     expect(getSnapshot(store.selected)).toEqual([1, 2]);
 });
 
-test("it should restore array of references from snapshot", function() {
+test("it should restore array of references from snapshot", function () {
     const Box = object({
         id: identifier(number),
         name: string
@@ -343,7 +344,7 @@ test("it should restore array of references from snapshot", function() {
     expect(store.selected[1] === store.boxes[1]).toBeTruthy();
 });
 
-test("it should support map of references", function() {
+test("it should support map of references", function () {
     const Box = object({
         id: identifier(number),
         name: string
@@ -379,7 +380,7 @@ test("it should restore map of references from snapshot", function () {
     expect(store.selected.get("to") === store.boxes[1]).toBeTruthy();
 });
 
-test("it should support relative lookups", function() {
+test("it should support relative lookups", function () {
     const Node = object({
         id: identifier(number),
         children: optional(array(late(() => Node)), [])
@@ -411,7 +412,7 @@ test("it should support relative lookups", function() {
     const n2 = detach(root.children[0]);
     expect(resolveIdentifier(Node, n2, 2)).toEqual(n2);
     expect(resolveIdentifier(Node, root, 2)).toEqual(undefined);
-    expect(resolveIdentifier(Node, root, 4)).toEqual( undefined);
+    expect(resolveIdentifier(Node, root, 4)).toEqual(undefined);
     expect(resolveIdentifier(Node, n2, 3)).toEqual(undefined);
     expect(resolveIdentifier(Node, n2, 4)).toEqual(n2.children[0]);
     expect(resolveIdentifier(Node, n2.children[0], 2)).toEqual(n2);
@@ -422,58 +423,54 @@ test("it should support relative lookups", function() {
     expect(resolveIdentifier(Node, n2.children[0], 5)).toEqual(n5);
 });
 
-test("References are non-nullable by default"); /*, t => {
-    const Todo = types.model({
-        id: types.identifier(types.number)
+test("References are non-nullable by default", function () {
+    const Todo = object({
+        id: identifier(number)
     })
-    const Store = types.model({
-        todo: types.maybe(Todo),
-        ref: types.reference(Todo),
-        maybeRef: types.maybe(types.reference(Todo))
+    const Store = object({
+        todo: maybe(Todo),
+        ref: reference(Todo),
+        maybeRef: maybe(reference(Todo))
     })
-    t.is(Store.is({}), false)
-    t.is(Store.is({ ref: 3 }), true)
-    t.is(Store.is({ ref: null }), false)
-    t.is(Store.is({ ref: undefined }), false)
-    t.is(Store.is({ ref: 3, maybeRef: 3 }), true)
-    t.is(Store.is({ ref: 3, maybeRef: null }), true)
-    t.is(Store.is({ ref: 3, maybeRef: undefined }), true)
+    expect(Store.is({})).toBeFalsy();
+    expect(Store.is({ ref: 3 })).toBeTruthy();
+    expect(Store.is({ ref: null })).toBeFalsy();
+    expect(Store.is({ ref: undefined })).toBeFalsy();
+    expect(Store.is({ ref: 3, maybeRef: 3 })).toBeTruthy();
+    expect(Store.is({ ref: 3, maybeRef: null })).toBeTruthy();
+    expect(Store.is({ ref: 3, maybeRef: undefined })).toBeTruthy();
     let store = Store.create({
         todo: { id: 3 },
         ref: 3
     })
-    t.is(store.ref, store.todo)
-    t.is(store.maybeRef, null)
+    expect(store.ref).toEqual(store.todo);
+    expect(store.maybeRef).toEqual(null);
     store = Store.create({
         todo: { id: 3 },
         ref: 4
     })
-    unprotect(store)
-    t.is(store.maybeRef, null)
-    t.snapshot(t.throws(() => store.ref).message)
+    expect(store.maybeRef).toEqual(null);
+    expect(() => store.ref).toThrow();
     store.maybeRef = 3 as any
-    t.is(store.maybeRef, store.todo)
+    expect(store.maybeRef).toEqual(store.todo);
     store.maybeRef = 4 as any
-    t.snapshot(t.throws(() => store.maybeRef).message)
+    expect(() => store.maybeRef).toThrow();
     store.maybeRef = null
-    t.is(store.maybeRef, null)
-    t.snapshot(t.throws(() => (store.ref = null as any)).message)
-})*/
+    expect(store.maybeRef).toEqual(null);
+    expect(() => (store.ref = null as any)).toThrow();
+});
 
-test("References are described properly"); /*, t => {
-    const Todo = types.model({
-        id: types.identifier(types.number)
+test("References are described properly", function () {
+    const Todo = object({
+        id: identifier(number)
     })
-    const Store = types.model({
-        todo: types.maybe(Todo),
-        ref: types.reference(Todo),
-        maybeRef: types.maybe(types.reference(Todo))
+    const Store = object({
+        todo: maybe(Todo),
+        ref: reference(Todo),
+        maybeRef: maybe(reference(Todo))
     })
-    t.is(
-        Store.describe(),
-        "{ todo: ({ id: identifier(number) } | null?); ref: reference(AnonymousModel); maybeRef: (reference(AnonymousModel) | null?) }"
-    )
-})*/
+    expect(Store.describe()).toEqual("{ todo: ({ id: identifier(number) } | null?); ref: reference(AnonymousModel); maybeRef: (reference(AnonymousModel) | null?) }");
+});
 
 test("References in recursive structures"); /*, t => {
     const Folder = types.model("Folder", {

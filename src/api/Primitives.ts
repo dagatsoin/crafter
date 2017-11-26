@@ -23,6 +23,18 @@ export const string: ISimpleType<string> = new CoreType<string, string>(
 );
 
 /**
+ * The type of the value `null`
+ *
+ * @export
+ * @alias types.null
+ */
+export const nullType: ISimpleType<null> = new CoreType<null, null>(
+    "null",
+    TypeFlag.Null,
+    (v: any) => v === null
+)
+
+/**
  * Creates a type that can only contain a numeric value.
  * This type is used for numeric values by default
  *

@@ -1,5 +1,5 @@
 import { object } from "../src/api/object";
-import { canAttachNode, createNode, getNode, isInstance } from "../src/lib/core/Node";
+import { canAttachNode, createNode, getNode, isInstance, mutationNodesIndex } from "../src/lib/core/Node";
 import { number, string } from "../src/api/Primitives";
 import { array } from "../src/api/Array";
 import { optional } from "../src/api/Optional";
@@ -50,6 +50,10 @@ const snapshots = {
         }
     }
 };
+
+beforeEach(function(){
+    mutationNodesIndex.clear();
+})
 
 it("should check if a node can be attached to the value", function () {
     const Type = object("model", { foo: "" });
@@ -339,6 +343,7 @@ it("should add a mutation only on a specific instance of the same Type.", functi
 
     Todo.addMutations(["SET_TITLE"]);
     addInstanceMutation(todo1, "SET_TITLE_UPPERCASE");
+    expect(mutationNodesIndex.get("SET_TITLE_UPPERCASE")!.findIndex(node => node === todo1.$node)).toBeGreaterThan(-1);
 
     todo0.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
     todo1.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
@@ -378,6 +383,12 @@ it("should remove a global mutation", function () {
     });
 
     Todo.addMutations(["SET_TITLE", "SET_TITLE_UPPERCASE"]);
+    
+    expect(mutationNodesIndex.has("SET_TITLE_UPPERCASE")).toBeTruthy();
+
+    expect(mutationNodesIndex.get("SET_TITLE_UPPERCASE")!.findIndex(node => {
+        return node === todo0.$node
+    })).toBeGreaterThan(-1);
 
     todo0.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
     todo0.$node.present([{ mutationType: "SET_TITLE_UPPERCASE" }]);
@@ -386,7 +397,8 @@ it("should remove a global mutation", function () {
 
     todo1.$node.present([{ mutationType: "SET_TITLE", data: "stop coding bugs" }]);
     todo1.$node.present([{ mutationType: "SET_TITLE_UPPERCASE" }]);
-
+    
+    expect(mutationNodesIndex.has("SET_TITLE_UPPERCASE")).toBeFalsy();
     expect(todo0.title === "STOP CODING BUGS").toBeTruthy();
     expect(todo1.title === "stop coding bugs").toBeTruthy();
 });
@@ -446,4 +458,28 @@ it("should not add a forbidden mutation on an object", function () {
 
     expect(todo.title === "stop coding bugs").toBeTruthy();
     expect(todo.title === "STOP CODING BUGS").toBeFalsy();
+});
+
+it("should remove a node from the mutation nodes cache before destroy", function(){
+    const Todo = object({
+        id: identifier(number),
+        title: string,
+        done: false
+    })
+
+    const todo = Todo.create({
+        id: 0,
+        title: "stop coding bugs",
+        done: false
+    });
+
+    registerMutation<typeof Todo.Type>("SET_TITLE_UPPERCASE", function (self) {
+        self.title = self.title.toUpperCase();
+    });
+
+    addInstanceMutation(todo, "SET_TITLE_UPPERCASE");
+
+    todo.$node.remove();
+
+    expect(mutationNodesIndex.get("SET_TITLE_UPPERCASE")!.findIndex(node => node === todo.$node)).toEqual(-1);
 });

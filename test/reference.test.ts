@@ -3,7 +3,7 @@ import { identifier } from "../src/api/Identifier";
 import { object } from "../src/api/object";
 import { number, string } from "../src/api/Primitives";
 import { array } from "../src/api/Array";
-import { applySnapshot, detach, getSnapshot, resolveIdentifier } from "../src/api/utils";
+import { applySnapshot, detach, getSnapshot, resolveIdentifier, registerMutation, getRoot } from "../src/api/utils";
 import { reference } from "../src/api/Reference";
 import { map } from "../src/api/Map";
 import { refinement } from "../src/api/Refinement";
@@ -472,41 +472,43 @@ test("References are described properly", function () {
     expect(Store.describe()).toEqual("{ todo: ({ id: identifier(number) } | null?); ref: reference(AnonymousModel); maybeRef: (reference(AnonymousModel) | null?) }");
 });
 
-test("References in recursive structures"); /*, t => {
-    const Folder = types.model("Folder", {
-        id: types.identifier(),
-        name: types.string,
-        files: types.array(types.string)
-    })
-    const Tree = types
-        .model("Tree", {
-            children: types.array(types.late(() => Tree)),
-            data: types.maybe(types.reference(Folder))
-        })
-        .actions(self => {
-            function addFolder(data) {
-                const folder = Folder.create(data)
-                getRoot(self).putFolderHelper(folder)
-                self.children.push(Tree.create({ data: folder, children: [] }))
-            }
-            return {
-                addFolder
-            }
-        })
-    const Storage = types
-        .model("Storage", {
-            objects: types.map(Folder),
-            tree: Tree
-        })
-        .actions(self => ({
-            putFolderHelper(folder) {
-                self.objects.put(folder)
-            }
-        }))
+test("References in recursive structures", function () {
+    const Folder = object("Folder", {
+        id: identifier(),
+        name: string,
+        files: array(string)
+    });
+
+    const Tree = object("Tree", {
+        children: array(late(() => Tree)),
+        data: maybe(reference(Folder))
+    });
+
+    registerMutation<typeof Tree.Type>("ADD_FOLDER", (self, data) => {
+        const folder = Folder.create(data);
+        getRoot(self).putFolderHelper(folder)
+        self.children.push(Tree.create({ data: folder, children: [] }))
+    });
+
+    Tree.addMutations(["ADD_FOLDER"]);
+
+    const Storage = object("Storage", {
+        objects: map(Folder),
+        tree: Tree
+    });
+
+    registerMutation<typeof Storage.Type>("PUT_FOLDER", self => ({
+        putFolderHelper(folder) {
+            self.objects.put(folder)
+        }
+    }))
+
     const store = Storage.create({ objects: {}, tree: { children: [], data: null } })
     const folder = { id: "1", name: "Folder 1", files: ["a.jpg", "b.jpg"] }
-    store.tree.addFolder(folder)
-    t.deepEqual(getSnapshot(store), {
+    
+    present([{ type: "ADD_FOLDER", data: folder }]);
+
+    expect(getSnapshot(store)).toEqual({
         objects: {
             "1": {
                 files: ["a.jpg", "b.jpg"],
@@ -523,11 +525,15 @@ test("References in recursive structures"); /*, t => {
             ],
             data: null
         }
-    })
-    t.is(store.objects.get("1"), store.tree.children[0].data)
-    const folder2 = { id: "2", name: "Folder 2", files: ["c.jpg", "d.jpg"] }
-    store.tree.children[0].addFolder(folder2)
-    t.deepEqual(getSnapshot(store), {
+    });
+    
+    expect(store.objects.get("1")).toEqual(store.tree.children[0].data);
+    
+    const folder2 = { id: "2", name: "Folder 2", files: ["c.jpg", "d.jpg"] };
+
+    store.tree.present([{ type: "ADD_FOLDER", data: folder2 }]);
+
+    expect(getSnapshot(store)).toEqual({
         objects: {
             "1": {
                 files: ["a.jpg", "b.jpg"],
@@ -554,10 +560,10 @@ test("References in recursive structures"); /*, t => {
             ],
             data: null
         }
-    })
-    t.is(store.objects.get("1"), store.tree.children[0].data)
-    t.is(store.objects.get("2"), store.tree.children[0].children[0].data)
-})*/
+    });
+    expect(store.objects.get("1")).toEqual(store.tree.children[0].data);
+    expect(store.objects.get("2")).toEqual(store.tree.children[0].children[0].data);
+});
 
 test("it should applyPatch references in array"); /*, t => {
     const Item = types.model("Item", {

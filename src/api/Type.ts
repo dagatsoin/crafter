@@ -1,8 +1,9 @@
 import {Operation} from "fast-json-patch";
-import {Node, Instance, Mutation} from "../lib/core/Node";
+import {Node, Instance, Mutation, mutationNodesIndex} from "../lib/core/Node";
 import {assertType, fail} from "../lib/utils";
 import {TypeFlag} from "./typeFlags";
 import {IJsonPatch} from "../lib/core/jsonPatch";
+import { observable } from "mobx";
 
 ////////////////////
 ////////////////////
@@ -104,7 +105,7 @@ export abstract class Type<S, T> implements IType<S, T> {
     name: string;
     readonly flag: TypeFlag;
     readonly isType = true;
-    readonly mutations: Array<string>;
+    @observable mutations: Array<string> = [];
     protected static readonly allowedMutations: Array<{ mutationType: string, mutation: Mutation<any> }> = [];
 
     constructor(name: string) {
@@ -137,14 +138,23 @@ export abstract class Type<S, T> implements IType<S, T> {
         mutationTypes.forEach(type => {
             // Check if it is an allowed mutation.
             if (!Type.allowedMutations.find(m => m.mutationType === type)) console.warn(`The mutation ${type} is not allowed.`)
-            else this.mutations.push(type);
+            else {
+                const index = this.mutations.indexOf(type);
+                if (index === -1) {
+                    mutationNodesIndex.set(type, []);
+                    this.mutations.push(type);
+                }
+            }
         });
     };
 
     removeMutations(mutationTypes: Array<string>) {
         mutationTypes.forEach(type => {
             const index = this.mutations.indexOf(type);
-            if (index > -1) this.mutations.splice(index, 1);
+            if (index > -1) {
+                this.mutations.splice(index, 1);
+                mutationNodesIndex.delete(type);
+            }
         });
     };
 

@@ -1,19 +1,35 @@
-import { action, computed, observable, transaction } from "mobx";
+import { action, computed, observable, transaction, observe, Lambda, IArraySplice } from "mobx";
 import { IType } from "../../api/Type";
 import {
-    addHiddenFinalProp, escapeJsonPath, extend, fail, identity, IDisposer, isMutable, isPlainObject, isPrimitive, registerEventHandler, resolvePath,
+    addHiddenFinalProp,
+    escapeJsonPath,
+    extend,
+    fail,
+    identity,
+    IDisposer,
+    isMutable,
+    isPlainObject,
+    isPrimitive,
+    registerEventHandler,
+    resolvePath,
     walk
 } from "../utils";
 import { IdentifierCache } from "./IdentifierCache";
 import { IReversibleJsonPatch, splitPatch, IJsonPatch, splitJsonPath } from "./jsonPatch";
 import { SAMModel, Proposals } from "../../api/SAMModel";
 import { ObjectType } from "../object";
+import { IArrayChange, IObservableArray } from "mobx/lib/types/observablearray";
 
 export type Instance = {
     readonly $node?: Node
 };
 
 export type Mutation<T> = (self: T, payload: any) => void;
+
+/**
+ * This is a internal cache to quickly retirieve a Node which use a mutation instead of crawling the whole tree.
+ */
+export const mutationNodesIndex: Map<string, Array<Node>> = new Map();
 
 export class Node implements SAMModel {
     readonly type: IType<any, any>;
@@ -27,6 +43,7 @@ export class Node implements SAMModel {
     private isDetaching = false;
     private autoUnbox = true; // Read the value instead of the Node
     private readonly mutations: Array<string> = [];
+    private syncStaticMutationsDisposer: Lambda;
     private readonly patchSubscribers: ((
         patch: IJsonPatch,
         reversePatch: IJsonPatch
@@ -73,6 +90,22 @@ export class Node implements SAMModel {
         } finally { // can't use catch here cause tests which use .toThrow will don't see anything
             if (sawExceptions) this._isAlive = false;
         }
+
+        /**
+         * 5 - This will add the Node instance to the mutationNodes cache for each new allowed mutation added to the Type.
+         * For instance allowed mutation, see addMutation method.
+         */
+        this.syncStaticMutationsDisposer = observe<string>(
+            this.type.mutations as IObservableArray<string>,
+            (change: IArraySplice<string>) => {
+                if (change.added) change.added.forEach((mutation: string) => mutationNodesIndex.get(mutation)!.push(this));
+
+                if (change.removed) change.removed.forEach((mutation: string) => {
+                    const nodes = mutationNodesIndex.get(mutation)!;
+                    nodes.splice(nodes.findIndex(node => node === this), 1);
+                });
+            }
+        );
     }
 
     @action
@@ -207,7 +240,15 @@ export class Node implements SAMModel {
         if (!this.isAlive) fail(`${this} cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value.`);
     }
 
-    beforeDestroy() { }
+    beforeDestroy() {
+        // Remove from the mutationNodes cache if needed
+        this.mutations.concat(...this.type.mutations).forEach(mutationType => {
+            if (mutationNodesIndex.has(mutationType)) {
+                const nodes = mutationNodesIndex.get(mutationType)!;
+                nodes.splice(nodes.findIndex(node => node === this), 1)
+            }
+        });
+    }
 
     remove() {
         if (this.isDetaching) return;
@@ -219,7 +260,7 @@ export class Node implements SAMModel {
         }
     }
 
-    public destroy() {
+    destroy() {
         // invariant: not called directly but from "die"
         this.root.identifierCache!.notifyDied(this);
         const self = this;
@@ -274,12 +315,18 @@ export class Node implements SAMModel {
     /**
      * Add a mutation function for this Type. Override previous existing key.
      * The mutation function is bound to this.data.
+     * The Node will also added to the mutationNodes cahce
      * @param type
      * @param mutationType
      */
     addMutation(mutationType: string) {
         if (this.mutations.indexOf(mutationType) > -1) console.info(`Node.registerMutation: Mutation ${mutationType} is already active on`, this);
-        else this.mutations.push(mutationType);
+        else {
+            this.mutations.push(mutationType);
+            // Push into the cache
+            if (mutationNodesIndex.has(mutationType)) mutationNodesIndex.get(mutationType)!.push(this);
+            else mutationNodesIndex.set(mutationType, [this]);
+        }
     };
 
     /**
@@ -288,7 +335,12 @@ export class Node implements SAMModel {
     removeMutation(mutationType: string) {
         const index = this.mutations.indexOf(mutationType);
         if (index === -1) console.info(`Node.registerMutation: attempt to delete ${mutationType} which is not active on`, this);
-        else this.mutations.splice(index, 1);
+        else {
+            this.mutations.splice(index, 1);
+            // remove from the cache
+            const nodes = mutationNodesIndex.get(mutationType)!;
+            nodes.splice(nodes.findIndex(node => node === this), 1);
+        }
     };
 }
 

@@ -1,5 +1,5 @@
 import {object} from "../src/api/object";
-import {number, string} from "../src/api/Primitives";
+import {number, string} from "../src/api/primitives";
 
 const createTestFactories = () => {
     const Box = object({

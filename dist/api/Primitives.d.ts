@@ -13,6 +13,13 @@ import { ISimpleType } from "./Type";
  */
 export declare const string: ISimpleType<string>;
 /**
+ * The type of the value `null`
+ *
+ * @export
+ * @alias types.null
+ */
+export declare const nullType: ISimpleType<null>;
+/**
  * Creates a type that can only contain a numeric value.
  * This type is used for numeric values by default
  *

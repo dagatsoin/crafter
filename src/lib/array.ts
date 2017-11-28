@@ -1,10 +1,10 @@
-import {ComplexType, IType} from "../api/Type";
+import {ComplexType, IType} from "../api/type";
 import {addHiddenFinalProp, fail} from "./utils";
 import {
     extras, IArrayChange, IArraySplice, IArrayWillChange, IArrayWillSplice, intercept, IObservableArray, isObservableArray, observable,
     observe
 } from "mobx";
-import {areSame, getNode, isInstance, Instance, valueAsNode, createNode, Node} from "./core/Node";
+import {areSame, getNode, isInstance, Instance, valueAsNode, createNode, Node} from "./core/node";
 import {TypeFlag} from "../api/typeFlags";
 import {IJsonPatch} from "./core/jsonPatch";
 

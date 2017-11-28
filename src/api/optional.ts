@@ -1,8 +1,8 @@
-import {IType} from "./Type";
+import {IType} from "./type";
 import {OptionalValue} from "../lib/Optional";
-import {getNode, isInstance} from "../lib/core/Node";
+import {getNode, isInstance} from "../lib/core/node";
 import {assertType} from "../../dist/lib/utils";
-import {isType} from "./TypeFlags";
+import {isType} from "./typeFlags";
 
 declare const process: any;
 

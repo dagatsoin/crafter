@@ -1,6 +1,6 @@
-import {IType} from "./Type";
+import {IType} from "./type";
 import {assertType} from "../lib/utils";
-import {Late} from "../lib/Late";
+import {Late} from "../lib/late";
 
 export type ILateType<S, T> = () => IType<S, T>
 

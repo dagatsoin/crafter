@@ -1,6 +1,6 @@
 import {fail} from "../lib/utils";
-import {ISimpleType} from "./Type";
-import {CoreType} from "../lib/CoreType";
+import {ISimpleType} from "./type";
+import {CoreType} from "../lib/coreType";
 import {TypeFlag} from "./typeFlags";
 
 /**

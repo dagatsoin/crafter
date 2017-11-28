@@ -1,16 +1,16 @@
 
-import { identifier } from "../src/api/Identifier";
+import { identifier } from "../src/api/identifier";
 import { object } from "../src/api/object";
-import { number, string } from "../src/api/Primitives";
-import { array } from "../src/api/Array";
+import { number, string } from "../src/api/primitives";
+import { array } from "../src/api/array";
 import { applySnapshot, detach, getSnapshot, resolveIdentifier, registerMutation, getRoot } from "../src/api/utils";
-import { reference } from "../src/api/Reference";
-import { map } from "../src/api/Map";
-import { refinement } from "../src/api/Refinement";
+import { reference } from "../src/api/reference";
+import { map } from "../src/api/map";
+import { refinement } from "../src/api/refinement";
 import { autorun } from "mobx";
-import { union } from "../src/api/Union";
-import { optional } from "../src/api/Optional";
-import { late } from "../src/api/Late";
+import { union } from "../src/api/union";
+import { optional } from "../src/api/optional";
+import { late } from "../src/api/late";
 import { maybe } from "../src/api/maybe";
 
 test("it should support prefixed paths in arrays", function () {

@@ -31,4 +31,4 @@ function refinement() {
     return new Refinement_1.Refinement(name, type, predicate, message);
 }
 exports.refinement = refinement;
-//# sourceMappingURL=Refinement.js.map
+//# sourceMappingURL=refinement.js.map

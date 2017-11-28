@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var Node_1 = require("../lib/core/Node");
 var utils_1 = require("../lib/utils");
+var Type_1 = require("./Type");
 /**
  * Returns a deep copy of the given state tree node as new tree.
  * Short hand for `snapshot(x) = getType(x).create(getSnapshot(x))`
@@ -270,4 +271,33 @@ function onPatch(target, callback) {
     return Node_1.getNode(target).onPatch(callback);
 }
 exports.onPatch = onPatch;
+/**
+ * Register a mutation globally to be used on any Type.
+ * @param mutationType
+ * @param mutation
+ */
+function registerMutation(mutationType, mutation) {
+    Type_1.Type.registerMutation(mutationType, mutation);
+}
+exports.registerMutation = registerMutation;
+/**
+ * Add a mutation on an instance.
+ * @param instance
+ * @param mutationType
+ */
+function addInstanceMutation(instance, mutationType) {
+    utils_1.assertType(instance, "Instance");
+    Node_1.getNode(instance).addMutation(mutationType);
+}
+exports.addInstanceMutation = addInstanceMutation;
+/**
+ * Remove a mutation from an instance.
+ * @param instance
+ * @param mutationType
+ */
+function removeInstanceMutation(instance, mutationType) {
+    utils_1.assertType(instance, "Instance");
+    Node_1.getNode(instance).removeMutation(mutationType);
+}
+exports.removeInstanceMutation = removeInstanceMutation;
 //# sourceMappingURL=utils.js.map

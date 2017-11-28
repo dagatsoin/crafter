@@ -31,4 +31,4 @@ function identifier(baseType) {
     return new Identifier_1.IdentifierType(baseType);
 }
 exports.identifier = identifier;
-//# sourceMappingURL=Identifier.js.map
+//# sourceMappingURL=identifier.js.map

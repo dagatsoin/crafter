@@ -1,4 +1,4 @@
-import { Instance } from "../lib/core/Node";
+import { Instance, Mutation } from "../lib/core/Node";
 import { IDisposer } from "../lib/utils";
 import { IType } from "./Type";
 import { IJsonPatch } from "../lib/core/jsonPatch";
@@ -134,3 +134,21 @@ export declare function recordPatches(subject: Instance): IPatchRecorder;
  * @returns {IDisposer} function to remove the listener
  */
 export declare function onPatch(target: Instance, callback: (patch: IJsonPatch, reversePatch: IJsonPatch) => void): IDisposer;
+/**
+ * Register a mutation globally to be used on any Type.
+ * @param mutationType
+ * @param mutation
+ */
+export declare function registerMutation<T>(mutationType: string, mutation: Mutation<T>): void;
+/**
+ * Add a mutation on an instance.
+ * @param instance
+ * @param mutationType
+ */
+export declare function addInstanceMutation(instance: Instance, mutationType: string): void;
+/**
+ * Remove a mutation from an instance.
+ * @param instance
+ * @param mutationType
+ */
+export declare function removeInstanceMutation(instance: Instance, mutationType: string): void;

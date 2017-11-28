@@ -1,6 +1,6 @@
 import {object} from "../src/api/object";
-import {number, string} from "../src/api/Primitives";
-import {identifier} from "../src/api/Identifier";
+import {number, string} from "../src/api/primitives";
+import {identifier} from "../src/api/identifier";
 
 it("should throw if multiple identifiers provided", function() {
     expect(() => {

@@ -1,5 +1,5 @@
 import {Operation} from "fast-json-patch";
-import {Node, Instance, Mutation, mutationNodesIndex} from "../lib/core/Node";
+import {Node, Instance, Mutation, mutationNodesIndex} from "../lib/core/node";
 import {assertType, fail} from "../lib/utils";
 import {TypeFlag} from "./typeFlags";
 import {IJsonPatch} from "../lib/core/jsonPatch";

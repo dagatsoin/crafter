@@ -64,7 +64,10 @@ var Union = /** @class */ (function (_super) {
         return applicableTypes[0];
     };
     Union.prototype.isValidSnapshot = function (value) {
-        return this.dispatcher !== null ? this.dispatcher(value).validate(value) : this.types.every(function (type) { return type.validate(value); });
+        if (this.dispatcher !== null) {
+            return this.dispatcher(value).validate(value);
+        }
+        return true;
     };
     return Union;
 }(Type_1.Type));

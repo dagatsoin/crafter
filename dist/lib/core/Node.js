@@ -10,17 +10,21 @@ var mobx_1 = require("mobx");
 var utils_1 = require("../utils");
 var IdentifierCache_1 = require("./IdentifierCache");
 var jsonPatch_1 = require("./jsonPatch");
+/**
+ * This is a internal cache to quickly retirieve a Node which use a mutation instead of crawling the whole tree.
+ */
+exports.mutationNodesIndex = new Map();
 var Node = /** @class */ (function () {
     function Node(type, parent, subPath, initialValue, initBaseType, buildType) {
         if (initBaseType === void 0) { initBaseType = utils_1.identity; }
-        if (buildType === void 0) { buildType = function () {
-        }; }
+        if (buildType === void 0) { buildType = function () { }; }
         var _this = this;
         this._parent = null;
         this.identifierAttribute = undefined; // not to be modified directly, only through model initialization
         this._isAlive = true;
         this.isDetaching = false;
         this.autoUnbox = true; // Read the value instead of the Node
+        this.mutations = [];
         this.patchSubscribers = [];
         this.unbox = function (childNode) {
             if (childNode && _this.autoUnbox === true)
@@ -63,6 +67,19 @@ var Node = /** @class */ (function () {
             if (sawExceptions)
                 this._isAlive = false;
         }
+        /**
+         * 5 - This will add the Node instance to the mutationNodes cache for each new allowed mutation added to the Type.
+         * For instance allowed mutation, see addMutation method.
+         */
+        this.syncStaticMutationsDisposer = mobx_1.observe(this.type.mutations, function (change) {
+            if (change.added)
+                change.added.forEach(function (mutation) { return exports.mutationNodesIndex.get(mutation).push(_this); });
+            if (change.removed)
+                change.removed.forEach(function (mutation) {
+                    var nodes = exports.mutationNodesIndex.get(mutation);
+                    nodes.splice(nodes.findIndex(function (node) { return node === _this; }), 1);
+                });
+        });
     }
     Node.prototype.applyPatches = function (patches) {
         var _this = this;
@@ -77,6 +94,20 @@ var Node = /** @class */ (function () {
         mobx_1.transaction(function () {
             if (snapshot !== _this.snapshot)
                 _this.type.applySnapshot(_this, snapshot);
+        });
+    };
+    Node.prototype.present = function (proposals) {
+        var _this = this;
+        proposals.forEach(function (proposal) {
+            if (_this.mutations.indexOf(proposal.mutationType) === -1 && _this.type.mutations.indexOf(proposal.mutationType) === -1)
+                console.error("Present: this mutation " + proposal.mutationType + " is not allowed on this node");
+            else {
+                var mutation = _this.type.getMutation(proposal.mutationType);
+                if (!mutation)
+                    console.error("Unknown mutation " + proposal.mutationType + ". Make sure the mutation is registered and has been added to the " + _this.type.name + " type.");
+                else
+                    mutation(_this.value, proposal.data);
+            }
         });
     };
     Object.defineProperty(Node.prototype, "snapshot", {
@@ -198,7 +229,17 @@ var Node = /** @class */ (function () {
         if (!this.isAlive)
             utils_1.fail(this + " cannot be used anymore as it has died; it has been removed from a state tree. If you want to remove an element from a tree and let it live on, use 'detach' or 'clone' the value.");
     };
-    Node.prototype.beforeDestroy = function () { };
+    Node.prototype.beforeDestroy = function () {
+        var _this = this;
+        // Remove from the mutationNodes cache if needed
+        (_a = this.mutations).concat.apply(_a, this.type.mutations).forEach(function (mutationType) {
+            if (exports.mutationNodesIndex.has(mutationType)) {
+                var nodes = exports.mutationNodesIndex.get(mutationType);
+                nodes.splice(nodes.findIndex(function (node) { return node === _this; }), 1);
+            }
+        });
+        var _a;
+    };
     Node.prototype.remove = function () {
         if (this.isDetaching)
             return;
@@ -256,6 +297,42 @@ var Node = /** @class */ (function () {
     Node.prototype.getChildType = function (key) {
         return this.type.getChildType(key);
     };
+    /**
+     * Add a mutation function for this Type. Override previous existing key.
+     * The mutation function is bound to this.data.
+     * The Node will also added to the mutationNodes cahce
+     * @param type
+     * @param mutationType
+     */
+    Node.prototype.addMutation = function (mutationType) {
+        if (this.mutations.indexOf(mutationType) > -1)
+            console.info("Node.registerMutation: Mutation " + mutationType + " is already active on", this);
+        else {
+            this.mutations.push(mutationType);
+            // Push into the cache
+            if (exports.mutationNodesIndex.has(mutationType))
+                exports.mutationNodesIndex.get(mutationType).push(this);
+            else
+                exports.mutationNodesIndex.set(mutationType, [this]);
+        }
+    };
+    ;
+    /**
+     * Remove a mutation function for this Type.
+     */
+    Node.prototype.removeMutation = function (mutationType) {
+        var _this = this;
+        var index = this.mutations.indexOf(mutationType);
+        if (index === -1)
+            console.info("Node.registerMutation: attempt to delete " + mutationType + " which is not active on", this);
+        else {
+            this.mutations.splice(index, 1);
+            // remove from the cache
+            var nodes = exports.mutationNodesIndex.get(mutationType);
+            nodes.splice(nodes.findIndex(function (node) { return node === _this; }), 1);
+        }
+    };
+    ;
     __decorate([
         mobx_1.observable
     ], Node.prototype, "_parent", void 0);
@@ -307,8 +384,7 @@ function isInstance(value) {
 exports.isInstance = isInstance;
 function createNode(type, parent, subPath, initialValue, createEmptyInstance, hydrateInstance) {
     if (createEmptyInstance === void 0) { createEmptyInstance = utils_1.identity; }
-    if (hydrateInstance === void 0) { hydrateInstance = function () {
-    }; }
+    if (hydrateInstance === void 0) { hydrateInstance = function () { }; }
     if (isInstance(initialValue)) {
         var targetNode = getNode(initialValue);
         if (!targetNode.isRoot)

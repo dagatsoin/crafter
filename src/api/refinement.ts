@@ -1,6 +1,6 @@
-import {IType} from "./Type";
-import {isType} from "./TypeFlags";
-import {Refinement} from "../lib/Refinement";
+import {IType} from "./type";
+import {isType} from "./typeFlags";
+import {Refinement} from "../lib/refinement";
 import {assertType} from "../lib/utils";
 
 declare const process: any;

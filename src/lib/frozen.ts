@@ -1,6 +1,6 @@
-import { ISimpleType, Type } from "../api/Type"
-import { TypeFlag } from "../api/TypeFlags"
-import { createNode, Node } from "./core/Node"
+import { ISimpleType, Type } from "../api/type"
+import { TypeFlag } from "../api/typeFlags"
+import { createNode, Node } from "./core/node"
 
 export class Frozen<T> extends Type<T, T> {
     flag: TypeFlag = TypeFlag.Frozen

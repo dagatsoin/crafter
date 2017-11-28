@@ -23,7 +23,7 @@ var IdentifierType = /** @class */ (function (_super) {
         return _this;
     }
     IdentifierType.prototype.describe = function () {
-        return this.identifierType.describe();
+        return "identifier(" + this.identifierType.describe() + ")";
     };
     IdentifierType.prototype.instantiate = function (parent, subPath, snapshot) {
         if (!parent || !Node_1.isInstance(parent.data))

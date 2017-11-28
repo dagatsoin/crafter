@@ -1,5 +1,5 @@
 import { action, computed, observable, transaction, observe, Lambda, IArraySplice } from "mobx";
-import { IType } from "../../api/Type";
+import { IType } from "../../api/type";
 import {
     addHiddenFinalProp,
     escapeJsonPath,
@@ -14,7 +14,7 @@ import {
     resolvePath,
     walk
 } from "../utils";
-import { IdentifierCache } from "./IdentifierCache";
+import { IdentifierCache } from "./identifierCache";
 import { IReversibleJsonPatch, splitPatch, IJsonPatch, splitJsonPath } from "./jsonPatch";
 import { SAMModel, Proposals } from "../../api/SAMModel";
 import { ObjectType } from "../object";

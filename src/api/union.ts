@@ -1,7 +1,7 @@
 import { fail } from "../lib/utils";
-import {IType} from "./Type";
-import {isType} from "./TypeFlags";
-import {Union, ITypeDispatcher} from "../lib/Union";
+import {IType} from "./type";
+import {isType} from "./typeFlags";
+import {Union, ITypeDispatcher} from "../lib/union";
 import { assertType } from "../lib/utils";
 
 declare const process: any;

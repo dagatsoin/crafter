@@ -18,6 +18,13 @@ var typeFlags_1 = require("./typeFlags");
 // tslint:disable-next-line:variable-name
 exports.string = new CoreType_1.CoreType("string", typeFlags_1.TypeFlag.String, function (v) { return typeof v === "string"; });
 /**
+ * The type of the value `null`
+ *
+ * @export
+ * @alias types.null
+ */
+exports.nullType = new CoreType_1.CoreType("null", typeFlags_1.TypeFlag.Null, function (v) { return v === null; });
+/**
  * Creates a type that can only contain a numeric value.
  * This type is used for numeric values by default
  *

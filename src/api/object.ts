@@ -1,4 +1,4 @@
-import {IObjectProperties, IObjectType, Snapshot} from "./Type";
+import {IObjectProperties, IObjectType, Snapshot} from "./type";
 import {ObjectType} from "../lib/Object";
 
 export function object<T = {}>(

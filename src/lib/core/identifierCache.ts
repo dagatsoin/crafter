@@ -1,6 +1,6 @@
 import {IObservableArray, observable} from "mobx";
-import {Node} from "./Node";
-import {IType} from "../../api/Type";
+import {Node} from "./node";
+import {IType} from "../../api/type";
 import {fail} from "../utils";
 
 export class IdentifierCache {

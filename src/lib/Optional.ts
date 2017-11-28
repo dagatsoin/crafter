@@ -1,7 +1,7 @@
-import {IType, Type} from "../api/Type";
-import {getNode, isInstance, Node} from "./core/Node";
+import {IType, Type} from "../api/type";
+import {getNode, isInstance, Node} from "./core/node";
 import {assertType} from "./utils";
-import {TypeFlag} from "../api/TypeFlags";
+import {TypeFlag} from "../api/typeFlags";
 
 export type IFunctionReturn<T> = () => T;
 export type IOptionalValue<S, T> = S | T | IFunctionReturn<S> | IFunctionReturn<T>;

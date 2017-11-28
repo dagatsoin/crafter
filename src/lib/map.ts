@@ -1,8 +1,8 @@
 import {extras, IMapChange, IMapWillChange, intercept, observable, ObservableMap, observe} from "mobx";
 import {addHiddenFinalProp, assertType, escapeJsonPath, isMutable, isPlainObject} from "./utils";
-import {ComplexType, IComplexType, IType} from "../api/Type";
-import {TypeFlag} from "../api/TypeFlags";
-import {Node, getNode, Instance, isInstance, createNode} from "./core/Node";
+import {ComplexType, IComplexType, IType} from "../api/type";
+import {TypeFlag} from "../api/typeFlags";
+import {Node, getNode, Instance, isInstance, createNode} from "./core/node";
 import {IJsonPatch} from "./core/jsonPatch";
 
 interface IMapFactoryConfig {

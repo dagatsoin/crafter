@@ -1,7 +1,7 @@
-import {IdentifierType} from "../lib/Identifier";
-import {string} from "./Primitives";
-import {IType} from "./Type";
-import {isType} from "./TypeFlags";
+import {IdentifierType} from "../lib/identifier";
+import {string} from "./primitives";
+import {IType} from "./type";
+import {isType} from "./typeFlags";
 
 declare const process: any;
 

@@ -1,7 +1,7 @@
-import {Node, getNode, Instance, isInstance, Mutation} from "../lib/core/Node";
+import {Node, getNode, Instance, isInstance, Mutation} from "../lib/core/node";
 import {fail, assertType, IDisposer, asArray} from "../lib/utils";
-import {IType, Type} from "./Type";
-import {isType} from "./TypeFlags";
+import {IType, Type} from "./type";
+import {isType} from "./typeFlags";
 import {IJsonPatch} from "../lib/core/jsonPatch";
 
 declare const process: any;

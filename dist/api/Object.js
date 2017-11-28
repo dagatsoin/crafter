@@ -11,4 +11,4 @@ function object() {
     return new Object_1.ObjectType({ name: name, properties: properties });
 }
 exports.object = object;
-//# sourceMappingURL=Object.js.map
+//# sourceMappingURL=object.js.map

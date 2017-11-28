@@ -1,9 +1,9 @@
 import {object} from "../src/api/object";
-import {number, string} from "../src/api/Primitives";
-import {array} from "../src/api/Array";
+import {number, string} from "../src/api/primitives";
+import {array} from "../src/api/array";
 import {isObservable, observable, reaction} from "mobx";
 import {applySnapshot, getSnapshot} from "../src/api/utils";
-import {optional} from "../src/api/Optional";
+import {optional} from "../src/api/optional";
 
 const Entity = object("Entity", {
     name: "",

@@ -26,8 +26,8 @@
  * @returns {IComplexType<S[], IObservableArray<T>>}
  */
 
-import {IExtendedObservableMap, MapType} from "../lib/Map";
-import {IComplexType, IType} from "./Type";
+import {IExtendedObservableMap, MapType} from "../lib/map";
+import {IComplexType, IType} from "./type";
 
 export function map<S, T>(
     subtype: IType<S, T>

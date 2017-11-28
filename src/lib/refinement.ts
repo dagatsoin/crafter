@@ -1,6 +1,6 @@
-import {IType, Type} from "../api/Type";
-import {TypeFlag} from "../api/TypeFlags";
-import {getNode, isInstance, Node} from "./core/Node";
+import {IType, Type} from "../api/type";
+import {TypeFlag} from "../api/typeFlags";
+import {getNode, isInstance, Node} from "./core/node";
 
 export class Refinement<S, T> extends Type<S, T> {
     readonly type: IType<any, any>;

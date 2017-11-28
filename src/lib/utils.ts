@@ -1,6 +1,6 @@
-import {Instance, getNode, isInstance, Node} from "./core/Node";
-import {isType, TypeFlag} from "../api/TypeFlags";
-import {ReferenceType} from "./Reference";
+import {Instance, getNode, isInstance, Node} from "./core/node";
+import {isType, TypeFlag} from "../api/typeFlags";
+import {ReferenceType} from "./reference";
 import {joinJsonPath} from "./core/jsonPatch";
 import {isObservableArray} from "mobx";
 

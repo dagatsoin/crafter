@@ -1,11 +1,11 @@
 import { object } from "../src/api/object";
-import { canAttachNode, createNode, getNode, isInstance, mutationNodesIndex } from "../src/lib/core/Node";
-import { number, string } from "../src/api/Primitives";
-import { array } from "../src/api/Array";
-import { optional } from "../src/api/Optional";
+import { canAttachNode, createNode, getNode, isInstance, mutationNodesIndex } from "../src/lib/core/node";
+import { number, string } from "../src/api/primitives";
+import { array } from "../src/api/array";
+import { optional } from "../src/api/optional";
 import { getChildType, getType, clone, getParent, hasParent, isAlive, getSnapshot, recordPatches, registerMutation, addInstanceMutation } from "../src/api/utils";
 import { observable } from "mobx";
-import { identifier } from "../src/api/Identifier";
+import { identifier } from "../src/api/identifier";
 
 const Entity = object("Entity", {
     name: string,

@@ -1,10 +1,10 @@
-import { ComplexType, IObjectType, IType, Type, } from "../api/Type";
-import { createNode, getNode, isInstance, Node, Mutation } from "./core/Node";
+import { ComplexType, IObjectType, IType, Type, } from "../api/type";
+import { createNode, getNode, isInstance, Node, Mutation } from "./core/node";
 import { extendShallowObservable, extras, intercept, IObjectChange, IObjectWillChange, IObservableObject, observable, observe, transaction } from "mobx";
 import { isPlainObject, isPrimitive, fail, assertType, escapeJsonPath, EMPTY_OBJECT } from "./utils";
-import { getPrimitiveFactoryFromValue } from "../api/Primitives";
-import { optional } from "../api/Optional";
-import { isType, TypeFlag } from "../api/TypeFlags";
+import { getPrimitiveFactoryFromValue } from "../api/primitives";
+import { optional } from "../api/optional";
+import { isType, TypeFlag } from "../api/typeFlags";
 import { IJsonPatch } from "./core/jsonPatch";
 import { Instance } from "../../dist/lib/core/Node";
 

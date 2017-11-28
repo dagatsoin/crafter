@@ -1,5 +1,5 @@
-import {IType} from "./Type";
-import {ReferenceType} from "../lib/Reference";
+import {IType} from "./type";
+import {ReferenceType} from "../lib/reference";
 import {assertType} from "../lib/utils";
 declare const process: any;
 

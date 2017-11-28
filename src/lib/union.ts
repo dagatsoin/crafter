@@ -1,7 +1,7 @@
 import { fail } from "./utils";
-import { Node } from "./core/Node";
-import {IType, Type} from "../api/Type";
-import {TypeFlag} from "../api/TypeFlags";
+import { Node } from "./core/node";
+import {IType, Type} from "../api/type";
+import {TypeFlag} from "../api/typeFlags";
 
 export type ITypeDispatcher = (snapshot: any) => IType<any, any>;
 

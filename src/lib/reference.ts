@@ -1,7 +1,7 @@
 import {assertType, fail, isReferenceType} from "./utils";
-import {getNode, Node, isInstance, createNode, Instance} from "./core/Node";
-import {IType, Type} from "../api/Type";
-import {TypeFlag} from "../api/TypeFlags";
+import {getNode, Node, isInstance, createNode, Instance} from "./core/node";
+import {IType, Type} from "../api/type";
+import {TypeFlag} from "../api/typeFlags";
 
 class StoredReference {
     constructor(public mode: "identifier" | "object", public value: any) {

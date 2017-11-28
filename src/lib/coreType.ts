@@ -1,6 +1,6 @@
-import {Type} from "../api/Type";
+import {Type} from "../api/type";
 import {identity, isPrimitive, fail} from "./utils";
-import {createNode, Node} from "./core/Node";
+import {createNode, Node} from "./core/node";
 import {TypeFlag} from "../api/typeFlags";
 
 /**

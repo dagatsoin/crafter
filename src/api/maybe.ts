@@ -1,9 +1,9 @@
-import { union } from "./Union";
-import { optional } from "./Optional";
-import { IType } from "./Type";
-import { isType } from "./TypeFlags";
+import { union } from "./union";
+import { optional } from "./optional";
+import { IType } from "./type";
+import { isType } from "./typeFlags";
 import { fail } from "../lib/utils";
-import { nullType } from "./Primitives";
+import { nullType } from "./primitives";
 
 const optionalNullType = optional(nullType, null)
 

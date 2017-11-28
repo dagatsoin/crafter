@@ -1,8 +1,8 @@
 import {object} from "../src/api/object";
-import {number, string} from "../src/api/Primitives";
-import {array} from "../src/api/Array";
+import {number, string} from "../src/api/primitives";
+import {array} from "../src/api/array";
 import {observable, reaction} from "mobx";
-import {identifier} from "../src/api/Identifier";
+import {identifier} from "../src/api/identifier";
 
 const Slot = object("Slot", {
     prefabId: string,

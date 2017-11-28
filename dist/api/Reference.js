@@ -13,4 +13,4 @@ function reference(subType) {
     return new Reference_1.ReferenceType(subType);
 }
 exports.reference = reference;
-//# sourceMappingURL=Reference.js.map
+//# sourceMappingURL=reference.js.map

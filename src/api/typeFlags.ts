@@ -1,9 +1,9 @@
 import { IObservableArray } from "mobx";
-import {IComplexType, IType} from "./Type";
-import {CoreType} from "../lib/CoreType";
-import {IdentifierType} from "../lib/Identifier";
+import {IComplexType, IType} from "./type";
+import {CoreType} from "../lib/coreType";
+import {IdentifierType} from "../lib/identifier";
 import {OptionalValue} from "../lib/Optional";
-import {ReferenceType} from "../lib/Reference";
+import {ReferenceType} from "../lib/reference";
 import {ObjectType} from "../lib/object";
 
 export enum TypeFlag {

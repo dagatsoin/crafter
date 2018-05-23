@@ -16,7 +16,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Node_1 = require("../lib/core/Node");
+var node_1 = require("../lib/core/node");
 var utils_1 = require("../lib/utils");
 var mobx_1 = require("mobx");
 var Type = /** @class */ (function () {
@@ -52,7 +52,7 @@ var Type = /** @class */ (function () {
             else {
                 var index = _this.mutations.indexOf(type);
                 if (index === -1) {
-                    Node_1.mutationNodesIndex.set(type, []);
+                    node_1.mutationNodesIndex.set(type, []);
                     _this.mutations.push(type);
                 }
             }
@@ -65,7 +65,7 @@ var Type = /** @class */ (function () {
             var index = _this.mutations.indexOf(type);
             if (index > -1) {
                 _this.mutations.splice(index, 1);
-                Node_1.mutationNodesIndex.delete(type);
+                node_1.mutationNodesIndex.delete(type);
             }
         });
     };
@@ -138,4 +138,4 @@ var ComplexType = /** @class */ (function (_super) {
     return ComplexType;
 }(Type));
 exports.ComplexType = ComplexType;
-//# sourceMappingURL=Type.js.map
+//# sourceMappingURL=type.js.map

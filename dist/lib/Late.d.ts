@@ -1,5 +1,5 @@
-import { Node } from "./core/Node";
-import { IType, Type } from "../api/Type";
+import { Node } from "./core/node";
+import { IType, Type } from "../api/type";
 export declare class Late<S, T> extends Type<S, T> {
     readonly definition: () => IType<S, T>;
     private _subType;

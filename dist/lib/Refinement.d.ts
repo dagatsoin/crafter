@@ -1,5 +1,5 @@
-import { IType, Type } from "../api/Type";
-import { Node } from "./core/Node";
+import { IType, Type } from "../api/type";
+import { Node } from "./core/node";
 export declare class Refinement<S, T> extends Type<S, T> {
     readonly type: IType<any, any>;
     readonly predicate: (v: any) => boolean;

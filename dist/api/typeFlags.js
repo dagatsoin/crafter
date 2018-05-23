@@ -48,4 +48,4 @@ function isReferenceType(type) {
     return (type.flag & TypeFlag.Reference) > 0;
 }
 exports.isReferenceType = isReferenceType;
-//# sourceMappingURL=TypeFlags.js.map
+//# sourceMappingURL=typeFlags.js.map

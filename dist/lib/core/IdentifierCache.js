@@ -67,4 +67,4 @@ var IdentifierCache = /** @class */ (function () {
     return IdentifierCache;
 }());
 exports.IdentifierCache = IdentifierCache;
-//# sourceMappingURL=IdentifierCache.js.map
+//# sourceMappingURL=identifierCache.js.map

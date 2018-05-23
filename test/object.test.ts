@@ -147,10 +147,6 @@ describe("Snapshot", function(){
         expect(Currency.validate({type: "wizar", quantity: 10})).toBeTruthy();
     });
 
-    it("should be an invalid snapshot", function () {
-        expect(() => Player.create({wrongField: new Date()}, true)).toThrow();
-    });
-
     it("should extract a snapshot from an instance of Object", function () {
         const Fraktar = Player.create(snapshots.Fraktar);
         const snapshot = getSnapshot(Fraktar);

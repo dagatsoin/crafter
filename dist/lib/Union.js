@@ -11,8 +11,8 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("./utils");
-var Type_1 = require("../api/Type");
-var TypeFlags_1 = require("../api/TypeFlags");
+var type_1 = require("../api/type");
+var typeFlags_1 = require("../api/typeFlags");
 var Union = /** @class */ (function (_super) {
     __extends(Union, _super);
     function Union(name, types, dispatcher) {
@@ -30,7 +30,7 @@ var Union = /** @class */ (function (_super) {
     };
     Object.defineProperty(Union.prototype, "flag", {
         get: function () {
-            var result = TypeFlags_1.TypeFlag.Union;
+            var result = typeFlags_1.TypeFlag.Union;
             this.types.forEach(function (type) {
                 result |= type.flag;
             });
@@ -70,6 +70,6 @@ var Union = /** @class */ (function (_super) {
         return true;
     };
     return Union;
-}(Type_1.Type));
+}(type_1.Type));
 exports.Union = Union;
-//# sourceMappingURL=Union.js.map
+//# sourceMappingURL=union.js.map

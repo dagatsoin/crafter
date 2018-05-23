@@ -1,6 +1,6 @@
-import { Type } from "../api/Type";
-import { TypeFlag } from "../api/TypeFlags";
-import { Node } from "./core/Node";
+import { Type } from "../api/type";
+import { TypeFlag } from "../api/typeFlags";
+import { Node } from "./core/node";
 export declare class Frozen<T> extends Type<T, T> {
     flag: TypeFlag;
     constructor();

@@ -1,5 +1,5 @@
-import { IType } from "./Type";
-import { ITypeDispatcher } from "../lib/Union";
+import { IType } from "./type";
+import { ITypeDispatcher } from "../lib/union";
 export declare function union<SA, SB, TA, TB>(dispatch: ITypeDispatcher, A: IType<SA, TA>, B: IType<SB, TB>): IType<SA | SB, TA | TB>;
 export declare function union<SA, SB, TA, TB>(A: IType<SA, TA>, B: IType<SB, TB>): IType<SA | SB, TA | TB>;
 export declare function union<SA, SB, SC, TA, TB, TC>(dispatch: ITypeDispatcher, A: IType<SA, TA>, B: IType<SB, TB>, C: IType<SC, TC>): IType<SA | SB | SC, TA | TB | TC>;

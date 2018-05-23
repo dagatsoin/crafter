@@ -1,5 +1,5 @@
-import { Node } from "./Node";
-import { IType } from "../../api/Type";
+import { Node } from "./node";
+import { IType } from "../../api/type";
 export declare class IdentifierCache {
     private cache;
     constructor();

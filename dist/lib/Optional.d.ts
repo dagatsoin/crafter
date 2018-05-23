@@ -1,6 +1,6 @@
-import { IType, Type } from "../api/Type";
-import { Node } from "./core/Node";
-import { TypeFlag } from "../api/TypeFlags";
+import { IType, Type } from "../api/type";
+import { Node } from "./core/node";
+import { TypeFlag } from "../api/typeFlags";
 export declare type IFunctionReturn<T> = () => T;
 export declare type IOptionalValue<S, T> = S | T | IFunctionReturn<S> | IFunctionReturn<T>;
 export declare class OptionalValue<S, T> extends Type<S, T> {

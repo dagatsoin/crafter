@@ -10,9 +10,9 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Type_1 = require("../api/Type");
+var type_1 = require("../api/type");
 var utils_1 = require("./utils");
-var Node_1 = require("./core/Node");
+var node_1 = require("./core/node");
 /**
  * From MST implementation https://github.com/mobxjs/mobx-state-tree/blob/master/src/types/primitives.ts
  */
@@ -32,7 +32,7 @@ var CoreType = /** @class */ (function (_super) {
     CoreType.prototype.instantiate = function (parent, subPath, initialValue) {
         if (!this.checker(initialValue))
             utils_1.fail("Error while instantiating " + this.name + ". Expected a " + this.name + ", got " + initialValue + " ");
-        return Node_1.createNode(this, parent, subPath, initialValue, this.initializer);
+        return node_1.createNode(this, parent, subPath, initialValue, this.initializer);
     };
     CoreType.prototype.isValidSnapshot = function (value) {
         return utils_1.isPrimitive(value) && this.checker(value);
@@ -54,6 +54,6 @@ var CoreType = /** @class */ (function (_super) {
         return [];
     };
     return CoreType;
-}(Type_1.Type));
+}(type_1.Type));
 exports.CoreType = CoreType;
-//# sourceMappingURL=CoreType.js.map
+//# sourceMappingURL=coreType.js.map

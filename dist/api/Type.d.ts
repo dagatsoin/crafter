@@ -1,6 +1,7 @@
 import { Operation } from "fast-json-patch";
-import { Node, Instance } from "../lib/core/Node";
+import { Node, Instance, Mutation } from "../lib/core/node";
 import { TypeFlag } from "./typeFlags";
+import { IJsonPatch } from "../lib/core/jsonPatch";
 export interface IValidationError {
     value: any;
     message?: string;
@@ -10,17 +11,25 @@ export interface IType<S, T> {
     name: string;
     readonly flag: TypeFlag;
     readonly isType: boolean;
+    Type: T;
+    /**
+     * The type mutations are "static". This means that any addition/deletion will be reflected
+     * on all Instance of this Type.
+     */
+    readonly mutations: Array<string>;
     create(snapshot?: S, check?: boolean): T;
     is(thing: any): thing is S | T;
     validate(thing: any): boolean;
     getSnapshot(node: Node): any;
     applySnapshot(node: Node, snapshot: S): void;
-    instantiate(parent: Node, subPath: string, initialValue?: any): Node;
+    instantiate(parent: Node | null, subPath: string, initialValue?: any): Node;
     getValue(node: Node): T;
     getChildType(key: string): IType<any, any>;
     getChildNode(node: Node, key: string): Node;
     isAssignableFrom(type: IType<any, any>): boolean;
+    applyPatchLocally(node: Node, subpath: string, patch: IJsonPatch): void;
     describe(): string;
+    getMutation(type: string): Mutation<any> | null;
     /**
      * When a complex array is receiving a snapshot it needs to change the value of all its children. The most basic method to do this is to recreate a new Node
      * for each children.
@@ -48,6 +57,8 @@ export interface IComplexType<S, T> extends IType<S, T & Instance> {
     getDefaultSnapshot(): any;
 }
 export interface IObjectType<S, T> extends IComplexType<S, T & Instance> {
+    addMutations(mutationTypes: Array<string>): void;
+    removeMutations(mutationTypes: Array<string>): void;
 }
 export declare type IObjectProperties<T> = {
     [K in keyof T]: IType<any, T[K]> | T[K];
@@ -59,16 +70,31 @@ export declare abstract class Type<S, T> implements IType<S, T> {
     name: string;
     readonly flag: TypeFlag;
     readonly isType: boolean;
+    mutations: Array<string>;
+    protected static readonly allowedMutations: Array<{
+        mutationType: string;
+        mutation: Mutation<any>;
+    }>;
     constructor(name: string);
     abstract isValidSnapshot(value: any): boolean;
     abstract getSnapshot(node: Node): S;
     abstract instantiate(parent: Node | null, subPath: string, initialValue?: any): Node;
     abstract getChildren(node: Node): Array<Node>;
     abstract describe(): string;
+    readonly Type: T;
+    /**
+     * Register an allowed mutation for an ObjectType instance
+     * @param mutationType
+     */
+    static registerMutation(mutationType: string, mutation: Mutation<any>): void;
+    addMutations(mutationTypes: Array<string>): void;
+    removeMutations(mutationTypes: Array<string>): void;
+    getMutation(type: string): Mutation<any> | null;
     getChildNode(node: Node, key: string): Node;
     is(value: any): value is S | T;
     validate(thing: any): boolean;
     create(snapshot?: S, check?: boolean): T;
+    applyPatchLocally(node: Node, subpath: string, patch: IJsonPatch): void;
     applySnapshot(node: Node, snapshot: S): void;
     getValue(node: Node): T;
     reconcile(current: Node, newValue: any): Node;

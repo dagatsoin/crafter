@@ -1,10 +1,10 @@
 import { IObservableArray } from "mobx";
-import { IComplexType, IType } from "./Type";
-import { CoreType } from "../lib/CoreType";
-import { IdentifierType } from "../lib/Identifier";
+import { IComplexType, IType } from "./type";
+import { CoreType } from "../lib/coreType";
+import { IdentifierType } from "../lib/identifier";
 import { OptionalValue } from "../lib/Optional";
-import { ReferenceType } from "../lib/Reference";
-import { ObjectType } from "../lib/Object";
+import { ReferenceType } from "../lib/reference";
+import { ObjectType } from "../lib/object";
 export declare enum TypeFlag {
     String = 1,
     Number = 2,
@@ -19,6 +19,8 @@ export declare enum TypeFlag {
     Identifier = 1024,
     Refinement = 2048,
     Union = 4096,
+    Late = 8192,
+    Null = 16384,
 }
 export declare function isType(value: any): value is IType<any, any>;
 export declare function isPrimitiveType(type: any): type is CoreType<any, any>;

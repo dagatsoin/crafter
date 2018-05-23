@@ -11,17 +11,17 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("./utils");
-var Node_1 = require("./core/Node");
-var Type_1 = require("../api/Type");
-var TypeFlags_1 = require("../api/TypeFlags");
+var node_1 = require("./core/node");
+var type_1 = require("../api/type");
+var typeFlags_1 = require("../api/typeFlags");
 var StoredReference = /** @class */ (function () {
     function StoredReference(mode, value) {
         this.mode = mode;
         this.value = value;
         if (mode === "object") {
-            if (!Node_1.isInstance(value))
+            if (!node_1.isInstance(value))
                 utils_1.fail("Can only store references to tree nodes, got: '" + value + "'");
-            var targetNode = Node_1.getNode(value);
+            var targetNode = node_1.getNode(value);
             if (!targetNode.identifierAttribute)
                 utils_1.fail("Can only store references with a defined identifier attribute.");
         }
@@ -33,7 +33,7 @@ var ReferenceType = /** @class */ (function (_super) {
     function ReferenceType(targetType) {
         var _this = _super.call(this, "reference(" + targetType.name + ")") || this;
         _this.targetType = targetType;
-        _this.flags = TypeFlags_1.TypeFlag.Reference;
+        _this.flags = typeFlags_1.TypeFlag.Reference;
         return _this;
     }
     ReferenceType.prototype.describe = function () {
@@ -58,15 +58,15 @@ var ReferenceType = /** @class */ (function (_super) {
             case "identifier":
                 return ref.value;
             case "object":
-                return Node_1.getNode(ref.value).identifier;
+                return node_1.getNode(ref.value).identifier;
         }
     };
     ReferenceType.prototype.instantiate = function (parent, subPath, snapshot) {
-        var isComplex = Node_1.isInstance(snapshot);
-        return Node_1.createNode(this, parent, subPath, new StoredReference(isComplex ? "object" : "identifier", snapshot));
+        var isComplex = node_1.isInstance(snapshot);
+        return node_1.createNode(this, parent, subPath, new StoredReference(isComplex ? "object" : "identifier", snapshot));
     };
     ReferenceType.prototype.reconcile = function (current, newValue) {
-        var targetMode = Node_1.isInstance(newValue) ? "object" : "identifier";
+        var targetMode = node_1.isInstance(newValue) ? "object" : "identifier";
         if (utils_1.isReferenceType(current.type)) {
             var ref = current.data;
             if (targetMode === ref.mode && ref.value === newValue)
@@ -81,13 +81,13 @@ var ReferenceType = /** @class */ (function (_super) {
     };
     ReferenceType.prototype.isValidSnapshot = function (value) {
         return (typeof value === "string" || typeof value === "number")
-            || (Node_1.isInstance(value) && this.targetType.isAssignableFrom(Node_1.getNode(value).type));
+            || (node_1.isInstance(value) && this.targetType.isAssignableFrom(node_1.getNode(value).type));
     };
     ReferenceType.prototype.getChildren = function (node) {
         return [];
     };
     return ReferenceType;
-}(Type_1.Type));
+}(type_1.Type));
 exports.ReferenceType = ReferenceType;
 /**
  * Creates a reference to another type, which should have defined an identifier.
@@ -102,4 +102,4 @@ function reference(subType) {
     return new ReferenceType(subType);
 }
 exports.reference = reference;
-//# sourceMappingURL=Reference.js.map
+//# sourceMappingURL=reference.js.map

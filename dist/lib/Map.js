@@ -12,23 +12,23 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var mobx_1 = require("mobx");
 var utils_1 = require("./utils");
-var Type_1 = require("../api/Type");
-var TypeFlags_1 = require("../api/TypeFlags");
-var Node_1 = require("./core/Node");
+var type_1 = require("../api/type");
+var typeFlags_1 = require("../api/typeFlags");
+var node_1 = require("./core/node");
 function mapToString() {
-    return Node_1.getNode(this) + "(" + this.size + " items)";
+    return node_1.getNode(this) + "(" + this.size + " items)";
 }
 exports.mapToString = mapToString;
 function put(value) {
     if (!value)
         fail("Map.put cannot be used to set empty values");
     var node;
-    if (Node_1.isInstance(value)) {
-        node = Node_1.getNode(value);
+    if (node_1.isInstance(value)) {
+        node = node_1.getNode(value);
     }
     else if (utils_1.isMutable(value)) {
-        var targetType = Node_1.getNode(this).type.subType;
-        node = Node_1.getNode(targetType.create(value));
+        var targetType = node_1.getNode(this).type.subType;
+        node = node_1.getNode(targetType.create(value));
     }
     else {
         return fail("Map.put can only be used to store complex values");
@@ -43,7 +43,7 @@ var MapType = /** @class */ (function (_super) {
     function MapType(name, subType) {
         var _this = _super.call(this, name) || this;
         _this.shouldAttachNode = true;
-        _this.flags = TypeFlags_1.TypeFlag.Map;
+        _this.flags = typeFlags_1.TypeFlag.Map;
         _this.createNewInstance = function () {
             // const identifierAttr = getIdentifierAttribute(this.subType)
             var map = mobx_1.observable.shallowMap();
@@ -62,7 +62,7 @@ var MapType = /** @class */ (function (_super) {
         return _this;
     }
     MapType.prototype.instantiate = function (parent, subPath, initialValue) {
-        return Node_1.createNode(this, parent, subPath, initialValue, this.createNewInstance, this.finalizeNewInstance);
+        return node_1.createNode(this, parent, subPath, initialValue, this.createNewInstance, this.finalizeNewInstance);
     };
     MapType.prototype.describe = function () {
         return "Map<string, " + this.subType.describe() + ">";
@@ -77,7 +77,7 @@ var MapType = /** @class */ (function (_super) {
         return childNode;
     };
     MapType.prototype.willChange = function (change) {
-        var node = Node_1.getNode(change.object);
+        var node = node_1.getNode(change.object);
         switch (change.type) {
             case "update":
                 {
@@ -116,7 +116,7 @@ var MapType = /** @class */ (function (_super) {
         return res;
     };
     MapType.prototype.didChange = function (change) {
-        var node = Node_1.getNode(change.object);
+        var node = node_1.getNode(change.object);
         switch (change.type) {
             case "update":
                 return void node.emitPatch({
@@ -187,6 +187,6 @@ var MapType = /** @class */ (function (_super) {
         node.data.delete(subpath);
     };
     return MapType;
-}(Type_1.ComplexType));
+}(type_1.ComplexType));
 exports.MapType = MapType;
-//# sourceMappingURL=Map.js.map
+//# sourceMappingURL=map.js.map

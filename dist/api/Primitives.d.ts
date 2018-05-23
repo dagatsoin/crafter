@@ -1,4 +1,4 @@
-import { ISimpleType } from "./Type";
+import { ISimpleType } from "./type";
 /**
  * Creates a type that can only contain a string value.
  * This type is used for string values by default

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Node_1 = require("../lib/core/Node");
+var node_1 = require("../lib/core/node");
 var utils_1 = require("../lib/utils");
-var Type_1 = require("./Type");
+var type_1 = require("./type");
 /**
  * Returns a deep copy of the given state tree node as new tree.
  * Short hand for `snapshot(x) = getType(x).create(getSnapshot(x))`
@@ -17,7 +17,7 @@ var Type_1 = require("./Type");
 function clone(source) {
     // check all arguments
     utils_1.assertType(source, "Instance");
-    var node = Node_1.getNode(source);
+    var node = node_1.getNode(source);
     return node.type.create(node.snapshot);
 }
 exports.clone = clone;
@@ -33,13 +33,13 @@ exports.clone = clone;
 function applySnapshot(target, snapshot) {
     // check all arguments
     utils_1.assertType(target, "Instance");
-    Node_1.getNode(target).applySnapshot(snapshot);
+    node_1.getNode(target).applySnapshot(snapshot);
 }
 exports.applySnapshot = applySnapshot;
 function getSnapshot(target) {
     // check all arguments
     utils_1.assertType(target, "Instance");
-    return Node_1.getNode(target).snapshot;
+    return node_1.getNode(target).snapshot;
 }
 exports.getSnapshot = getSnapshot;
 /**
@@ -57,7 +57,7 @@ function hasParent(target, depth) {
     utils_1.assertType(depth, "number", "first");
     if (process.env.NODE_ENV !== "production" && depth < 0)
         utils_1.fail("Invalid depth: " + depth + ", should be >= 1");
-    var parent = Node_1.getNode(target).parent;
+    var parent = node_1.getNode(target).parent;
     while (parent) {
         if (--depth === 0)
             return true;
@@ -85,13 +85,13 @@ function getParent(target, depth) {
     if (process.env.NODE_ENV !== "production" && depth < 0)
         utils_1.fail("Invalid depth: " + depth + ", should be >= 1");
     var d = depth;
-    var parent = Node_1.getNode(target).parent;
+    var parent = node_1.getNode(target).parent;
     while (parent) {
         if (--d === 0)
             return parent.data;
         parent = parent.parent;
     }
-    return utils_1.fail("Failed to find the parent of " + Node_1.getNode(target) + " at depth " + depth);
+    return utils_1.fail("Failed to find the parent of " + node_1.getNode(target) + " at depth " + depth);
 }
 exports.getParent = getParent;
 /**
@@ -104,7 +104,7 @@ exports.getParent = getParent;
 function getRoot(target) {
     // check all arguments
     utils_1.assertType(target, "Instance");
-    return Node_1.getNode(target).root.data;
+    return node_1.getNode(target).root.data;
 }
 exports.getRoot = getRoot;
 /**
@@ -120,7 +120,7 @@ exports.getRoot = getRoot;
 function isAlive(target) {
     // check all arguments
     utils_1.assertType(target, "Instance", "first", true);
-    return Node_1.getNode(target).isAlive;
+    return node_1.getNode(target).isAlive;
 }
 exports.isAlive = isAlive;
 /**
@@ -129,7 +129,7 @@ exports.isAlive = isAlive;
  * @return {IType<any, any>}
  */
 function getType(instance) {
-    return Node_1.getNode(instance).type;
+    return node_1.getNode(instance).type;
 }
 exports.getType = getType;
 /**
@@ -139,7 +139,7 @@ exports.getType = getType;
  * @return {IType<any, any>}
  */
 function getChildType(instance, childName) {
-    return Node_1.getNode(instance).getChildType(childName);
+    return node_1.getNode(instance).getChildType(childName);
 }
 exports.getChildType = getChildType;
 /**
@@ -155,7 +155,7 @@ exports.getChildType = getChildType;
 function resolveIdentifier(type, target, identifier) {
     utils_1.assertType(type, "Type", "first", true);
     utils_1.assertType(target, "Instance", "second", true);
-    var node = Node_1.getNode(target).root.identifierCache.resolve(type, "" + identifier);
+    var node = node_1.getNode(target).root.identifierCache.resolve(type, "" + identifier);
     return node ? node.value : undefined;
 }
 exports.resolveIdentifier = resolveIdentifier;
@@ -166,7 +166,7 @@ exports.resolveIdentifier = resolveIdentifier;
  */
 function detach(target) {
     utils_1.assertType(target, "Instance");
-    Node_1.getNode(target).detach();
+    node_1.getNode(target).detach();
     return target;
 }
 exports.detach = detach;
@@ -184,7 +184,7 @@ function applyPatch(target, patch) {
     // check all arguments
     utils_1.assertType(target, "Instance");
     utils_1.assertType(patch, "object", "second");
-    Node_1.getNode(target).applyPatches(utils_1.asArray(patch));
+    node_1.getNode(target).applyPatches(utils_1.asArray(patch));
 }
 exports.applyPatch = applyPatch;
 /**
@@ -268,7 +268,7 @@ function onPatch(target, callback) {
     // check all arguments
     utils_1.assertType(target, "Instance");
     utils_1.assertType(callback, "function");
-    return Node_1.getNode(target).onPatch(callback);
+    return node_1.getNode(target).onPatch(callback);
 }
 exports.onPatch = onPatch;
 /**
@@ -277,7 +277,7 @@ exports.onPatch = onPatch;
  * @param mutation
  */
 function registerMutation(mutationType, mutation) {
-    Type_1.Type.registerMutation(mutationType, mutation);
+    type_1.Type.registerMutation(mutationType, mutation);
 }
 exports.registerMutation = registerMutation;
 /**
@@ -287,7 +287,7 @@ exports.registerMutation = registerMutation;
  */
 function addInstanceMutation(instance, mutationType) {
     utils_1.assertType(instance, "Instance");
-    Node_1.getNode(instance).addMutation(mutationType);
+    node_1.getNode(instance).addMutation(mutationType);
 }
 exports.addInstanceMutation = addInstanceMutation;
 /**
@@ -297,7 +297,7 @@ exports.addInstanceMutation = addInstanceMutation;
  */
 function removeInstanceMutation(instance, mutationType) {
     utils_1.assertType(instance, "Instance");
-    Node_1.getNode(instance).removeMutation(mutationType);
+    node_1.getNode(instance).removeMutation(mutationType);
 }
 exports.removeInstanceMutation = removeInstanceMutation;
 //# sourceMappingURL=utils.js.map

@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var typeFlags_1 = require("../api/typeFlags");
-var Type_1 = require("../api/Type");
+var type_1 = require("../api/type");
 var Late = /** @class */ (function (_super) {
     __extends(Late, _super);
     function Late(name, definition) {
@@ -59,6 +59,6 @@ var Late = /** @class */ (function (_super) {
         return this.subType.isAssignableFrom(type);
     };
     return Late;
-}(Type_1.Type));
+}(type_1.Type));
 exports.Late = Late;
-//# sourceMappingURL=Late.js.map
+//# sourceMappingURL=late.js.map

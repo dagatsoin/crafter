@@ -1,7 +1,9 @@
-import { Instance } from "./core/Node";
-import { ReferenceType } from "../../dist/lib/Reference";
+import { Instance, Node } from "./core/node";
+import { ReferenceType } from "./reference";
 export declare const EMPTY_ARRAY: ReadonlyArray<any>;
 export declare const EMPTY_OBJECT: {};
+export declare type IDisposer = () => void;
+export declare function isArray(val: any): boolean;
 /**
  * Return the
  * @param _
@@ -59,3 +61,8 @@ export declare function escapeJsonPath(str: string): string;
  */
 export declare function unescapeJsonPath(str: string): string;
 export declare function addHiddenFinalProp(object: any, propName: string, value: any): void;
+export declare function remove<T>(collection: T[], item: T): void;
+export declare function registerEventHandler(handlers: Function[], handler: Function): IDisposer;
+export declare function asArray<T>(val: undefined | null | T | T[]): T[];
+export declare function resolvePath(node: Node, pathParts: string[]): Node;
+export declare function resolvePath(node: Node, pathParts: string[], failIfResolveFails: boolean): Node | undefined;

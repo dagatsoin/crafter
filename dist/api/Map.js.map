@@ -1,1 +1,1 @@
-{"version":3,"file":"Map.js","sourceRoot":"","sources":["../../src/api/Map.ts"],"names":[],"mappings":";AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;GA0BG;;AAEH,kCAA2D;AAG3D,aACI,OAAoB;IAEpB,MAAM,CAAC,IAAI,aAAO,CAAO,iBAAe,OAAO,CAAC,IAAI,MAAG,EAAE,OAAO,CAAC,CAAC;AACtE,CAAC;AAJD,kBAIC"}
+{"version":3,"file":"map.js","sourceRoot":"","sources":["../../src/api/map.ts"],"names":[],"mappings":";AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;GA0BG;;AAEH,kCAA2D;AAG3D,aACI,OAAoB;IAEpB,MAAM,CAAC,IAAI,aAAO,CAAO,iBAAe,OAAO,CAAC,IAAI,MAAG,EAAE,OAAO,CAAC,CAAC;AACtE,CAAC;AAJD,kBAIC"}

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Node_1 = require("./core/Node");
-var TypeFlags_1 = require("../api/TypeFlags");
+var node_1 = require("./core/node");
+var typeFlags_1 = require("../api/typeFlags");
 var jsonPatch_1 = require("./core/jsonPatch");
 var mobx_1 = require("mobx");
 exports.EMPTY_ARRAY = Object.freeze([]);
@@ -86,9 +86,9 @@ function walk(start, process) {
     // check all arguments
     assertType(start, "Instance");
     assertType(process, "function", "second");
-    var node = Node_1.getNode(start);
+    var node = node_1.getNode(start);
     node.children.forEach(function (child) {
-        if (Node_1.isInstance(child.data))
+        if (node_1.isInstance(child.data))
             walk(child.data, process);
     });
     process(node.data);
@@ -105,7 +105,7 @@ function safeStringify(value) {
 function prettyPrintValue(value) {
     return typeof value === "function"
         ? "<function" + (value.name ? " " + value.name : "") + ">"
-        : Node_1.isInstance(value) ? "<" + value + ">" : "`" + safeStringify(value) + "`";
+        : node_1.isInstance(value) ? "<" + value + ">" : "`" + safeStringify(value) + "`";
 }
 exports.prettyPrintValue = prettyPrintValue;
 /**
@@ -126,17 +126,17 @@ function assertType(value, type, rank, force) {
             fail("expected " + (rank + " " || "") + "argument to be a number, got " + prettyPrintValue(value) + " instead.");
         if (type === "function" && typeof value !== "function")
             fail("expected " + (rank + " " || "") + "argument to be a function, got " + prettyPrintValue(value) + " instead.");
-        if (type === "Type" && !TypeFlags_1.isType(value))
+        if (type === "Type" && !typeFlags_1.isType(value))
             fail("expected " + (rank + " " || "") + "argument to be a Type, got " + prettyPrintValue(value) + " instead.");
-        if (TypeFlags_1.isType(type) && !type.validate(value))
+        if (typeFlags_1.isType(type) && !type.validate(value))
             fail("expected " + (rank + " " || "") + "argument to be a " + type.name + ", got " + prettyPrintValue(value) + " instead.");
-        if (type === "Instance" && !Node_1.isInstance(value))
+        if (type === "Instance" && !node_1.isInstance(value))
             fail("expected " + (rank + " " || "") + "argument to be an Instance, got " + prettyPrintValue(value) + " instead.");
     }
 }
 exports.assertType = assertType;
 function isReferenceType(type) {
-    return (type.flags & TypeFlags_1.TypeFlag.Reference) > 0;
+    return (type.flags & typeFlags_1.TypeFlag.Reference) > 0;
 }
 exports.isReferenceType = isReferenceType;
 /**

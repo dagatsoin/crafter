@@ -10,9 +10,9 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Type_1 = require("../api/Type");
-var TypeFlags_1 = require("../api/TypeFlags");
-var Node_1 = require("./core/Node");
+var type_1 = require("../api/type");
+var typeFlags_1 = require("../api/typeFlags");
+var node_1 = require("./core/node");
 var Refinement = /** @class */ (function (_super) {
     __extends(Refinement, _super);
     function Refinement(name, type, predicate, message) {
@@ -27,7 +27,7 @@ var Refinement = /** @class */ (function (_super) {
     };
     Object.defineProperty(Refinement.prototype, "flag", {
         get: function () {
-            return this.type.flag | TypeFlags_1.TypeFlag.Refinement;
+            return this.type.flag | typeFlags_1.TypeFlag.Refinement;
         },
         enumerable: true,
         configurable: true
@@ -47,9 +47,9 @@ var Refinement = /** @class */ (function (_super) {
     Refinement.prototype.isValidSnapshot = function (value) {
         if (!this.type.validate(value))
             return false;
-        return this.predicate(Node_1.isInstance(value) ? Node_1.getNode(value).snapshot : value);
+        return this.predicate(node_1.isInstance(value) ? node_1.getNode(value).snapshot : value);
     };
     return Refinement;
-}(Type_1.Type));
+}(type_1.Type));
 exports.Refinement = Refinement;
-//# sourceMappingURL=Refinement.js.map
+//# sourceMappingURL=refinement.js.map

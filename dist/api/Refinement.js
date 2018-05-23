@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var TypeFlags_1 = require("./TypeFlags");
-var Refinement_1 = require("../lib/Refinement");
+var typeFlags_1 = require("./typeFlags");
+var refinement_1 = require("../lib/refinement");
 var utils_1 = require("../lib/utils");
 /**
  * `types.refinement(baseType, (snapshot) => boolean)` creates a type that is more specific than the base type, e.g. `types.refinement(types.string, value => value.length > 5)` to create a type of strings that can only be longer then 5.
@@ -17,7 +17,7 @@ function refinement() {
     for (var _i = 0; _i < arguments.length; _i++) {
         args[_i] = arguments[_i];
     }
-    var name = typeof args[0] === "string" ? args.shift() : TypeFlags_1.isType(args[0]) ? args[0].name : null;
+    var name = typeof args[0] === "string" ? args.shift() : typeFlags_1.isType(args[0]) ? args[0].name : null;
     var type = args[0];
     var predicate = args[1];
     var message = args[2]
@@ -28,7 +28,7 @@ function refinement() {
     utils_1.assertType(type, "Type", "first or second");
     utils_1.assertType(predicate, "function");
     utils_1.assertType(message, "function");
-    return new Refinement_1.Refinement(name, type, predicate, message);
+    return new refinement_1.Refinement(name, type, predicate, message);
 }
 exports.refinement = refinement;
 //# sourceMappingURL=refinement.js.map

@@ -10,13 +10,13 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Type_1 = require("../api/Type");
+var type_1 = require("../api/type");
 var utils_1 = require("./utils");
 var mobx_1 = require("mobx");
-var Node_1 = require("./core/Node");
+var node_1 = require("./core/node");
 var typeFlags_1 = require("../api/typeFlags");
 function arrayToString() {
-    return Node_1.getNode(this) + "(" + this.length + " items)";
+    return node_1.getNode(this) + "(" + this.length + " items)";
 }
 exports.arrayToString = arrayToString;
 var ArrayType = /** @class */ (function (_super) {
@@ -45,7 +45,7 @@ var ArrayType = /** @class */ (function (_super) {
         return node.children.map(function (childNode) { return childNode.snapshot; });
     };
     ArrayType.prototype.instantiate = function (parent, subPath, initialValue) {
-        return Node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);
+        return node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);
     };
     ArrayType.prototype.getDefaultSnapshot = function () {
         return [];
@@ -84,7 +84,7 @@ var ArrayType = /** @class */ (function (_super) {
         }
     };
     ArrayType.prototype.willChange = function (change) {
-        var node = Node_1.getNode(change.object);
+        var node = node_1.getNode(change.object);
         var children = node.children;
         switch (change.type) {
             case "update":
@@ -104,7 +104,7 @@ var ArrayType = /** @class */ (function (_super) {
         return change;
     };
     ArrayType.prototype.didChange = function (change) {
-        var node = Node_1.getNode(change.object);
+        var node = node_1.getNode(change.object);
         switch (change.type) {
             case "update":
                 return void node.emitPatch({
@@ -149,27 +149,27 @@ var ArrayType = /** @class */ (function (_super) {
             }
             else if (!currentNode) {
                 // check if already belongs to the same parent. if so, avoid pushing item in. only swapping can occur.
-                if (Node_1.isInstance(newValue) && Node_1.getNode(newValue).parent === parent) {
+                if (node_1.isInstance(newValue) && node_1.getNode(newValue).parent === parent) {
                     // this node is owned by this parent, but not in the reconcilable set, so it must be double
-                    utils_1.fail("Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '" + parent.path + newPaths[i] + "', but it lives already at '" + Node_1.getNode(newValue).path + "'");
+                    utils_1.fail("Cannot add an object to a state tree if it is already part of the same or another state tree. Tried to assign an object to '" + parent.path + newPaths[i] + "', but it lives already at '" + node_1.getNode(newValue).path + "'");
                 }
-                currentNodes.splice(i, 0, Node_1.valueAsNode(childType, parent, "" + newPaths[i], newValue));
+                currentNodes.splice(i, 0, node_1.valueAsNode(childType, parent, "" + newPaths[i], newValue));
                 // both are the same, reconcile
             }
-            else if (Node_1.areSame(currentNode, newValue)) {
-                currentNodes[i] = Node_1.valueAsNode(childType, parent, "" + newPaths[i], newValue, currentNode);
+            else if (node_1.areSame(currentNode, newValue)) {
+                currentNodes[i] = node_1.valueAsNode(childType, parent, "" + newPaths[i], newValue, currentNode);
                 // nothing to do, try to reorder
             }
             else {
                 currentMatch = undefined;
                 // find a possible candidate to reuse
                 for (var j = i; j < currentNodes.length; j++) {
-                    if (Node_1.areSame(currentNodes[j], newValue)) {
+                    if (node_1.areSame(currentNodes[j], newValue)) {
                         currentMatch = currentNodes.splice(j, 1)[0];
                         break;
                     }
                 }
-                currentNodes.splice(i, 0, Node_1.valueAsNode(childType, parent, "" + newPaths[i], newValue, currentMatch));
+                currentNodes.splice(i, 0, node_1.valueAsNode(childType, parent, "" + newPaths[i], newValue, currentMatch));
             }
         }
         return currentNodes;
@@ -178,6 +178,6 @@ var ArrayType = /** @class */ (function (_super) {
         return this.itemType;
     };
     return ArrayType;
-}(Type_1.ComplexType));
+}(type_1.ComplexType));
 exports.ArrayType = ArrayType;
-//# sourceMappingURL=Array.js.map
+//# sourceMappingURL=array.js.map

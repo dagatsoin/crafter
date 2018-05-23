@@ -1,7 +1,7 @@
 import { IMapChange, IMapWillChange, ObservableMap } from "mobx";
-import { ComplexType, IType } from "../api/Type";
-import { TypeFlag } from "../api/TypeFlags";
-import { Node } from "./core/Node";
+import { ComplexType, IType } from "../api/type";
+import { TypeFlag } from "../api/typeFlags";
+import { Node } from "./core/node";
 import { IJsonPatch } from "./core/jsonPatch";
 export interface IExtendedObservableMap<T> extends ObservableMap<T> {
     put(value: T | any): this;

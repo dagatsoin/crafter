@@ -10,21 +10,21 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Type_1 = require("../api/Type");
-var TypeFlags_1 = require("../api/TypeFlags");
-var Node_1 = require("./core/Node");
+var type_1 = require("../api/type");
+var typeFlags_1 = require("../api/typeFlags");
+var node_1 = require("./core/node");
 var Frozen = /** @class */ (function (_super) {
     __extends(Frozen, _super);
     function Frozen() {
         var _this = _super.call(this, "frozen") || this;
-        _this.flag = TypeFlags_1.TypeFlag.Frozen;
+        _this.flag = typeFlags_1.TypeFlag.Frozen;
         return _this;
     }
     Frozen.prototype.describe = function () {
         return "<any immutable value>";
     };
     Frozen.prototype.instantiate = function (parent, subpath, value) {
-        return Node_1.createNode(this, parent, subpath, value);
+        return node_1.createNode(this, parent, subpath, value);
     };
     Frozen.prototype.isValidSnapshot = function (value) {
         return typeof value !== "function";
@@ -36,6 +36,6 @@ var Frozen = /** @class */ (function (_super) {
         throw new Error("Method not implemented.");
     };
     return Frozen;
-}(Type_1.Type));
+}(type_1.Type));
 exports.Frozen = Frozen;
 //# sourceMappingURL=frozen.js.map

@@ -1,6 +1,6 @@
-import { Node } from "./core/Node";
-import { IType, Type } from "../api/Type";
-import { TypeFlag } from "../api/TypeFlags";
+import { Node } from "./core/node";
+import { IType, Type } from "../api/type";
+import { TypeFlag } from "../api/typeFlags";
 export declare class ReferenceType<T> extends Type<string | number, T> {
     private readonly targetType;
     readonly flags: TypeFlag;

@@ -1,6 +1,6 @@
-import { ComplexType, IType } from "../api/Type";
+import { ComplexType, IType } from "../api/type";
 import { IArrayChange, IArraySplice, IObservableArray } from "mobx";
-import { Instance, Node } from "./core/Node";
+import { Instance, Node } from "./core/node";
 import { TypeFlag } from "../api/typeFlags";
 import { IJsonPatch } from "./core/jsonPatch";
 export declare function arrayToString(this: IObservableArray<any> & Instance): string;

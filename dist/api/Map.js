@@ -27,9 +27,9 @@
  * @returns {IComplexType<S[], IObservableArray<T>>}
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-var Map_1 = require("../lib/Map");
+var map_1 = require("../lib/map");
 function map(subtype) {
-    return new Map_1.MapType("map<string, " + subtype.name + ">", subtype);
+    return new map_1.MapType("map<string, " + subtype.name + ">", subtype);
 }
 exports.map = map;
-//# sourceMappingURL=Map.js.map
+//# sourceMappingURL=map.js.map

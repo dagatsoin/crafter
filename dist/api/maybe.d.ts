@@ -1,4 +1,4 @@
-import { IType } from "./Type";
+import { IType } from "./type";
 /**
  * Maybe will make a type nullable, and also null by default.
  *

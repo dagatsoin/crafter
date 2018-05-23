@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var Optional_1 = require("../lib/Optional");
-var Node_1 = require("../lib/core/Node");
+var node_1 = require("../lib/core/node");
 var utils_1 = require("../../dist/lib/utils");
-var TypeFlags_1 = require("./TypeFlags");
+var typeFlags_1 = require("./typeFlags");
 /**
  * `types.optional` can be used to create a property with a default value.
  * If the given value is not provided in the snapshot, it will default to the provided `defaultValue`.
@@ -25,17 +25,17 @@ var TypeFlags_1 = require("./TypeFlags");
  */
 function optional(type, defaultValueOrFunction) {
     if (process.env.NODE_ENV !== "production") {
-        if (!TypeFlags_1.isType(type))
+        if (!typeFlags_1.isType(type))
             fail("expected a mobx-state-tree type as first argument, got " + type + " instead");
         var defaultValue = typeof defaultValueOrFunction === "function"
             ? defaultValueOrFunction()
             : defaultValueOrFunction;
-        var defaultSnapshot = Node_1.isInstance(defaultValue)
-            ? Node_1.getNode(defaultValue).snapshot
+        var defaultSnapshot = node_1.isInstance(defaultValue)
+            ? node_1.getNode(defaultValue).snapshot
             : defaultValue;
         utils_1.assertType(type, defaultSnapshot);
     }
     return new Optional_1.OptionalValue(type, defaultValueOrFunction);
 }
 exports.optional = optional;
-//# sourceMappingURL=Optional.js.map
+//# sourceMappingURL=optional.js.map

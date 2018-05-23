@@ -1,5 +1,5 @@
-import { Type } from "../api/Type";
-import { Node } from "./core/Node";
+import { Type } from "../api/type";
+import { Node } from "./core/node";
 import { TypeFlag } from "../api/typeFlags";
 /**
  * From MST implementation https://github.com/mobxjs/mobx-state-tree/blob/master/src/types/primitives.ts

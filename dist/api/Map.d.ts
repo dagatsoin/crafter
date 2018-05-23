@@ -25,8 +25,8 @@
  * @param {IType<S, T>} subtype
  * @returns {IComplexType<S[], IObservableArray<T>>}
  */
-import { IExtendedObservableMap } from "../lib/Map";
-import { IComplexType, IType } from "./Type";
+import { IExtendedObservableMap } from "../lib/map";
+import { IComplexType, IType } from "./type";
 export declare function map<S, T>(subtype: IType<S, T>): IComplexType<{
     [key: string]: S;
 }, IExtendedObservableMap<T>>;

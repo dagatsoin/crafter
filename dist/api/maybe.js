@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Union_1 = require("./Union");
-var Optional_1 = require("./Optional");
-var Primitives_1 = require("./Primitives");
-var optionalNullType = Optional_1.optional(Primitives_1.nullType, null);
+var union_1 = require("./union");
+var optional_1 = require("./optional");
+var primitives_1 = require("./primitives");
+var optionalNullType = optional_1.optional(primitives_1.nullType, null);
 /**
  * Maybe will make a type nullable, and also null by default.
  *
@@ -15,7 +15,7 @@ var optionalNullType = Optional_1.optional(Primitives_1.nullType, null);
  * @returns {(IType<S | null | undefined, T | null>)}
  */
 function maybe(type) {
-    return Union_1.union(optionalNullType, type);
+    return union_1.union(optionalNullType, type);
 }
 exports.maybe = maybe;
 //# sourceMappingURL=maybe.js.map

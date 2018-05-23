@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Reference_1 = require("../lib/Reference");
+var reference_1 = require("../lib/reference");
 var utils_1 = require("../lib/utils");
 /**
  * Creates a reference to another type, which should have defined an identifier.
@@ -10,7 +10,7 @@ var utils_1 = require("../lib/utils");
  */
 function reference(subType) {
     utils_1.assertType(subType, "Type");
-    return new Reference_1.ReferenceType(subType);
+    return new reference_1.ReferenceType(subType);
 }
 exports.reference = reference;
 //# sourceMappingURL=reference.js.map

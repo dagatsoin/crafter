@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var mobx_1 = require("mobx");
 var utils_1 = require("../utils");
-var IdentifierCache_1 = require("./IdentifierCache");
+var identifierCache_1 = require("./identifierCache");
 var jsonPatch_1 = require("./jsonPatch");
 /**
  * This is a internal cache to quickly retirieve a Node which use a mutation instead of crawling the whole tree.
@@ -45,7 +45,7 @@ var Node = /** @class */ (function () {
         if (canAttachNode(this.data))
             utils_1.addHiddenFinalProp(this.data, "$node", this);
         if (this.isRoot)
-            this.identifierCache = new IdentifierCache_1.IdentifierCache();
+            this.identifierCache = new identifierCache_1.IdentifierCache();
         var sawExceptions = true;
         try {
             /* 3 - Build and hydration phase. */
@@ -459,4 +459,4 @@ function areSame(node, value) {
         value[node.identifierAttribute] === node.identifier);
 }
 exports.areSame = areSame;
-//# sourceMappingURL=Node.js.map
+//# sourceMappingURL=node.js.map

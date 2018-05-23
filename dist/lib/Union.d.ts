@@ -1,6 +1,6 @@
-import { Node } from "./core/Node";
-import { IType, Type } from "../api/Type";
-import { TypeFlag } from "../api/TypeFlags";
+import { Node } from "./core/node";
+import { IType, Type } from "../api/type";
+import { TypeFlag } from "../api/typeFlags";
 export declare type ITypeDispatcher = (snapshot: any) => IType<any, any>;
 export declare class Union extends Type<any, any> {
     readonly dispatcher: ITypeDispatcher | null;

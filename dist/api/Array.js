@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Array_1 = require("../lib/Array");
+var array_1 = require("../lib/array");
 function array(subtype) {
-    return new Array_1.ArrayType(subtype.name + "[]", subtype);
+    return new array_1.ArrayType(subtype.name + "[]", subtype);
 }
 exports.array = array;
-//# sourceMappingURL=Array.js.map
+//# sourceMappingURL=array.js.map

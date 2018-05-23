@@ -10,15 +10,15 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Type_1 = require("../api/Type");
-var Node_1 = require("./core/Node");
+var type_1 = require("../api/type");
+var node_1 = require("./core/node");
 var utils_1 = require("./utils");
-var TypeFlags_1 = require("../api/TypeFlags");
+var typeFlags_1 = require("../api/typeFlags");
 var OptionalValue = /** @class */ (function (_super) {
     __extends(OptionalValue, _super);
     function OptionalValue(type, defaultValue) {
         var _this = _super.call(this, type.name) || this;
-        _this.flag = TypeFlags_1.TypeFlag.Optional;
+        _this.flag = typeFlags_1.TypeFlag.Optional;
         _this.type = type;
         _this.defaultValue = defaultValue;
         return _this;
@@ -29,8 +29,8 @@ var OptionalValue = /** @class */ (function (_super) {
     OptionalValue.prototype.instantiate = function (parent, subPath, value) {
         if (value === undefined) {
             var defaultValue = this.getDefaultValue();
-            var defaultSnapshot = Node_1.isInstance(defaultValue)
-                ? Node_1.getNode(defaultValue).snapshot
+            var defaultSnapshot = node_1.isInstance(defaultValue)
+                ? node_1.getNode(defaultValue).snapshot
                 : defaultValue;
             return this.type.instantiate(parent, subPath, defaultSnapshot);
         }
@@ -59,6 +59,6 @@ var OptionalValue = /** @class */ (function (_super) {
         return this.type.getChildren(node);
     };
     return OptionalValue;
-}(Type_1.Type));
+}(type_1.Type));
 exports.OptionalValue = OptionalValue;
 //# sourceMappingURL=Optional.js.map

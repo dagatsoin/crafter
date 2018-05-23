@@ -10,18 +10,18 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Type_1 = require("../api/Type");
-var Node_1 = require("./core/Node");
+var type_1 = require("../api/type");
+var node_1 = require("./core/node");
 var mobx_1 = require("mobx");
 var utils_1 = require("./utils");
-var Primitives_1 = require("../api/Primitives");
-var Optional_1 = require("../api/Optional");
-var TypeFlags_1 = require("../api/TypeFlags");
+var primitives_1 = require("../api/primitives");
+var optional_1 = require("../api/optional");
+var typeFlags_1 = require("../api/typeFlags");
 var ObjectType = /** @class */ (function (_super) {
     __extends(ObjectType, _super);
     function ObjectType(opts) {
         var _this = _super.call(this, opts.name || "AnonymousObject") || this;
-        _this.flag = TypeFlags_1.TypeFlag.Object;
+        _this.flag = typeFlags_1.TypeFlag.Object;
         _this.mutations = [];
         _this.properties = {};
         /**
@@ -66,7 +66,7 @@ var ObjectType = /** @class */ (function (_super) {
                     !Object.keys(value).length;
     };
     ObjectType.prototype.instantiate = function (parent, subPath, initialValue) {
-        return Node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);
+        return node_1.createNode(this, parent, subPath, initialValue, this.createEmptyInstance, this.buildInstance);
     };
     ObjectType.prototype.getSnapshot = function (node) {
         var _this = this;
@@ -101,14 +101,14 @@ var ObjectType = /** @class */ (function (_super) {
         return {};
     };
     ObjectType.prototype.willChange = function (change) {
-        var node = Node_1.getNode(change.object);
+        var node = node_1.getNode(change.object);
         var type = this.properties[change.name];
         utils_1.assertType(change.newValue, type);
         change.newValue = type.reconcile(node.getChildNode(change.name), change.newValue);
         return change;
     };
     ObjectType.prototype.didChange = function (change) {
-        var node = Node_1.getNode(change.object);
+        var node = node_1.getNode(change.object);
         node.emitPatch({
             op: "replace",
             path: utils_1.escapeJsonPath(change.name),
@@ -140,7 +140,7 @@ var ObjectType = /** @class */ (function (_super) {
         return this.properties[key];
     };
     return ObjectType;
-}(Type_1.ComplexType));
+}(type_1.ComplexType));
 exports.ObjectType = ObjectType;
 /**
  * Return safe to use properties.
@@ -165,10 +165,10 @@ function sanitizeProperties(properties) {
         else if (utils_1.isPrimitive(value)) {
             // its a primitive, convert to its type
             return Object.assign({}, properties, (_a = {},
-                _a[key] = Optional_1.optional(Primitives_1.getPrimitiveFactoryFromValue(value), value),
+                _a[key] = optional_1.optional(primitives_1.getPrimitiveFactoryFromValue(value), value),
                 _a));
         }
-        else if (TypeFlags_1.isType(value)) {
+        else if (typeFlags_1.isType(value)) {
             // its already a type
             return properties;
         }

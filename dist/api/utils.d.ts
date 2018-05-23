@@ -1,6 +1,6 @@
-import { Instance, Mutation } from "../lib/core/Node";
+import { Instance, Mutation } from "../lib/core/node";
 import { IDisposer } from "../lib/utils";
-import { IType } from "./Type";
+import { IType } from "./type";
 import { IJsonPatch } from "../lib/core/jsonPatch";
 /**
  * Returns a deep copy of the given state tree node as new tree.

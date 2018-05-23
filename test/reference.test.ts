@@ -26,7 +26,7 @@ test("it should support prefixed paths in arrays", function () {
 
     const store = UserStore.create({
         user: "17",
-        users: [{ id: "17", name: "TheWen" }, { id: "18", name: "Fraktar" }]
+        users: [ { id: "17", name: "TheWen" }, { id: "18", name: "Fraktar" } ]
     });
 
     expect(store.users.find(user => user.id === "17")!.name as string).toEqual("TheWen");
@@ -38,7 +38,7 @@ test("it should support prefixed paths in arrays", function () {
     expect(store.user.name).toEqual("Charlize");
     expect(getSnapshot(store)).toEqual({
         user: "18",
-        users: [{ id: "17", name: "TheWen" }, { id: "18", name: "Charlize" }]
+        users: [ { id: "17", name: "TheWen" }, { id: "18", name: "Charlize" } ]
     } as any);
 });
 
@@ -267,7 +267,7 @@ test("when applying a snapshot, reference should resolve correctly if value adde
     });
     expect(() => Factory.create({
         selected: 1,
-        boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
+        boxes: [ { id: 1, name: "hello" }, { id: 2, name: "world" } ]
     })
     ).not.toThrow();
 });
@@ -289,8 +289,8 @@ test("it should fail when reference snapshot is ambiguous", function () {
     });
     const store = Factory.create({
         selected: 2,
-        boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }],
-        arrows: [{ id: 2, name: "arrow" }]
+        boxes: [ { id: 1, name: "hello" }, { id: 2, name: "world" } ],
+        arrows: [ { id: 2, name: "arrow" } ]
     });
     expect(() => {
         store.selected; // store.boxes[1] // throws because it can't know if you mean a box or an arrow!
@@ -298,10 +298,10 @@ test("it should fail when reference snapshot is ambiguous", function () {
 
     // first update the reference, than create a new matching item! Ref becomes ambigous now...
     store.selected = 1 as any;
-    expect(store.selected).toEqual(store.boxes[0]); // unambigous identifier
+    expect(store.selected).toEqual(store.boxes[ 0 ]); // unambigous identifier
     let err;
     autorun(() => store.selected).onError(e => (err = e));
-    expect(store.selected).toEqual(store.boxes[0]); // unambigous identifier
+    expect(store.selected).toEqual(store.boxes[ 0 ]); // unambigous identifier
     store.arrows.push({ id: 1, name: "oops" });
     expect(err.message).toEqual(
         "[crafter] Cannot resolve a reference to type '(Arrow | Box)' with id: '1' unambigously, there are multiple candidates: /boxes/0, /arrows/1"
@@ -319,12 +319,12 @@ test("it should support array of references", function () {
     });
     const store = Factory.create({
         selected: [],
-        boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
+        boxes: [ { id: 1, name: "hello" }, { id: 2, name: "world" } ]
     });
-    expect(() => store.selected.push(store.boxes[0])).not.toThrow();
-    expect(getSnapshot(store.selected)).toEqual([1]);
-    expect(() => store.selected.push(store.boxes[1])).not.toThrow();
-    expect(getSnapshot(store.selected)).toEqual([1, 2]);
+    expect(() => store.selected.push(store.boxes[ 0 ])).not.toThrow();
+    expect(getSnapshot(store.selected)).toEqual([ 1 ]);
+    expect(() => store.selected.push(store.boxes[ 1 ])).not.toThrow();
+    expect(getSnapshot(store.selected)).toEqual([ 1, 2 ]);
 });
 
 test("it should restore array of references from snapshot", function () {
@@ -337,11 +337,11 @@ test("it should restore array of references from snapshot", function () {
         boxes: array(Box)
     });
     const store = Factory.create({
-        selected: [1, 2],
-        boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
+        selected: [ 1, 2 ],
+        boxes: [ { id: 1, name: "hello" }, { id: 2, name: "world" } ]
     });
-    expect(store.selected[0] === store.boxes[0]).toBeTruthy();
-    expect(store.selected[1] === store.boxes[1]).toBeTruthy();
+    expect(store.selected[ 0 ] === store.boxes[ 0 ]).toBeTruthy();
+    expect(store.selected[ 1 ] === store.boxes[ 1 ]).toBeTruthy();
 });
 
 test("it should support map of references", function () {
@@ -355,11 +355,11 @@ test("it should support map of references", function () {
     });
     const store = Factory.create({
         selected: {},
-        boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
+        boxes: [ { id: 1, name: "hello" }, { id: 2, name: "world" } ]
     });
-    expect(() => store.selected.set("from", store.boxes[0])).not.toThrow();
+    expect(() => store.selected.set("from", store.boxes[ 0 ])).not.toThrow();
     expect(getSnapshot(store.selected)).toEqual({ from: 1 });
-    expect(() => store.selected.set("to", store.boxes[1])).not.toThrow();
+    expect(() => store.selected.set("to", store.boxes[ 1 ])).not.toThrow();
     expect(getSnapshot(store.selected)).toEqual({ from: 1, to: 2 });
 });
 
@@ -374,10 +374,10 @@ test("it should restore map of references from snapshot", function () {
     });
     const store = Factory.create({
         selected: { from: 1, to: 2 },
-        boxes: [{ id: 1, name: "hello" }, { id: 2, name: "world" }]
+        boxes: [ { id: 1, name: "hello" }, { id: 2, name: "world" } ]
     });
-    expect(store.selected.get("from") === store.boxes[0]).toBeTruthy();
-    expect(store.selected.get("to") === store.boxes[1]).toBeTruthy();
+    expect(store.selected.get("from") === store.boxes[ 0 ]).toBeTruthy();
+    expect(store.selected.get("to") === store.boxes[ 1 ]).toBeTruthy();
 });
 
 test("it should support relative lookups", function () {
@@ -404,23 +404,23 @@ test("it should support relative lookups", function () {
 
     expect(getSnapshot(root)).toEqual({
         id: 1,
-        children: [{ id: 2, children: [{ id: 4, children: [] }] }, { id: 3, children: [] }]
+        children: [ { id: 2, children: [ { id: 4, children: [] } ] }, { id: 3, children: [] } ]
     });
     expect(resolveIdentifier(Node, root, 1)).toEqual(root);
-    expect(resolveIdentifier(Node, root, 4)).toEqual(root.children[0].children[0]);
-    expect(resolveIdentifier(Node, root.children[0].children[0], 3)).toEqual(root.children[1]);
-    const n2 = detach(root.children[0]);
+    expect(resolveIdentifier(Node, root, 4)).toEqual(root.children[ 0 ].children[ 0 ]);
+    expect(resolveIdentifier(Node, root.children[ 0 ].children[ 0 ], 3)).toEqual(root.children[ 1 ]);
+    const n2 = detach(root.children[ 0 ]);
     expect(resolveIdentifier(Node, n2, 2)).toEqual(n2);
     expect(resolveIdentifier(Node, root, 2)).toEqual(undefined);
     expect(resolveIdentifier(Node, root, 4)).toEqual(undefined);
     expect(resolveIdentifier(Node, n2, 3)).toEqual(undefined);
-    expect(resolveIdentifier(Node, n2, 4)).toEqual(n2.children[0]);
-    expect(resolveIdentifier(Node, n2.children[0], 2)).toEqual(n2);
+    expect(resolveIdentifier(Node, n2, 4)).toEqual(n2.children[ 0 ]);
+    expect(resolveIdentifier(Node, n2.children[ 0 ], 2)).toEqual(n2);
     const n5 = Node.create({ id: 5 });
     expect(resolveIdentifier(Node, n5, 4)).toEqual(undefined);
     n2.children.push(n5);
-    expect(resolveIdentifier(Node, n5, 4)).toEqual(n2.children[0]);
-    expect(resolveIdentifier(Node, n2.children[0], 5)).toEqual(n5);
+    expect(resolveIdentifier(Node, n5, 4)).toEqual(n2.children[ 0 ]);
+    expect(resolveIdentifier(Node, n2.children[ 0 ], 5)).toEqual(n5);
 });
 
 test("References are non-nullable by default", function () {
@@ -484,34 +484,34 @@ test("References in recursive structures", function () {
         data: maybe(reference(Folder))
     });
 
-    registerMutation<typeof Tree.Type>("ADD_FOLDER", (self, data) => {
+    registerMutation<typeof Tree.Type>("ADD_FOLDER", (self, data: typeof Folder.Type) => {
         const folder = Folder.create(data);
-        getRoot(self).putFolderHelper(folder)
+        getRoot(self).$node.present([ { mutationType: "PUT_FOLDER", data: folder } ]);
         self.children.push(Tree.create({ data: folder, children: [] }))
     });
 
-    Tree.addMutations(["ADD_FOLDER"]);
+    Tree.addMutations([ "ADD_FOLDER" ]);
 
     const Storage = object("Storage", {
         objects: map(Folder),
         tree: Tree
     });
 
-    registerMutation<typeof Storage.Type>("PUT_FOLDER", self => ({
-        putFolderHelper(folder) {
-            self.objects.put(folder)
-        }
-    }))
+    registerMutation<typeof Storage.Type>("PUT_FOLDER", (self, data: typeof Folder.Type) => {
+        self.objects.put(data)
+    })
+
+    Storage.addMutations([ "PUT_FOLDER" ]);
 
     const store = Storage.create({ objects: {}, tree: { children: [], data: null } })
-    const folder = { id: "1", name: "Folder 1", files: ["a.jpg", "b.jpg"] }
-    
-    present([{ type: "ADD_FOLDER", data: folder }]);
+    const folder = { id: "1", name: "Folder 1", files: [ "a.jpg", "b.jpg" ] }
+
+    store.tree.$node.present([ { mutationType: "ADD_FOLDER", data: folder } ]);
 
     expect(getSnapshot(store)).toEqual({
         objects: {
             "1": {
-                files: ["a.jpg", "b.jpg"],
+                files: [ "a.jpg", "b.jpg" ],
                 id: "1",
                 name: "Folder 1"
             }
@@ -526,22 +526,22 @@ test("References in recursive structures", function () {
             data: null
         }
     });
-    
-    expect(store.objects.get("1")).toEqual(store.tree.children[0].data);
-    
-    const folder2 = { id: "2", name: "Folder 2", files: ["c.jpg", "d.jpg"] };
 
-    store.tree.present([{ type: "ADD_FOLDER", data: folder2 }]);
+    expect(store.objects.get("1")).toEqual(store.tree.children[ 0 ].data);
+
+    const folder2 = { id: "2", name: "Folder 2", files: [ "c.jpg", "d.jpg" ] };
+
+    store.tree.children[0].$node.present([ { mutationType: "ADD_FOLDER", data: folder2 } ]);
 
     expect(getSnapshot(store)).toEqual({
         objects: {
             "1": {
-                files: ["a.jpg", "b.jpg"],
+                files: [ "a.jpg", "b.jpg" ],
                 id: "1",
                 name: "Folder 1"
             },
             "2": {
-                files: ["c.jpg", "d.jpg"],
+                files: [ "c.jpg", "d.jpg" ],
                 id: "2",
                 name: "Folder 2"
             }
@@ -561,8 +561,8 @@ test("References in recursive structures", function () {
             data: null
         }
     });
-    expect(store.objects.get("1")).toEqual(store.tree.children[0].data);
-    expect(store.objects.get("2")).toEqual(store.tree.children[0].children[0].data);
+    expect(store.objects.get("1")).toEqual(store.tree.children[ 0 ].data);
+    expect(store.objects.get("2")).toEqual(store.tree.children[ 0 ].children[ 0 ].data);
 });
 
 test("it should applyPatch references in array"); /*, t => {
@@ -642,7 +642,7 @@ test("it should applySnapshot references in array", function () {
                 name: "item name 1"
             }
         },
-        hovers: ["folder 1"]
+        hovers: [ "folder 1" ]
     });
     const snapshot = JSON.parse(JSON.stringify(getSnapshot(folder)));
     expect(snapshot).toEqual({
@@ -653,7 +653,7 @@ test("it should applySnapshot references in array", function () {
                 name: "item name 1"
             }
         },
-        hovers: ["folder 1"]
+        hovers: [ "folder 1" ]
     });
     snapshot.hovers = [];
     applySnapshot(folder, snapshot);

@@ -10,8 +10,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Type_1 = require("../api/Type");
-var Node_1 = require("./core/Node");
+var type_1 = require("../api/type");
+var node_1 = require("./core/node");
 var utils_1 = require("./utils");
 var typeFlags_1 = require("../api/typeFlags");
 var IdentifierType = /** @class */ (function (_super) {
@@ -26,12 +26,12 @@ var IdentifierType = /** @class */ (function (_super) {
         return "identifier(" + this.identifierType.describe() + ")";
     };
     IdentifierType.prototype.instantiate = function (parent, subPath, snapshot) {
-        if (!parent || !Node_1.isInstance(parent.data))
+        if (!parent || !node_1.isInstance(parent.data))
             return utils_1.fail("Identifier types can only be instantiated as direct child of an object type");
         if (parent.identifierAttribute)
             utils_1.fail("Cannot define property '" + subPath + "' as object identifier, property '" + parent.identifierAttribute + "' is already defined as identifier property");
         parent.identifierAttribute = subPath;
-        return Node_1.createNode(this, parent, subPath, snapshot);
+        return node_1.createNode(this, parent, subPath, snapshot);
     };
     IdentifierType.prototype.reconcile = function (current, newValue) {
         if (current.data !== newValue)
@@ -53,6 +53,6 @@ var IdentifierType = /** @class */ (function (_super) {
         return this.identifierType.getChildren(node);
     };
     return IdentifierType;
-}(Type_1.Type));
+}(type_1.Type));
 exports.IdentifierType = IdentifierType;
-//# sourceMappingURL=Identifier.js.map
+//# sourceMappingURL=identifier.js.map

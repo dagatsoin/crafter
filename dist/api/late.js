@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("../lib/utils");
-var Late_1 = require("../lib/Late");
+var late_1 = require("../lib/late");
 /**
  * Defines a type that gets implemented later. This is useful when you have to deal with circular dependencies.
  * Please notice that when defining circular dependencies TypeScript isn't smart enough to inference them.
@@ -29,7 +29,7 @@ function late(nameOrType, maybeType) {
     var name = typeof nameOrType === "string" ? nameOrType : "late(" + nameOrType.toString() + ")";
     var type = typeof nameOrType === "string" ? maybeType : nameOrType;
     utils_1.assertType(type, "function");
-    return new Late_1.Late(name, type);
+    return new late_1.Late(name, type);
 }
 exports.late = late;
-//# sourceMappingURL=Late.js.map
+//# sourceMappingURL=late.js.map

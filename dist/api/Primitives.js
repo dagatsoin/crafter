@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils_1 = require("../lib/utils");
-var CoreType_1 = require("../lib/CoreType");
+var coreType_1 = require("../lib/coreType");
 var typeFlags_1 = require("./typeFlags");
 /**
  * Creates a type that can only contain a string value.
@@ -16,14 +16,14 @@ var typeFlags_1 = require("./typeFlags");
  * })
  */
 // tslint:disable-next-line:variable-name
-exports.string = new CoreType_1.CoreType("string", typeFlags_1.TypeFlag.String, function (v) { return typeof v === "string"; });
+exports.string = new coreType_1.CoreType("string", typeFlags_1.TypeFlag.String, function (v) { return typeof v === "string"; });
 /**
  * The type of the value `null`
  *
  * @export
  * @alias types.null
  */
-exports.nullType = new CoreType_1.CoreType("null", typeFlags_1.TypeFlag.Null, function (v) { return v === null; });
+exports.nullType = new coreType_1.CoreType("null", typeFlags_1.TypeFlag.Null, function (v) { return v === null; });
 /**
  * Creates a type that can only contain a numeric value.
  * This type is used for numeric values by default
@@ -37,7 +37,7 @@ exports.nullType = new CoreType_1.CoreType("null", typeFlags_1.TypeFlag.Null, fu
  * })
  */
 // tslint:disable-next-line:variable-name
-exports.number = new CoreType_1.CoreType("number", typeFlags_1.TypeFlag.Number, function (v) { return typeof v === "number"; });
+exports.number = new coreType_1.CoreType("number", typeFlags_1.TypeFlag.Number, function (v) { return typeof v === "number"; });
 /**
  * Creates a type that can only contain a boolean value.
  * This type is used for boolean values by default
@@ -51,7 +51,7 @@ exports.number = new CoreType_1.CoreType("number", typeFlags_1.TypeFlag.Number, 
  * })
  */
 // tslint:disable-next-line:variable-name
-exports.boolean = new CoreType_1.CoreType("boolean", typeFlags_1.TypeFlag.Boolean, function (v) { return typeof v === "boolean"; });
+exports.boolean = new coreType_1.CoreType("boolean", typeFlags_1.TypeFlag.Boolean, function (v) { return typeof v === "boolean"; });
 function getPrimitiveFactoryFromValue(value) {
     switch (typeof value) {
         case "string":
@@ -64,4 +64,4 @@ function getPrimitiveFactoryFromValue(value) {
     return utils_1.fail("Cannot determine primtive type from value " + value);
 }
 exports.getPrimitiveFactoryFromValue = getPrimitiveFactoryFromValue;
-//# sourceMappingURL=Primitives.js.map
+//# sourceMappingURL=primitives.js.map

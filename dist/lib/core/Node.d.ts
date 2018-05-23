@@ -1,29 +1,44 @@
-import { IType } from "../../api/Type";
-import { IdentifierCache } from "./IdentifierCache";
-import { IReversibleJsonPatch } from "./jsonPatch";
+import { IType } from "../../api/type";
+import { IDisposer } from "../utils";
+import { IdentifierCache } from "./identifierCache";
+import { IReversibleJsonPatch, IJsonPatch } from "./jsonPatch";
+import { SAMModel, Proposals } from "../../api/SAMModel";
 export declare type Instance = {
     readonly $node?: Node;
 };
-export declare class Node {
+export declare type Mutation<T> = (self: T, payload: any) => void;
+/**
+ * This is a internal cache to quickly retirieve a Node which use a mutation instead of crawling the whole tree.
+ */
+export declare const mutationNodesIndex: Map<string, Array<Node>>;
+export declare class Node implements SAMModel {
     readonly type: IType<any, any>;
     readonly data: any;
-    parent: Node | null;
+    protected _parent: Node | null;
     identifierAttribute: string | undefined;
     identifierCache: IdentifierCache | undefined;
     subPath: string;
-    isAlive: boolean;
+    _isAlive: boolean;
     private isDetaching;
     private autoUnbox;
+    private readonly mutations;
+    private syncStaticMutationsDisposer;
     private readonly patchSubscribers;
     constructor(type: IType<any, any>, parent: Node | null, subPath: string, initialValue: any, initBaseType?: (baseTypeIdentity: any) => any, buildType?: (node: Node, snapshot: any) => void);
+    applyPatches(patches: IJsonPatch[]): void;
     applySnapshot(snapshot: any): void;
+    present(proposals: Proposals): void;
     readonly snapshot: any;
     readonly isRoot: boolean;
+    readonly parent: Node | null;
+    readonly isAlive: boolean;
     readonly root: Node;
     readonly value: any;
     getChildNode(subPath: string): Node;
     readonly children: Array<Node>;
     readonly identifier: string | null;
+    applyPatchLocally(subpath: string, patch: IJsonPatch): void;
+    onPatch(handler: (patch: IJsonPatch, reversePatch: IJsonPatch) => void): IDisposer;
     emitPatch(basePatch: IReversibleJsonPatch, source: Node): void;
     unbox: (childNode: Node) => any;
     readonly path: string;
@@ -35,6 +50,18 @@ export declare class Node {
     destroy(): void;
     setParent(newParent: Node | null, subPath?: string | null): void;
     getChildType(key: string): IType<any, any>;
+    /**
+     * Add a mutation function for this Type. Override previous existing key.
+     * The mutation function is bound to this.data.
+     * The Node will also added to the mutationNodes cahce
+     * @param type
+     * @param mutationType
+     */
+    addMutation(mutationType: string): void;
+    /**
+     * Remove a mutation function for this Type.
+     */
+    removeMutation(mutationType: string): void;
 }
 /**
  * Get the internal Instance object of a runtime Instance.
